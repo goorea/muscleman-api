@@ -4,7 +4,8 @@
   "description": "근육맨 애플리케이션의 express api 서버",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon -r dotenv/config --exec ts-node index.ts",
+    "start": "ts-node index.ts",
+    "watch": "nodemon --exec ts-node index.ts",
     "lint": "eslint . --ext .js,.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -32,6 +33,7 @@
     "nodemon": "^2.0.12",
     "prettier": "2.4.0",
     "ts-node": "^10.2.1",
+    "tsconfig-paths": "^3.11.0",
     "typescript": "^4.4.3"
   }
 }

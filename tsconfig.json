@@ -1,5 +1,18 @@
 
 {
+  "ts-node": {
+    "transpileOnly": true,                    /* It is faster to skip typechecking. Remove if you want ts-node to do typechecking. */
+    "files": true,
+    "require": [
+      "dotenv/config",
+      "tsconfig-paths/register"
+    ],
+    "compilerOptions": {
+      // compilerOptions specified here will override those declared below,
+      // but *only* in ts-node.  Useful if you want ts-node and tsc to use
+      // different options with a single tsconfig.json.
+    }
+  },
   "compilerOptions": {
     /* Basic Options */
     "target": "esnext",                       /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */
@@ -37,8 +50,10 @@
 
     /* Module Resolution Options */
     "moduleResolution": "node",               /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
-    // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
-    // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
+    "baseUrl": ".",                         /* Base directory to resolve non-absolute module names. */
+    "paths": {                                /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
+      "~/*": ["src/*"]
+    },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
     // "types": [],                           /* Type declaration files to be included in compilation. */
