@@ -4,6 +4,7 @@
   "description": "근육맨 애플리케이션의 express api 서버",
   "main": "index.ts",
   "scripts": {
+    "start": "nodemon --exec ts-node index.ts",
     "lint": "eslint . --ext .js,.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,13 +18,19 @@
     "url": "https://github.com/jhs851/muscleman-api/issues"
   },
   "homepage": "https://github.com/jhs851/muscleman-api#readme",
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.17.1"
+  },
   "devDependencies": {
+    "@types/express": "^4.17.13",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "2.4.0"
+    "nodemon": "^2.0.12",
+    "prettier": "2.4.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
   }
 }
