@@ -1,8 +1,7 @@
 import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
-import schema from '~/graphql/schema';
-import Connection from '~/graphql/Connection';
-import '~/plugins/moment';
+import schema from '@src/graphql/schema';
+import Connection from '@src/graphql/Connection';
 
 Promise.all([Connection.make()]).then(() => {
   const port = process.env.PORT || 3000;
