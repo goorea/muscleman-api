@@ -20,14 +20,15 @@
   },
   "homepage": "https://github.com/jhs851/muscleman-api#readme",
   "dependencies": {
-    "@graphql-tools/schema": "^8.2.0",
-    "express": "^4.17.1",
-    "express-graphql": "^0.12.0",
+    "apollo-server": "^3.3.0",
+    "class-validator": "^0.13.1",
     "graphql": "^15.5.3",
-    "mongoose": "^6.0.6"
+    "mongoose": "^6.0.6",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.13",
+    "@typegoose/typegoose": "^8.3.0",
     "@types/faker": "^5.5.8",
     "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "^4.31.1",

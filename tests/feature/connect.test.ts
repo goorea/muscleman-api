@@ -1,27 +1,31 @@
 import mongoose from 'mongoose';
-import User, { UserContract } from '@src/models/User';
-import UserFactory from '@src/models/User/UserFactory';
 import { graphql } from '@tests/graphql';
+import { UserFactory } from '@src/factories/UserFactory';
+import { UserInput } from '@src/resolvers/types/UserInput';
+import { UserModel } from '@src/models/User';
 
 describe('graphQL과 mongoDB를 연결한다', () => {
-  const user: UserContract = UserFactory();
+  const user: UserInput = UserFactory();
 
   it('mongo 메모리 서버가 실행 중이다', () => {
     expect(mongoose.connection.readyState).toEqual(1);
   });
 
   it('graphQL로 데이터를 생성하고 읽을 수 있다', async () => {
-    const { data } = await graphql(`
-      mutation {
-        createUser(input: { name: "${user.name}", email: "${user.email}" }) {
-          id
-          name
-          email
+    const { data } = await graphql(
+      `
+        mutation createUser($name: String!, $email: String!) {
+          createUser(input: { name: $name, email: $email }) {
+            _id
+            name
+            email
+          }
         }
-      }
-    `);
+      `,
+      { ...user },
+    );
 
-    expect(await User.exists(data?.createUser)).toBeTruthy();
+    expect(await UserModel.exists(data?.createUser)).toBeTruthy();
   });
 
   it('graphQL에서 생성한 데이터를 mongo 메모리 서버에서 읽을 수 있다', async () => {
@@ -31,21 +35,18 @@ describe('graphQL과 mongoDB를 연결한다', () => {
   });
 
   it('graphQL로 데이터를 삭제할 수 있다', async () => {
-    const users = await graphql(`
-      {
-        users {
-          id
+    const findOne = await UserModel.findOne({}).exec();
+    const { data } = await graphql(
+      `
+        mutation deleteUser($_id: ObjectId!) {
+          deleteUser(_id: $_id)
         }
-      }
-    `);
-    const { data } = await graphql(`
-      mutation {
-        deleteUser(id: "${users.data?.users[0].id}")
-      }
-    `);
+      `,
+      { _id: findOne?._id.toString() },
+    );
 
     expect(data?.deleteUser).toBeTruthy();
-    expect(await User.exists(user)).toBeFalsy();
+    expect(await UserModel.exists(user)).toBeFalsy();
   });
 
   it('graphQL에서 삭제한 데이터를 mongo 메모리 서버에서 읽을 수 없다', async () => {
