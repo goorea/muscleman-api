@@ -1,15 +1,14 @@
 import { graphql as _graphql } from 'graphql';
 import { ExecutionResult } from 'graphql/execution/execute';
-import schema from '@src/graphql/schema';
 import { Maybe } from 'graphql/jsutils/Maybe';
+import { schema } from '@src/schema';
 
 export const graphql = async (
   source: string,
-  variables?: Maybe<{ [key: string]: any }>,
-): Promise<ExecutionResult> => {
-  return _graphql({
-    schema,
+  variableValues?: Maybe<{ [key: string]: unknown }>,
+): Promise<ExecutionResult> =>
+  _graphql({
+    schema: await schema,
     source,
-    variableValues: variables,
+    variableValues,
   });
-};

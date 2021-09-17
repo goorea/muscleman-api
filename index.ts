@@ -1,1 +1,1 @@
-import '@src/boostrap';
+import '@src/bootstrap';
