@@ -2,6 +2,7 @@ import { Field, InputType, Int } from 'type-graphql';
 import { User } from '@src/models/User';
 import { Gender } from '@src/types/enums';
 import {
+  IsDate,
   IsEmail,
   IsEnum,
   IsInt,
@@ -10,7 +11,9 @@ import {
   IsString,
   Length,
   Max,
+  MaxDate,
   Min,
+  MinDate,
   MinLength,
 } from 'class-validator';
 import { UserLimit } from '@src/limits/UserLimit';
@@ -47,17 +50,17 @@ export class UserFactoryInput implements Partial<User> {
   @MinLength(UserLimit.password.minLength)
   password_confirmation?: string;
 
-  @Field(() => Int, { description: '나이', nullable: true })
-  @IsOptional()
-  @IsInt()
-  @Min(UserLimit.age.min)
-  @Max(UserLimit.age.max)
-  age?: number;
-
   @Field(() => Gender, { description: '성별', nullable: true })
   @IsOptional()
   @IsEnum(Gender)
   gender?: Gender;
+
+  @Field(() => Date, { description: '생년월일', nullable: true })
+  @IsOptional()
+  @IsDate()
+  @MinDate(UserLimit.birth.minDate)
+  @MaxDate(UserLimit.birth.maxDate)
+  birth?: Date | string;
 
   @Field(() => Int, { description: '키', nullable: true })
   @IsOptional()

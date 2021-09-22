@@ -158,9 +158,9 @@ describe('회원가입을 할 수 있다', () => {
     }
   });
 
-  it('나이, 키, 몸무게, 체지방량, 골격근량, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
+  it('생년월일, 키, 몸무게, 체지방량, 골격근량, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
     const nullableFields = [
-      'age',
+      'birth',
       'height',
       'weight',
       'fat',
@@ -180,12 +180,15 @@ describe('회원가입을 할 수 있다', () => {
     );
   });
 
-  it(`나이는 ${UserLimit.age.min}살 이상 ${UserLimit.age.max}살 이어야 한다`, async () => {
+  it(`생년월일은 ${UserLimit.birth.minDate.getFullYear()}년 이상 ${UserLimit.birth.maxDate.getFullYear()}년 이하이어야 한다`, async () => {
     await Promise.all(
-      Object.entries(UserLimit.age).map(async ([key, value]) => {
+      Object.entries(UserLimit.birth).map(async ([key, value]) => {
+        const birth = new Date(value);
+        birth.setDate(birth.getDate() + (key === 'maxDate' ? 1 : -1));
+
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({
-            age: value + (key === 'max' ? 1 : -1),
+            birth: birth.toISOString(),
           }),
         });
 

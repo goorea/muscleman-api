@@ -21,13 +21,13 @@ export class User extends Model {
   @prop({ type: String })
   password?: string;
 
-  @Field(() => Int, { description: '나이', nullable: true })
-  @prop({ type: Number })
-  age?: number;
-
   @Field(() => Gender, { description: '성별' })
   @prop({ enum: Gender, type: String })
   gender: Gender;
+
+  @Field(() => Date, { description: '생년월일', nullable: true })
+  @prop({ type: Date })
+  birth?: Date | string;
 
   @Field(() => Int, { description: '키', nullable: true })
   @prop({ type: Number })

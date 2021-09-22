@@ -15,8 +15,10 @@ export const UserFactory: (input?: UserFactoryInput) => UserInput = input => {
       nickname: faker.unique(faker.name.firstName),
       password,
       password_confirmation: password,
-      age: faker.datatype.number(UserLimit.age),
       gender: faker.random.arrayElement(['male', 'female']),
+      birth: faker.date
+        .between(UserLimit.birth.minDate, UserLimit.birth.maxDate)
+        .toISOString(),
       height: faker.datatype.number(UserLimit.height),
       weight: faker.datatype.number(UserLimit.weight),
       fat: faker.datatype.number({ min: 10, max: 50 }),

@@ -10,9 +10,9 @@ export const UserLimit = {
   password: {
     minLength: 8,
   },
-  age: {
-    min: 9,
-    max: 150,
+  birth: {
+    minDate: new Date(1900, 0, 1),
+    maxDate: new Date(new Date().getFullYear() - 8, 0, 1),
   },
   height: {
     min: 67,
