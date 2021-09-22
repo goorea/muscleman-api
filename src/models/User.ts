@@ -1,8 +1,14 @@
 import { Field, Int, ObjectType } from 'type-graphql';
-import { getModelForClass, prop } from '@typegoose/typegoose';
+import { getModelForClass, pre, prop } from '@typegoose/typegoose';
 import { Gender } from '@src/types/enums';
 import { Model } from '@src/models/Model';
+import bcrypt from 'bcrypt';
 
+@pre<User>('save', async function () {
+  if (this.password) {
+    this.password = await bcrypt.hash(this.password, 12);
+  }
+})
 @ObjectType({ implements: Model, description: '사용자 모델' })
 export class User extends Model {
   @Field(() => String, { description: '이름' })
@@ -51,7 +57,11 @@ export class User extends Model {
 
   @Field(() => String, { description: '프로필 이미지 경로', nullable: true })
   @prop({ type: String })
-  profile_image_path: string;
+  profile_image_path?: string;
+
+  @Field(() => String, { description: 'JWT Refresh 토큰', nullable: true })
+  @prop({ type: String })
+  refresh_token?: string;
 }
 
 export const UserModel = getModelForClass(User);

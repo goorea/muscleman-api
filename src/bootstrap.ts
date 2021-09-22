@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { connect } from 'mongoose';
 import { ApolloServer } from 'apollo-server';
 import { schema } from '@src/schema';
+import { context } from '@src/context';
 
 async function bootstrap() {
   try {
@@ -11,7 +12,10 @@ async function bootstrap() {
       pass: process.env.DB_PASSWORD,
     });
 
-    const server = new ApolloServer({ schema: await schema });
+    const server = new ApolloServer({
+      schema: await schema,
+      context,
+    });
 
     const { url } = await server.listen(process.env.APP_PORT || 4000);
     console.log(`서버 실행 중, GraphQL이 ${url} 에서 실행되고 있습니다`);

@@ -1,7 +1,10 @@
 import { Field, ID, InterfaceType } from 'type-graphql';
-import { prop } from '@typegoose/typegoose';
+import { pre, prop } from '@typegoose/typegoose';
 import { ObjectId } from 'mongodb';
 
+@pre<Model>('save', function () {
+  this.updated_at = new Date();
+})
 @InterfaceType()
 export abstract class Model {
   @Field(() => ID)

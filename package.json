@@ -20,11 +20,14 @@
   },
   "homepage": "https://github.com/jhs851/muscleman-api#readme",
   "dependencies": {
+    "@apollo/client": "^3.4.13",
     "apollo-server": "^3.3.0",
     "bcrypt": "^5.0.1",
     "class-validator": "^0.13.1",
     "graphql": "^15.5.3",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.6",
+    "rand-token": "^1.0.1",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1"
   },
@@ -33,6 +36,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/faker": "^5.5.8",
     "@types/jest": "^27.0.1",
+    "@types/jsonwebtoken": "^8.5.5",
     "@types/mongoose": "^5.11.97",
     "@typescript-eslint/eslint-plugin": "^4.31.1",
     "@typescript-eslint/parser": "^4.31.1",
