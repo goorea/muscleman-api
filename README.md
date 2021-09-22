@@ -19,5 +19,12 @@ or
 $ npm start
 ```
 
+## 테스트
+```
+$ yarn test
+or
+$ npm test
+```
+
 ## 라이센스
 MIT
