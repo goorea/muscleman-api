@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from 'type-graphql';
+import { Field, InputType } from 'type-graphql';
 import { User } from '@src/models/User';
 import { Gender } from '@src/types/enums';
 import {
@@ -6,15 +6,12 @@ import {
   IsDefined,
   IsEmail,
   IsEnum,
-  IsInt,
   IsMobilePhone,
   IsOptional,
   IsString,
   IsUrl,
   Length,
-  Max,
   MaxDate,
-  Min,
   MinDate,
   MinLength,
 } from 'class-validator';
@@ -63,30 +60,6 @@ export class UserInput implements Partial<User> {
   @MinDate(UserLimit.birth.minDate)
   @MaxDate(UserLimit.birth.maxDate)
   birth?: Date;
-
-  @Field(() => Int, { description: '키', nullable: true })
-  @IsOptional()
-  @IsInt()
-  @Min(UserLimit.height.min)
-  @Max(UserLimit.height.max)
-  height?: number;
-
-  @Field(() => Int, { description: '몸무게', nullable: true })
-  @IsOptional()
-  @IsInt()
-  @Min(UserLimit.weight.min)
-  @Max(UserLimit.weight.max)
-  weight?: number;
-
-  @Field(() => Int, { description: '체지방량(kg)', nullable: true })
-  @IsOptional()
-  @IsInt()
-  fat?: number;
-
-  @Field(() => Int, { description: '골격근량(kg)', nullable: true })
-  @IsOptional()
-  @IsInt()
-  muscle?: number;
 
   @Field(() => String, { description: '휴대폰번호', nullable: true })
   @IsOptional()

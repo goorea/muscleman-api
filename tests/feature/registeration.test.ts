@@ -172,16 +172,8 @@ describe('회원가입을 할 수 있다', () => {
     }
   });
 
-  it('생년월일, 키, 몸무게, 체지방량, 골격근량, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
-    const nullableFields = [
-      'birth',
-      'height',
-      'weight',
-      'fat',
-      'muscle',
-      'tel',
-      'profile_image_path',
-    ];
+  it('생년월일, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
+    const nullableFields = ['birth', 'tel', 'profile_image_path'];
 
     await Promise.all(
       nullableFields.map(async field => {
@@ -203,44 +195,6 @@ describe('회원가입을 할 수 있다', () => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({
             birth: birth.toISOString(),
-          }),
-        });
-
-        expect(errors).not.toBeUndefined();
-        if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
-        }
-      }),
-    );
-  });
-
-  it(`키는 ${UserLimit.height.min}이상 ${UserLimit.height.max}이하 이어야 한다`, async () => {
-    await Promise.all(
-      Object.entries(UserLimit.height).map(async ([key, value]) => {
-        const { errors } = await graphql(registerMutation, {
-          input: UserFactory({
-            height: value + (key === 'max' ? 1 : -1),
-          }),
-        });
-
-        expect(errors).not.toBeUndefined();
-        if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
-        }
-      }),
-    );
-  });
-
-  it(`몸무게는 ${UserLimit.weight.min}이상 ${UserLimit.weight.max}이하 이어야 한다`, async () => {
-    await Promise.all(
-      Object.entries(UserLimit.weight).map(async ([key, value]) => {
-        const { errors } = await graphql(registerMutation, {
-          input: UserFactory({
-            weight: value + (key === 'max' ? 1 : -1),
           }),
         });
 
