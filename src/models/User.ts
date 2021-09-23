@@ -5,7 +5,7 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import { Gender, Role } from '@src/types/enums';
+import { Gender, Role, SocialProvider } from '@src/types/enums';
 import { Model } from '@src/models/Model';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
 import { sign } from '@src/plugins/jwt';
@@ -69,6 +69,10 @@ export class User extends Model implements UserMethods {
     default: [],
   })
   roles: Role[];
+
+  @Field(() => SocialProvider, { description: '소셜 로그인 유형', nullable: true })
+  @prop({ type: SocialProvider })
+  provider?: SocialProvider;
 
   async getJWTToken(
     this: DocumentType<User, UserQueryHelpers>,

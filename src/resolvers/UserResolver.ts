@@ -19,6 +19,7 @@ import randToken from 'rand-token';
 import { Mail } from '@src/notifications/Mail';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
+import {SocialUserInput} from "@src/resolvers/types/SocialUserInput";
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
 import { UserQueryHelpers } from '@src/models/types/User';
@@ -53,6 +54,14 @@ export class UserResolver {
     }
 
     return UserModel.create(input);
+  }
+
+  @Mutation(() => User, { description: '소셜 로그인 사용자 생성'})
+  @UseMiddleware(GuestMiddleware)
+  async socialRegister(@Arg('input') input: SocialUserInput): Promise<User> {
+    const user = await UserModel.findOne({ email: input.email }).exec()
+
+    return user ?? await UserModel.create(input);
   }
 
   @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 반환' })

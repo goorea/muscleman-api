@@ -237,6 +237,8 @@ describe('회원가입을 할 수 있다', () => {
     expect(await UserModel.exists({ _id: data?.register._id })).toBeTruthy();
   });
 
+  it('소셜 로그인 사용자 데이터를 데이터 베이스에 추가한다', )
+
   // TODO: #21
   // it('사용자를 생성하고 이벤트를 실행한다', () => {});
 });
