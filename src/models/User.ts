@@ -46,6 +46,19 @@ export class User extends Model {
   @Field(() => String, { description: 'JWT Refresh 토큰', nullable: true })
   @prop({ type: String })
   refresh_token?: string;
+
+  @Field(() => String, { description: '이메일 인증 토큰', nullable: true })
+  @prop({ type: String })
+  email_verify_token?: string;
+
+  @Field(() => Date, { description: '이메일 인증 날짜', nullable: true })
+  @prop({ type: Date })
+  email_verified_at?: Date;
+
+  @Field(() => Boolean, { description: '이메일 인증 여부' })
+  get hasVerifiedEmail(): boolean {
+    return Boolean(this.email_verified_at);
+  }
 }
 
 export const UserModel = getModelForClass(User);

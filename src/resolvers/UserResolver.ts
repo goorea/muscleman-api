@@ -17,6 +17,11 @@ import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
 import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
 import { Context } from '@src/context';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
+import randToken from 'rand-token';
+import { Mail } from '@src/services/Mail';
+import { EnforceDocument } from 'mongoose';
+import { VerifyInput } from '@src/resolvers/types/VerifyInput';
+import { UserLimit } from '@src/limits/UserLimit';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -27,18 +32,19 @@ export class UserResolver {
 
   @Query(() => User, { description: '특정 사용자 조회' })
   @UseMiddleware(AuthenticateMiddleware)
-  async me(@Ctx() { user: userPartial }: Context): Promise<User> {
-    if (!userPartial) {
+  async me(@Ctx() { user }: Context): Promise<User> {
+    if (!user) {
       throw new UnauthorizedError();
     }
 
-    const user = await UserModel.findById(userPartial._id).exec();
+    const find: EnforceDocument<User, unknown> | null =
+      await UserModel.findById(user._id).exec();
 
-    if (user === null) {
-      throw new Error(`사용자를 찾을 수 없습니다. _id: ${userPartial._id}`);
+    if (find === null) {
+      throw new Error(`사용자를 찾을 수 없습니다. _id: ${user._id}`);
     }
 
-    return user;
+    return find;
   }
 
   @Mutation(() => User, { description: '사용자 생성' })
@@ -99,5 +105,48 @@ export class UserResolver {
     await user.updateOne({ refresh_token: jwt.refresh_token }).exec();
 
     return jwt;
+  }
+
+  @Mutation(() => String, { description: '사용자 이메일 인증 메일 전송' })
+  @UseMiddleware(AuthenticateMiddleware)
+  async sendVerifyEmail(@Ctx() { user }: Context): Promise<string> {
+    if (!user) {
+      throw new UnauthorizedError();
+    }
+
+    const find: EnforceDocument<User, unknown> | null =
+      await UserModel.findById(user._id).exec();
+
+    if (find === null) {
+      throw new Error(`사용자를 찾을 수 없습니다. _id: ${user._id}`);
+    }
+
+    if (find.hasVerifiedEmail) {
+      throw new Error('이미 인증된 이메일 입니다.');
+    }
+
+    const token = randToken.uid(UserLimit.email_verify_token.minLength);
+    await Mail.verify(find, token);
+    await find.updateOne({ email_verify_token: token }).exec();
+
+    return token;
+  }
+
+  @Mutation(() => Boolean, { description: '사용자 이메일 인증' })
+  async verify(@Arg('input') input: VerifyInput): Promise<boolean> {
+    const user = await UserModel.findOne(input).exec();
+
+    if (user === null) {
+      throw new Error('해당되는 사용자를 찾을 수 없습니다.');
+    }
+
+    await user
+      .updateOne({
+        email_verified_at: new Date(),
+        email_verify_token: undefined,
+      })
+      .exec();
+
+    return true;
   }
 }
