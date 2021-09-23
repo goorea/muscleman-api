@@ -1,7 +1,7 @@
 {
   "name": "muscleman-api",
   "version": "0.0.1",
-  "description": "근육맨 애플리케이션의 express api 서버",
+  "description": "근육맨 애플리케이션의 api 서버",
   "main": "index.ts",
   "scripts": {
     "start": "ts-node index.ts",
