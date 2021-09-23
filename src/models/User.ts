@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import { getModelForClass, pre, prop } from '@typegoose/typegoose';
 import { Gender } from '@src/types/enums';
 import { Model } from '@src/models/Model';
@@ -34,22 +34,6 @@ export class User extends Model {
   @Field(() => Date, { description: '생년월일', nullable: true })
   @prop({ type: Date })
   birth?: Date | string;
-
-  @Field(() => Int, { description: '키', nullable: true })
-  @prop({ type: Number })
-  height?: number;
-
-  @Field(() => Int, { description: '몸무게', nullable: true })
-  @prop({ type: Number })
-  weight?: number;
-
-  @Field(() => Int, { description: '체지방량(kg)', nullable: true })
-  @prop({ type: Number })
-  fat?: number;
-
-  @Field(() => Int, { description: '골격근량(kg)', nullable: true })
-  @prop({ type: Number })
-  muscle?: number;
 
   @Field(() => String, { description: '휴대폰번호', nullable: true })
   @prop({ type: String })

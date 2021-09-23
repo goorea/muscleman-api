@@ -19,10 +19,6 @@ export const UserFactory: (input?: UserFactoryInput) => UserInput = input => {
       birth: faker.date
         .between(UserLimit.birth.minDate, UserLimit.birth.maxDate)
         .toISOString(),
-      height: faker.datatype.number(UserLimit.height),
-      weight: faker.datatype.number(UserLimit.weight),
-      fat: faker.datatype.number({ min: 10, max: 50 }),
-      muscle: faker.datatype.number({ min: 10, max: 150 }),
       tel: faker.phone.phoneNumber('010-####-####'),
       profile_image_path: faker.image.imageUrl(64, 64),
     },
