@@ -3,15 +3,29 @@ import { graphql } from '@tests/graphql';
 import { UserLimit } from '@src/limits/UserLimit';
 import { GraphQLError } from 'graphql';
 import { UserModel } from '@src/models/User';
-import { ArgumentValidationError } from 'type-graphql';
+import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserInputError } from 'apollo-server';
 import bcrypt from 'bcrypt';
+import { signIn } from '@tests/helpers';
 
 describe('회원가입을 할 수 있다', () => {
   const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { _id, password } }`;
 
-  // TODO: #7
-  // it('로그인한 사용자는 요청할 수 없다', () => {});
+  it('로그인한 사용자는 요청할 수 없다', async () => {
+    const { token } = await signIn();
+
+    const { errors } = await graphql(
+      registerMutation,
+      { input: UserFactory() },
+      token,
+    );
+
+    expect(errors).not.toBeUndefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
+    }
+  });
 
   it('이름, 이메일, 닉네임, 비밀번호, 비밀번호 확인 필드는 반드시 필요하다', async () => {
     await Promise.all(
@@ -285,7 +299,4 @@ describe('회원가입을 할 수 있다', () => {
 
   // TODO: #21
   // it('사용자를 생성하고 이벤트를 실행한다', () => {});
-
-  // TODO: #7
-  // it('사용자를 정상적으로 등록한 후에 해당 사용자를 사용자 토큰과 함께 반환한다', () => {});
 });
