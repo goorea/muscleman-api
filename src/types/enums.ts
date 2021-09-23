@@ -30,3 +30,14 @@ registerEnumType(Role, {
   name: 'Role',
   description: '권한',
 });
+
+export enum SocialProvider {
+  KAKAO = 'KAKAO',
+  NAVER = 'NAVER',
+  GOOGLE = 'GOOGLE',
+  APPLE = 'APPLE',
+}
+registerEnumType(SocialProvider, {
+  name: 'SocialProvider',
+  description: 'SNS 로그인 유형',
+});

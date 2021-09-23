@@ -23,13 +23,14 @@ import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
 import { User, UserModel } from '@src/models/User';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { Mail } from '@src/notifications/Mail';
+import { VerifyInput } from '@src/resolvers/types/VerifyInput';
+import { SocialUserInput } from "@src/resolvers/types/SocialUserInput";
 import { Role } from '@src/types/enums';
 
 import { AuthenticationResponse } from './types/AuthenticationResponse';
 import { JWTResponse } from './types/JWTResponse';
 import { LoginInput } from './types/LoginInput';
 import { RegisterInput } from './types/RegisterInput';
-import { VerifyInput } from './types/VerifyInput';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -70,6 +71,14 @@ export class UserResolver {
     const user = await UserModel.create(input);
 
     return { ...(await user.getJWTToken(input.device_id)), user };
+  }
+
+  @Mutation(() => User, { description: '소셜 로그인 사용자 생성'})
+  @UseMiddleware(GuestMiddleware)
+  async socialRegister(@Arg('input') input: SocialUserInput): Promise<User> {
+    const user = await UserModel.findOne({ email: input.email }).exec()
+
+    return user ?? await UserModel.create(input);
   }
 
   @Mutation(() => AuthenticationResponse, {

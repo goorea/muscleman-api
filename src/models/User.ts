@@ -7,13 +7,12 @@ import {
   prop,
   Severity,
 } from '@typegoose/typegoose';
-import { Field, ObjectType } from 'type-graphql';
-
+import { Gender, Role, SocialProvider } from '@src/types/enums';
+import { Model } from '@src/models/Model';
 import { sign } from '@src/plugins/jwt';
 import { JWTResponse } from '@src/resolvers/types/JWTResponse';
-import { Gender, Role } from '@src/types/enums';
+import { Field, ObjectType } from 'type-graphql';
 
-import { Model } from './Model';
 import { deleteLinkedReferences, hashPassword } from './hooks/user-hooks';
 import { UserMethods, UserQueryHelpers } from './types/User';
 
@@ -41,9 +40,9 @@ export class User extends Model implements UserMethods {
   @prop({ type: String })
   password?: string;
 
-  @Field(() => Gender, { description: '성별' })
-  @prop({ enum: Gender, type: String })
-  gender: Gender;
+  @Field(() => Gender, { description: '성별', nullable: true })
+  @prop({ enum: Gender, type: String, addNullToEnum: true })
+  gender?: Gender;
 
   @Field(() => Date, { description: '생년월일', nullable: true })
   @prop({ type: Date })
@@ -75,6 +74,13 @@ export class User extends Model implements UserMethods {
     default: [],
   })
   roles: Role[];
+
+  @Field(() => SocialProvider, {
+    description: '소셜 로그인 유형',
+    nullable: true,
+  })
+  @prop({ type: String, enum: SocialProvider })
+  provider?: SocialProvider;
 
   async getJWTToken(
     this: DocumentType<User, UserQueryHelpers>,
