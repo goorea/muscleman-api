@@ -12,5 +12,7 @@ export const context: ContextFunction<ExpressContext, Context> = ({
     headers: { authorization },
   },
 }) => ({
-  user: authorization ? verify(authorization) : undefined,
+  user: authorization
+    ? verify(authorization.replace('Bearer ', ''))
+    : undefined,
 });
