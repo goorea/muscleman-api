@@ -5,7 +5,6 @@ import {
   Mutation,
   Query,
   Resolver,
-  UnauthorizedError,
   UseMiddleware,
 } from 'type-graphql';
 import { UserInput } from '@src/resolvers/types/UserInput';
@@ -22,6 +21,7 @@ import { Mail } from '@src/services/Mail';
 import { EnforceDocument } from 'mongoose';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
+import AuthenticationError from '@src/errors/AuthenticationError';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -33,18 +33,11 @@ export class UserResolver {
   @Query(() => User, { description: '특정 사용자 조회' })
   @UseMiddleware(AuthenticateMiddleware)
   async me(@Ctx() { user }: Context): Promise<User> {
-    if (!user) {
-      throw new UnauthorizedError();
+    if (!user || !user._id) {
+      throw new AuthenticationError();
     }
 
-    const find: EnforceDocument<User, unknown> | null =
-      await UserModel.findById(user._id).exec();
-
-    if (find === null) {
-      throw new Error(`사용자를 찾을 수 없습니다. _id: ${user._id}`);
-    }
-
-    return find;
+    return UserModel.findById(user._id).orFail().exec();
   }
 
   @Mutation(() => User, { description: '사용자 생성' })
@@ -60,13 +53,9 @@ export class UserResolver {
   @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 반환' })
   @UseMiddleware(GuestMiddleware)
   async login(@Arg('input') input: LoginInput): Promise<LoginResponse> {
-    const user = await UserModel.findOne({ email: input.email }).exec();
-
-    if (user === null) {
-      throw new UserInputError(
-        `사용자를 찾을 수 없습니다. email: ${input.email}`,
-      );
-    }
+    const user = await UserModel.findOne({ email: input.email })
+      .orFail()
+      .exec();
 
     if (!user.password) {
       throw new UserInputError('해당 사용자는 소셜 로그인 사용자입니다');
@@ -93,14 +82,7 @@ export class UserResolver {
       throw new UserInputError('refresh_token은 반드시 필요합니다.');
     }
 
-    const user = await UserModel.findOne({ refresh_token }).exec();
-
-    if (user === null) {
-      throw new Error(
-        `해당 refresh_token의 사용자를 찾을 수 없습니다. refresh_token: ${refresh_token}`,
-      );
-    }
-
+    const user = await UserModel.findOne({ refresh_token }).orFail().exec();
     const jwt = sign(user);
     await user.updateOne({ refresh_token: jwt.refresh_token }).exec();
 
@@ -111,15 +93,14 @@ export class UserResolver {
   @UseMiddleware(AuthenticateMiddleware)
   async sendVerifyEmail(@Ctx() { user }: Context): Promise<string> {
     if (!user) {
-      throw new UnauthorizedError();
+      throw new AuthenticationError();
     }
 
-    const find: EnforceDocument<User, unknown> | null =
-      await UserModel.findById(user._id).exec();
-
-    if (find === null) {
-      throw new Error(`사용자를 찾을 수 없습니다. _id: ${user._id}`);
-    }
+    const find: EnforceDocument<User, unknown> = await UserModel.findById(
+      user._id,
+    )
+      .orFail()
+      .exec();
 
     if (find.hasVerifiedEmail) {
       throw new Error('이미 인증된 이메일 입니다.');
@@ -134,18 +115,10 @@ export class UserResolver {
 
   @Mutation(() => Boolean, { description: '사용자 이메일 인증' })
   async verify(@Arg('input') input: VerifyInput): Promise<boolean> {
-    const user = await UserModel.findOne(input).exec();
-
-    if (user === null) {
-      throw new Error('해당되는 사용자를 찾을 수 없습니다.');
-    }
-
-    await user
-      .updateOne({
-        email_verified_at: new Date(),
-        email_verify_token: undefined,
-      })
-      .exec();
+    await UserModel.updateOne(input, {
+      email_verified_at: new Date(),
+      email_verify_token: undefined,
+    }).exec();
 
     return true;
   }

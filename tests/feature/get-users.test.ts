@@ -1,8 +1,8 @@
 import { UserModel } from '@src/models/User';
 import { UserFactory } from '@src/factories/UserFactory';
-import { UnauthorizedError } from 'type-graphql';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
+import AuthenticationError from '@src/errors/AuthenticationError';
 
 describe('사용자 모델', () => {
   it('모든 사용자를 조회할 수 있다', async () => {
@@ -39,7 +39,7 @@ describe('사용자 모델', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(UnauthorizedError);
+      expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
     }
   });
 

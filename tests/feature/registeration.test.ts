@@ -3,10 +3,11 @@ import { graphql } from '@tests/graphql';
 import { UserLimit } from '@src/limits/UserLimit';
 import { GraphQLError } from 'graphql';
 import { UserModel } from '@src/models/User';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
+import { ArgumentValidationError } from 'type-graphql';
 import { UserInputError } from 'apollo-server';
 import bcrypt from 'bcrypt';
 import { signIn } from '@tests/helpers';
+import ForbiddenError from '@src/errors/ForbiddenError';
 
 describe('회원가입을 할 수 있다', () => {
   const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { _id, password } }`;
