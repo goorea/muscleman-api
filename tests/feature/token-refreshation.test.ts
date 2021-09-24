@@ -1,9 +1,11 @@
 import { signIn } from '@tests/helpers';
 import { graphql } from '@tests/graphql';
-import { ForbiddenError } from 'type-graphql';
 import { UserInputError } from 'apollo-server';
 import randToken from 'rand-token';
 import { UserModel } from '@src/models/User';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import { mongoose } from '@typegoose/typegoose';
+import DocumentNotFoundError = mongoose.Error.DocumentNotFoundError;
 
 describe('JWT 토큰 갱신', () => {
   const refreshTokenMutation = `mutation refreshToken($refresh_token: String!) { refreshToken(refresh_token: $refresh_token) { token, refresh_token } }`;
@@ -47,10 +49,7 @@ describe('JWT 토큰 갱신', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(Error);
-      expect(errors[0].message).toEqual(
-        `해당 refresh_token의 사용자를 찾을 수 없습니다. refresh_token: ${refresh_token}`,
-      );
+      expect(errors[0].originalError).toBeInstanceOf(DocumentNotFoundError);
     }
   });
 

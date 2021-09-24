@@ -1,5 +1,6 @@
-import { ForbiddenError, MiddlewareFn } from 'type-graphql';
+import { MiddlewareFn } from 'type-graphql';
 import { Context } from '@src/context';
+import ForbiddenError from '@src/errors/ForbiddenError';
 
 export const GuestMiddleware: MiddlewareFn<Context> = async (
   { context },

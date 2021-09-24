@@ -1,12 +1,15 @@
 import { signIn } from '@tests/helpers';
 import { graphql } from '@tests/graphql';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
+import { ArgumentValidationError } from 'type-graphql';
 import { UserFactory } from '@src/factories/UserFactory';
 import { UserLimit } from '@src/limits/UserLimit';
 import { UserFactoryInput } from '@src/factories/types/UserFactoryInput';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
 import { UserInputError } from 'apollo-server';
 import { UserModel } from '@src/models/User';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import { mongoose } from '@typegoose/typegoose';
+import DocumentNotFoundError = mongoose.Error.DocumentNotFoundError;
 
 describe('사용자 로그인', () => {
   const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refresh_token } }`;
@@ -89,10 +92,7 @@ describe('사용자 로그인', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(UserInputError);
-      expect(errors[0].message).toEqual(
-        `사용자를 찾을 수 없습니다. email: ${email}`,
-      );
+      expect(errors[0].originalError).toBeInstanceOf(DocumentNotFoundError);
     }
   });
 

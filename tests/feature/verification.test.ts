@@ -1,10 +1,11 @@
 import { graphql } from '@tests/graphql';
-import { ArgumentValidationError, UnauthorizedError } from 'type-graphql';
+import { ArgumentValidationError } from 'type-graphql';
 import { signIn } from '@tests/helpers';
 import { UserModel } from '@src/models/User';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserFactory } from '@src/factories/UserFactory';
 import randToken from 'rand-token';
+import AuthenticationError from '@src/errors/AuthenticationError';
 
 describe('이메일 인증', () => {
   describe('인증 메일 전송', () => {
@@ -16,7 +17,7 @@ describe('이메일 인증', () => {
       expect(errors).not.toBeUndefined();
       if (errors) {
         expect(errors.length).toEqual(1);
-        expect(errors[0].originalError).toBeInstanceOf(UnauthorizedError);
+        expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
       }
     });
 

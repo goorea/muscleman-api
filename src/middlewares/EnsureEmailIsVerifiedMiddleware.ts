@@ -1,6 +1,7 @@
-import { ForbiddenError, MiddlewareFn } from 'type-graphql';
+import { MiddlewareFn } from 'type-graphql';
 import { Context } from '@src/context';
 import { UserModel } from '@src/models/User';
+import ForbiddenError from '@src/errors/ForbiddenError';
 
 export const EnsureEmailIsVerifiedMiddleware: MiddlewareFn<Context> = async (
   { context },
