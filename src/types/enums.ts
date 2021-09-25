@@ -1,15 +1,23 @@
+import 'reflect-metadata';
+import { registerEnumType } from 'type-graphql';
+
 export enum Gender {
-  male = 'male',
-  female = 'female',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
 }
+registerEnumType(Gender, { name: 'Gender', description: '성별' });
 
 export enum TrainingType {
-  lower = 'lower', // 하체
-  chest = 'chest', // 가슴
-  back = 'back', // 등
-  shoulder = 'shoulder', // 어꺠
-  arm = 'arm', // 팔
-  abdominal = 'abdominal', // 복근
-  cardiovascular = 'cardiovascular', // 유산소
-  etc = 'etc', // 기타
+  LOWER = 'LOWER', // 하체
+  CHEST = 'CHEST', // 가슴
+  BACK = 'BACK', // 등
+  SHOULDER = 'SHOULDER', // 어꺠
+  ARM = 'ARM', // 팔
+  ABDOMINAL = 'ABDOMINAL', // 복근
+  CARDIOVASCULAR = 'CARDIOVASCULAR', // 유산소
+  ETC = 'ETC', // 기타
 }
+registerEnumType(TrainingType, {
+  name: 'TrainingType',
+  description: '운동종류',
+});

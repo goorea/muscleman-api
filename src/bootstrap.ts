@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { connect } from 'mongoose';
 import { ApolloServer } from 'apollo-server';
 import { schema } from '@src/schema';

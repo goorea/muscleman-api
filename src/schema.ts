@@ -1,11 +1,9 @@
-import { buildSchema, registerEnumType } from 'type-graphql';
+import { buildSchema } from 'type-graphql';
 import { TypegooseMiddleware } from '@src/middlewares/TypegooseMiddleware';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from '@src/scalars/ObjectIdScalar';
 import { GraphQLSchema } from 'graphql';
-import { Gender } from '@src/types/enums';
-
-registerEnumType(Gender, { name: 'Gender', description: '성별' });
+import '@src/types/enums';
 
 export const schema: Promise<GraphQLSchema> = buildSchema({
   resolvers: [__dirname + '/**/resolvers/*Resolver.{ts,js}'],
