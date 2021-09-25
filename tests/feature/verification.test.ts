@@ -23,8 +23,7 @@ describe('이메일 인증', () => {
     });
 
     it('이메일이 이미 인증된 사용자는 요청할 수 없다', async () => {
-      const { user, token } = await signIn();
-      await user.updateOne({ $push: { roles: Role.VERIFIED } });
+      const { token } = await signIn(undefined, [Role.VERIFIED]);
       const { errors } = await graphql(
         sendVerifyEmailMutation,
         undefined,

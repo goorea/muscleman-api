@@ -21,17 +21,21 @@ import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
+import { EnforceDocument } from 'mongoose';
+import { UserMethods } from '@src/models/types/User';
 
 @Resolver(() => User)
 export class UserResolver {
   @Query(() => [User], { description: '모든 사용자 조회' })
-  async users(): Promise<User[]> {
+  async users(): Promise<EnforceDocument<User, UserMethods>[]> {
     return UserModel.find({});
   }
 
   @Query(() => User, { description: '특정 사용자 조회' })
   @UseMiddleware(AuthenticateMiddleware)
-  async me(@Ctx() { user }: Context): Promise<User> {
+  async me(
+    @Ctx() { user }: Context,
+  ): Promise<EnforceDocument<User, UserMethods>> {
     if (!user) {
       throw new AuthenticationError();
     }
@@ -41,7 +45,9 @@ export class UserResolver {
 
   @Mutation(() => User, { description: '사용자 생성' })
   @UseMiddleware(GuestMiddleware)
-  async register(@Arg('input') input: UserInput): Promise<User> {
+  async register(
+    @Arg('input') input: UserInput,
+  ): Promise<EnforceDocument<User, UserMethods>> {
     if (input.password !== input.password_confirmation) {
       throw new UserInputError('비밀번호와 비밀번호 확인 값이 다릅니다');
     }

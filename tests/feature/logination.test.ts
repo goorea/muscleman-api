@@ -1,13 +1,12 @@
 import { signIn } from '@tests/helpers';
 import { graphql } from '@tests/graphql';
-import { ArgumentValidationError } from 'type-graphql';
+import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserFactory } from '@src/factories/UserFactory';
 import { UserLimit } from '@src/limits/UserLimit';
 import { UserFactoryInput } from '@src/factories/types/UserFactoryInput';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
 import { UserInputError } from 'apollo-server';
 import { UserModel } from '@src/models/User';
-import ForbiddenError from '@src/errors/ForbiddenError';
 import { mongoose } from '@typegoose/typegoose';
 import DocumentNotFoundError = mongoose.Error.DocumentNotFoundError;
 
