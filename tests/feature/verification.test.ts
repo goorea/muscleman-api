@@ -6,6 +6,7 @@ import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserFactory } from '@src/factories/UserFactory';
 import randToken from 'rand-token';
 import AuthenticationError from '@src/errors/AuthenticationError';
+import { Role } from '@src/types/enums';
 
 describe('이메일 인증', () => {
   describe('인증 메일 전송', () => {
@@ -23,12 +24,7 @@ describe('이메일 인증', () => {
 
     it('이메일이 이미 인증된 사용자는 요청할 수 없다', async () => {
       const { user, token } = await signIn();
-      await user
-        .updateOne({
-          email_verified_at: new Date(),
-          email_verify_token: undefined,
-        })
-        .exec();
+      await user.updateOne({ $push: { roles: Role.VERIFIED } });
       const { errors } = await graphql(
         sendVerifyEmailMutation,
         undefined,
@@ -100,12 +96,14 @@ describe('이메일 인증', () => {
       const input = getVerifyInput();
       const user = await UserModel.create(Object.assign(UserFactory(), input));
 
-      expect(user.hasVerifiedEmail).toBeFalsy();
+      expect(user.roles.some(role => role === Role.VERIFIED)).toBeFalsy();
       await graphql(verifyMutation, {
         input,
       });
       expect(
-        (await UserModel.findById(user._id).exec())?.hasVerifiedEmail,
+        (await UserModel.findById(user._id).exec())?.roles.some(
+          role => role === Role.VERIFIED,
+        ),
       ).toBeTruthy();
     });
 
