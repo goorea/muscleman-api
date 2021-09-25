@@ -17,11 +17,9 @@ import { Context } from '@src/context';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
 import randToken from 'rand-token';
 import { Mail } from '@src/services/Mail';
-import { EnforceDocument } from 'mongoose';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
 import AuthenticationError from '@src/errors/AuthenticationError';
-import { UserMethods } from '@src/models/types/User';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -33,11 +31,11 @@ export class UserResolver {
   @Query(() => User, { description: '특정 사용자 조회' })
   @UseMiddleware(AuthenticateMiddleware)
   async me(@Ctx() { user }: Context): Promise<User> {
-    if (!user || !user._id) {
+    if (!user) {
       throw new AuthenticationError();
     }
 
-    return UserModel.findById(user._id).orFail().exec();
+    return user;
   }
 
   @Mutation(() => User, { description: '사용자 생성' })
@@ -91,19 +89,13 @@ export class UserResolver {
       throw new AuthenticationError();
     }
 
-    const find: EnforceDocument<User, UserMethods> = await UserModel.findById(
-      user._id,
-    )
-      .orFail()
-      .exec();
-
-    if (find.hasVerifiedEmail) {
+    if (user.hasVerifiedEmail) {
       throw new Error('이미 인증된 이메일 입니다.');
     }
 
     const token = randToken.uid(UserLimit.email_verify_token.minLength);
-    await Mail.verify(find, token);
-    await find.updateOne({ email_verify_token: token }).exec();
+    await Mail.verify(user, token);
+    await user.updateOne({ email_verify_token: token }).exec();
 
     return token;
   }
