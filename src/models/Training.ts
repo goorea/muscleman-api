@@ -10,7 +10,7 @@ import {
 @ObjectType({ implements: Model, description: '운동종목 모델' })
 export class Training extends Model implements TrainingMethods {
   @Field(() => String, { description: '이름' })
-  @prop({ type: String, required: true })
+  @prop({ type: String, required: true, unique: true })
   name: string;
 
   @Field(() => TrainingType, { description: '종류' })

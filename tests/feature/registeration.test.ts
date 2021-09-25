@@ -3,11 +3,10 @@ import { graphql } from '@tests/graphql';
 import { UserLimit } from '@src/limits/UserLimit';
 import { GraphQLError } from 'graphql';
 import { UserModel } from '@src/models/User';
-import { ArgumentValidationError } from 'type-graphql';
+import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserInputError } from 'apollo-server';
 import bcrypt from 'bcrypt';
 import { signIn } from '@tests/helpers';
-import ForbiddenError from '@src/errors/ForbiddenError';
 
 describe('회원가입을 할 수 있다', () => {
   const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { _id, password } }`;
@@ -174,10 +173,8 @@ describe('회원가입을 할 수 있다', () => {
   });
 
   it('생년월일, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
-    const nullableFields = ['birth', 'tel', 'profile_image_path'];
-
     await Promise.all(
-      nullableFields.map(async field => {
+      ['birth', 'tel', 'profile_image_path'].map(async field => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({ [field]: undefined }),
         });
