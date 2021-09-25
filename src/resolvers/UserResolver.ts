@@ -11,7 +11,6 @@ import { UserInput } from '@src/resolvers/types/UserInput';
 import bcrypt from 'bcrypt';
 import { UserInputError } from 'apollo-server';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
-import { sign } from '@src/plugins/jwt';
 import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
 import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
 import { Context } from '@src/context';
@@ -22,6 +21,7 @@ import { EnforceDocument } from 'mongoose';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
 import AuthenticationError from '@src/errors/AuthenticationError';
+import { UserMethods } from '@src/models/types/User';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -67,10 +67,7 @@ export class UserResolver {
       throw new UserInputError('사용자 로그인 정보가 일치하지 않습니다.');
     }
 
-    const jwt = sign(user);
-    await user.updateOne({ refresh_token: jwt.refresh_token }).exec();
-
-    return jwt;
+    return user.getJWTToken();
   }
 
   @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 갱신' })
@@ -82,11 +79,9 @@ export class UserResolver {
       throw new UserInputError('refresh_token은 반드시 필요합니다.');
     }
 
-    const user = await UserModel.findOne({ refresh_token }).orFail().exec();
-    const jwt = sign(user);
-    await user.updateOne({ refresh_token: jwt.refresh_token }).exec();
-
-    return jwt;
+    return (
+      await UserModel.findOne({ refresh_token }).orFail().exec()
+    ).getJWTToken();
   }
 
   @Mutation(() => String, { description: '사용자 이메일 인증 메일 전송' })
@@ -96,7 +91,7 @@ export class UserResolver {
       throw new AuthenticationError();
     }
 
-    const find: EnforceDocument<User, unknown> = await UserModel.findById(
+    const find: EnforceDocument<User, UserMethods> = await UserModel.findById(
       user._id,
     )
       .orFail()

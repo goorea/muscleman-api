@@ -1,8 +1,16 @@
 import { Field, ObjectType } from 'type-graphql';
-import { getModelForClass, pre, prop } from '@typegoose/typegoose';
+import {
+  DocumentType,
+  getModelForClass,
+  pre,
+  prop,
+} from '@typegoose/typegoose';
 import { Gender } from '@src/types/enums';
 import { Model } from '@src/models/Model';
 import bcrypt from 'bcrypt';
+import { LoginResponse } from '@src/resolvers/types/LoginResponse';
+import { sign } from '@src/plugins/jwt';
+import { UserMethods, UserQueryHelpers } from '@src/models/types/User';
 
 @pre<User>('save', async function () {
   if (this.password) {
@@ -10,7 +18,7 @@ import bcrypt from 'bcrypt';
   }
 })
 @ObjectType({ implements: Model, description: '사용자 모델' })
-export class User extends Model {
+export class User extends Model implements UserMethods {
   @Field(() => String, { description: '이름' })
   @prop({ type: String, required: true })
   name: string;
@@ -59,6 +67,13 @@ export class User extends Model {
   get hasVerifiedEmail(): boolean {
     return Boolean(this.email_verified_at);
   }
+
+  async getJWTToken(this: DocumentType<User>): Promise<LoginResponse> {
+    const jwt = sign(this);
+    await this.updateOne({ refresh_token: jwt.refresh_token }).exec();
+
+    return jwt;
+  }
 }
 
-export const UserModel = getModelForClass(User);
+export const UserModel = getModelForClass<typeof User, UserQueryHelpers>(User);
