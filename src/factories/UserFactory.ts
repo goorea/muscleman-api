@@ -2,6 +2,7 @@ import faker from 'faker';
 import { UserFactoryInput } from '@src/factories/types/UserFactoryInput';
 import { UserInput } from '@src/resolvers/types/UserInput';
 import { UserLimit } from '@src/limits/UserLimit';
+import { Gender } from '@src/types/enums';
 
 export const UserFactory: (input?: UserFactoryInput) => UserInput = input => {
   const password = faker.random.words(4);
@@ -15,7 +16,7 @@ export const UserFactory: (input?: UserFactoryInput) => UserInput = input => {
       nickname: faker.unique(faker.name.firstName),
       password,
       password_confirmation: password,
-      gender: faker.random.arrayElement(['male', 'female']),
+      gender: faker.random.arrayElement([Gender.MALE, Gender.FEMALE]),
       birth: faker.date
         .between(UserLimit.birth.minDate, UserLimit.birth.maxDate)
         .toISOString(),
