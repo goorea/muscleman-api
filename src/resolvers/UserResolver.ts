@@ -20,6 +20,7 @@ import { Mail } from '@src/services/Mail';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
 import AuthenticationError from '@src/errors/AuthenticationError';
+import { Role } from '@src/types/enums';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -89,7 +90,7 @@ export class UserResolver {
       throw new AuthenticationError();
     }
 
-    if (user.hasVerifiedEmail) {
+    if (user.roles.some(role => role === Role.VERIFIED)) {
       throw new Error('이미 인증된 이메일 입니다.');
     }
 
@@ -103,7 +104,7 @@ export class UserResolver {
   @Mutation(() => Boolean, { description: '사용자 이메일 인증' })
   async verify(@Arg('input') input: VerifyInput): Promise<boolean> {
     await UserModel.updateOne(input, {
-      email_verified_at: new Date(),
+      $addToSet: { roles: Role.VERIFIED },
       email_verify_token: undefined,
     }).exec();
 

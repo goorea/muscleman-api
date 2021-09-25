@@ -21,3 +21,12 @@ registerEnumType(TrainingType, {
   name: 'TrainingType',
   description: '운동종류',
 });
+
+export enum Role {
+  VERIFIED = 'VERIFIED',
+  ADMIN = 'ADMIN',
+}
+registerEnumType(Role, {
+  name: 'Role',
+  description: '권한',
+});

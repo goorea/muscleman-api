@@ -5,7 +5,7 @@ import {
   pre,
   prop,
 } from '@typegoose/typegoose';
-import { Gender } from '@src/types/enums';
+import { Gender, Role } from '@src/types/enums';
 import { Model } from '@src/models/Model';
 import bcrypt from 'bcrypt';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
@@ -59,14 +59,13 @@ export class User extends Model implements UserMethods {
   @prop({ type: String })
   email_verify_token?: string;
 
-  @Field(() => Date, { description: '이메일 인증 날짜', nullable: true })
-  @prop({ type: Date })
-  email_verified_at?: Date;
-
-  @Field(() => Boolean, { description: '이메일 인증 여부' })
-  get hasVerifiedEmail(): boolean {
-    return Boolean(this.email_verified_at);
-  }
+  @Field(() => [Role], { description: '권한', defaultValue: [] })
+  @prop({
+    type: [String],
+    enum: Role,
+    default: [],
+  })
+  roles: Role[];
 
   async getJWTToken(this: DocumentType<User>): Promise<LoginResponse> {
     const jwt = sign(this);
