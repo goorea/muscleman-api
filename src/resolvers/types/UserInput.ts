@@ -59,7 +59,7 @@ export class UserInput implements Partial<User> {
   @IsDate()
   @MinDate(UserLimit.birth.minDate)
   @MaxDate(UserLimit.birth.maxDate)
-  birth?: Date;
+  birth?: string;
 
   @Field(() => String, { description: '휴대폰번호', nullable: true })
   @IsOptional()

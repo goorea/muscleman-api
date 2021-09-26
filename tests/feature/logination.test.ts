@@ -3,12 +3,12 @@ import { graphql } from '@tests/graphql';
 import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserFactory } from '@src/factories/UserFactory';
 import { UserLimit } from '@src/limits/UserLimit';
-import { UserFactoryInput } from '@src/factories/types/UserFactoryInput';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
 import { UserInputError } from 'apollo-server';
 import { UserModel } from '@src/models/User';
 import { mongoose } from '@typegoose/typegoose';
 import DocumentNotFoundError = mongoose.Error.DocumentNotFoundError;
+import { UserInput } from '@src/resolvers/types/UserInput';
 
 describe('사용자 로그인', () => {
   const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refresh_token } }`;
@@ -147,7 +147,7 @@ describe('사용자 로그인', () => {
   });
 });
 
-function getLoginInput(input?: UserFactoryInput): LoginInput {
+function getLoginInput(input?: Partial<UserInput>): LoginInput {
   const { email, password } = UserFactory(input);
 
   return {
