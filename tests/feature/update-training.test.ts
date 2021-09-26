@@ -6,14 +6,16 @@ import { Role } from '@src/types/enums';
 import { TrainingModel } from '@src/models/Training';
 import { GraphQLError } from 'graphql';
 import { TrainingLimit } from '@src/limits/TrainingLimit';
+import { TrainingInput } from '@src/resolvers/types/TrainingInput';
 
-describe('운동종목 추가', () => {
-  const createTrainingMutation = `mutation createTraining($input: TrainingInput!) { createTraining(input: $input) { _id } }`;
+describe('운동종목 수정', () => {
+  const updateTrainingMutation = `mutation updateTraining($_id: ObjectId!, $input: TrainingInput!) { updateTraining(_id: $_id, input: $input) }`;
 
-  it('로그인 하지 않으면 추가할 수 없다', async () => {
-    const { errors } = await graphql(createTrainingMutation, {
-      input: TrainingFactory(),
-    });
+  it('로그인 하지 않으면 수정할 수 없다', async () => {
+    const { errors } = await graphql(
+      updateTrainingMutation,
+      await getTrainingMutationVariables(),
+    );
 
     expect(errors).not.toBeUndefined();
     if (errors) {
@@ -22,13 +24,11 @@ describe('운동종목 추가', () => {
     }
   });
 
-  it('관리자 권한이 없으면 추가할 수 없다', async () => {
+  it('관리자 권한이 없으면 수정할 수 없다', async () => {
     const { token } = await signIn();
     const { errors } = await graphql(
-      createTrainingMutation,
-      {
-        input: TrainingFactory(),
-      },
+      updateTrainingMutation,
+      await getTrainingMutationVariables(),
       token,
     );
 
@@ -39,27 +39,23 @@ describe('운동종목 추가', () => {
     }
   });
 
-  it('관리자는 추가할 수 있다', async () => {
+  it('관리자는 수정할 수 있다', async () => {
     const { token } = await signIn(undefined, [Role.ADMIN]);
     const { data, errors } = await graphql(
-      createTrainingMutation,
-      {
-        input: TrainingFactory(),
-      },
+      updateTrainingMutation,
+      await getTrainingMutationVariables(),
       token,
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.createTraining).toHaveProperty('_id');
+    expect(data?.updateTraining).toBeTruthy();
   });
 
   it('이름 필드는 반드시 필요하다', async () => {
     const { token } = await signIn(undefined, [Role.ADMIN]);
     const { errors } = await graphql(
-      createTrainingMutation,
-      {
-        input: TrainingFactory({ name: '' }),
-      },
+      updateTrainingMutation,
+      await getTrainingMutationVariables({ name: '' }),
       token,
     );
 
@@ -75,10 +71,8 @@ describe('운동종목 추가', () => {
     const name = '바벨 백스쿼트';
     await TrainingModel.create(TrainingFactory({ name }));
     const { errors } = await graphql(
-      createTrainingMutation,
-      {
-        input: TrainingFactory({ name }),
-      },
+      updateTrainingMutation,
+      await getTrainingMutationVariables({ name }),
       token,
     );
 
@@ -92,12 +86,8 @@ describe('운동종목 추가', () => {
   it('종류 필드는 반드시 필요하다', async () => {
     const { token } = await signIn(undefined, [Role.ADMIN]);
     const { errors } = await graphql(
-      createTrainingMutation,
-      {
-        input: TrainingFactory({
-          type: undefined,
-        }),
-      },
+      updateTrainingMutation,
+      await getTrainingMutationVariables({ type: undefined }),
       token,
     );
 
@@ -115,10 +105,8 @@ describe('운동종목 추가', () => {
       ['description', 'preference', 'thumbnail_path', 'video_path'].map(
         async field => {
           const { errors } = await graphql(
-            createTrainingMutation,
-            {
-              input: TrainingFactory({ [field]: undefined }),
-            },
+            updateTrainingMutation,
+            await getTrainingMutationVariables({ [field]: undefined }),
             token,
           );
 
@@ -134,12 +122,10 @@ describe('운동종목 추가', () => {
     await Promise.all(
       Object.entries(TrainingLimit.preference).map(async ([key, value]) => {
         const { errors } = await graphql(
-          createTrainingMutation,
-          {
-            input: TrainingFactory({
-              preference: value + (key === 'max' ? 1 : -1),
-            }),
-          },
+          updateTrainingMutation,
+          await getTrainingMutationVariables({
+            preference: value + (key === 'max' ? 1 : -1),
+          }),
           token,
         );
 
@@ -159,10 +145,8 @@ describe('운동종목 추가', () => {
     await Promise.all(
       ['thumbnail_path', 'video_path'].map(async field => {
         const { errors } = await graphql(
-          createTrainingMutation,
-          {
-            input: TrainingFactory({ [field]: '/foo/bar/baz.jpg' }),
-          },
+          updateTrainingMutation,
+          await getTrainingMutationVariables({ [field]: '/foo/bar/baz.jpg' }),
           token,
         );
 
@@ -180,3 +164,65 @@ describe('운동종목 추가', () => {
   // TODO: #21
   // it('종목을 생성하고 이벤트를 실행한다', () => {});
 });
+
+describe('운동종목 삭제', () => {
+  const deleteTrainingMutation = `mutation deleteTraining($_id: ObjectId!) { deleteTraining(_id: $_id) }`;
+
+  it('로그인 하지 않으면 삭제할 수 없다', async () => {
+    const { errors } = await graphql(
+      deleteTrainingMutation,
+      await getTrainingMutationVariables(),
+    );
+
+    expect(errors).not.toBeUndefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
+    }
+  });
+
+  it('관리자 권한이 없으면 삭제할 수 없다', async () => {
+    const { token } = await signIn();
+    const { errors } = await graphql(
+      deleteTrainingMutation,
+      await getTrainingMutationVariables(),
+      token,
+    );
+
+    expect(errors).not.toBeUndefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
+    }
+  });
+
+  it('관리자는 삭제할 수 있다', async () => {
+    const training = await TrainingModel.create(TrainingFactory());
+    const { token } = await signIn(undefined, [Role.ADMIN]);
+    const { data, errors } = await graphql(
+      deleteTrainingMutation,
+      {
+        _id: training._id.toString(),
+      },
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(data?.deleteTraining).toBeTruthy();
+    expect(await TrainingModel.findById(training._id).count()).toEqual(0);
+  });
+});
+
+async function getTrainingMutationVariables(
+  input?: Partial<TrainingInput>,
+): Promise<{
+  _id: string;
+  input: TrainingInput;
+}> {
+  const training = await TrainingModel.create(TrainingFactory());
+
+  return {
+    _id: training._id.toString(),
+    input: TrainingFactory(input),
+  };
+}
