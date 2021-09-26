@@ -9,14 +9,17 @@ import {
   IsUrl,
   Max,
   Min,
+  MinLength,
 } from 'class-validator';
 import { TrainingType } from '@src/types/enums';
+import { TrainingLimit } from '@src/limits/TrainingLimit';
 
 @InputType({ description: '운동종목 추가 입력 객체' })
 export class TrainingInput implements Partial<Training> {
   @Field(() => String, { description: '이름' })
   @IsDefined()
   @IsString()
+  @MinLength(TrainingLimit.name.minLength)
   name: string;
 
   @Field(() => TrainingType, { description: '종류' })
