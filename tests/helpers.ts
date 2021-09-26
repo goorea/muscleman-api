@@ -1,13 +1,13 @@
 import { User, UserModel } from '@src/models/User';
 import { UserFactory } from '@src/factories/UserFactory';
-import { UserFactoryInput } from '@src/factories/types/UserFactoryInput';
 import { sign } from '@src/plugins/jwt';
 import { EnforceDocument } from 'mongoose';
 import { UserMethods } from '@src/models/types/User';
 import { Role } from '@src/types/enums';
+import { UserInput } from '@src/resolvers/types/UserInput';
 
 export async function signIn(
-  input?: UserFactoryInput,
+  input?: Partial<UserInput>,
   roles?: Role[],
 ): Promise<{
   user: EnforceDocument<User, UserMethods>;

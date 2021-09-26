@@ -1,10 +1,9 @@
 import faker from 'faker';
-import { UserFactoryInput } from '@src/factories/types/UserFactoryInput';
 import { UserInput } from '@src/resolvers/types/UserInput';
 import { UserLimit } from '@src/limits/UserLimit';
 import { Gender } from '@src/types/enums';
 
-export const UserFactory: (input?: UserFactoryInput) => UserInput = input => {
+export const UserFactory: (input?: Partial<UserInput>) => UserInput = input => {
   const password = faker.random.words(4);
 
   return Object.assign(
