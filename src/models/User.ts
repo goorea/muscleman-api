@@ -41,7 +41,7 @@ export class User extends Model implements UserMethods {
 
   @Field(() => Date, { description: '생년월일', nullable: true })
   @prop({ type: Date })
-  birth?: Date | string;
+  birth?: string;
 
   @Field(() => String, { description: '휴대폰번호', nullable: true })
   @prop({ type: String })
