@@ -1,51 +1,30 @@
 import { Field, InputType, Int } from 'type-graphql';
 import { Training } from '@src/models/Training';
-import {
-  IsDefined,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsString,
-  IsUrl,
-  Max,
-  Min,
-  MinLength,
-} from 'class-validator';
+import { IsNotEmpty, IsUrl, Max, Min } from 'class-validator';
 import { TrainingType } from '@src/types/enums';
-import { TrainingLimit } from '@src/limits/TrainingLimit';
 
 @InputType({ description: '운동종목 추가 입력 객체' })
 export class TrainingInput implements Partial<Training> {
   @Field(() => String, { description: '이름' })
-  @IsDefined()
-  @IsString()
-  @MinLength(TrainingLimit.name.minLength)
+  @IsNotEmpty()
   name: string;
 
   @Field(() => TrainingType, { description: '종류' })
-  @IsDefined()
-  @IsEnum(TrainingType)
   type: TrainingType;
 
   @Field(() => String, { description: '설명', nullable: true })
-  @IsOptional()
-  @IsString()
   description?: string;
 
   @Field(() => Int, { description: '선호도', defaultValue: 1 })
-  @IsOptional()
-  @IsInt()
   @Min(1)
   @Max(10)
   preference?: number;
 
   @Field(() => String, { description: '썸네일 경로', nullable: true })
-  @IsOptional()
   @IsUrl()
   thumbnail_path?: string;
 
   @Field(() => String, { description: '운동영상 경로', nullable: true })
-  @IsOptional()
   @IsUrl()
   video_path?: string;
 }
