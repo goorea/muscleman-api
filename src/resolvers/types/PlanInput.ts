@@ -1,5 +1,5 @@
 import { Field, ID, InputType } from 'type-graphql';
-import { IsDate, MinDate, ValidateNested } from 'class-validator';
+import { IsBoolean, IsDate, MinDate, ValidateNested } from 'class-validator';
 import { Plan } from '@src/models/Plan';
 import { SetInput } from '@src/resolvers/types/SetInput';
 import { PlanLimit } from '@src/limits/PlanLimit';
@@ -16,5 +16,9 @@ export class PlanInput implements Partial<Plan> {
 
   @Field(() => [SetInput], { description: '세트', nullable: true })
   @ValidateNested()
-  sets: SetInput[];
+  sets?: SetInput[];
+
+  @Field(() => Boolean, { description: '완료 여부', nullable: true })
+  @IsBoolean()
+  complete?: boolean;
 }

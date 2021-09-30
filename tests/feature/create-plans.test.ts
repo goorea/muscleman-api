@@ -123,17 +123,22 @@ describe('운동 계획 생성', () => {
     }
   });
 
-  it('세트는 빈 값을 허용한다', async () => {
+  it('세트와 완료 여부는 빈 값을 허용한다', async () => {
     const { token } = await signIn();
-    const { errors } = await graphql(
-      createPlanMutation,
-      {
-        input: await PlanFactory({ sets: undefined }),
-      },
-      token,
-    );
 
-    expect(errors).toBeUndefined();
+    await Promise.all(
+      ['sets', 'complete'].map(async field => {
+        const { errors } = await graphql(
+          createPlanMutation,
+          {
+            input: await PlanFactory({ [field]: undefined }),
+          },
+          token,
+        );
+
+        expect(errors).toBeUndefined();
+      }),
+    );
   });
 
   it('세트의 횟수, 무게, 시간, 거리는 빈 값을 허용한다', async () => {
