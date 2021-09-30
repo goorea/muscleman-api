@@ -19,6 +19,7 @@ import { EnforceDocument } from 'mongoose';
 import { PlanMethods } from '@src/models/types/Plan';
 import { UserMethods } from '@src/models/types/User';
 import { TrainingMethods } from '@src/models/types/Training';
+import { ObjectId } from 'mongodb';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {
@@ -36,6 +37,42 @@ export class PlanResolver implements ResolverInterface<Plan> {
       ...input,
       user: user._id,
     } as Plan);
+  }
+
+  @Mutation(() => Boolean, { description: '운동계획 수정' })
+  @UseMiddleware(AuthenticateMiddleware)
+  async updatePlan(
+    @Arg('_id') _id: ObjectId,
+    @Arg('input') input: PlanInput,
+    @Ctx() { user }: Context,
+  ): Promise<boolean> {
+    if (!user) {
+      throw new AuthenticationError();
+    }
+
+    await (await PlanModel.findById(_id).orFail().exec())
+      .checkPermission(user)
+      .updateOne(input)
+      .exec();
+
+    return true;
+  }
+
+  @Mutation(() => Boolean, { description: '운동계획 삭제' })
+  @UseMiddleware(AuthenticateMiddleware)
+  async deletePlan(
+    @Arg('_id') _id: ObjectId,
+    @Ctx() { user }: Context,
+  ): Promise<boolean> {
+    if (!user) {
+      throw new AuthenticationError();
+    }
+
+    await (await PlanModel.findById(_id).orFail().exec())
+      .checkPermission(user)
+      .deleteOne();
+
+    return true;
   }
 
   @FieldResolver()
