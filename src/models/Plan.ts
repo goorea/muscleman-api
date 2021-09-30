@@ -37,6 +37,14 @@ export class Plan extends Model implements PlanMethods {
   @prop({ type: [mongoose.Schema.Types.Mixed], default: [] })
   sets?: Set[];
 
+  @Field(() => Boolean, {
+    description: '완료 여부',
+    nullable: true,
+    defaultValue: false,
+  })
+  @prop({ type: Boolean, default: false })
+  complete?: boolean;
+
   @Field(() => Boolean, { description: '수정, 삭제 권한' })
   checkPermission(
     this: DocumentType<Plan>,

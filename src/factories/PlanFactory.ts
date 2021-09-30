@@ -13,6 +13,7 @@ export const PlanFactory: (input?: Partial<PlanInput>) => Promise<PlanInput> =
         )._id.toHexString(),
         plan_date: faker.date.future().toISOString(),
         sets: [...Array(faker.datatype.number(10))].map(() => SetFactory()),
+        complete: faker.datatype.boolean(),
       },
       input,
     ) as PlanInput;
