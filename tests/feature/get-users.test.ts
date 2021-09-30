@@ -57,6 +57,6 @@ describe('사용자 모델', () => {
       token,
     );
 
-    expect(data?.me._id).toEqual(user._id.toString());
+    expect(data?.me._id).toEqual(user._id.toHexString());
   });
 });

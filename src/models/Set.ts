@@ -1,16 +1,16 @@
-import { Field, Int, ObjectType } from 'type-graphql';
+import { Field, Float, Int, ObjectType } from 'type-graphql';
 
 @ObjectType({ description: '운동계획의 세트' })
 export class Set {
   @Field(() => Int, { description: '횟수', nullable: true })
   count?: number;
 
-  @Field(() => Int, { description: '무게', nullable: true })
+  @Field(() => Float, { description: '무게(kg)', nullable: true })
   weight?: number;
 
-  @Field(() => Int, { description: '시간(분)', nullable: true })
+  @Field(() => Float, { description: '시간(초)', nullable: true })
   times?: number;
 
-  @Field(() => Int, { description: '거리(km)', nullable: true })
+  @Field(() => Float, { description: '거리(m)', nullable: true })
   distances?: number;
 }
