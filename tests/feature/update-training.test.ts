@@ -202,7 +202,7 @@ describe('운동종목 삭제', () => {
     const { data, errors } = await graphql(
       deleteTrainingMutation,
       {
-        _id: training._id.toString(),
+        _id: training._id.toHexString(),
       },
       token,
     );
@@ -222,7 +222,7 @@ async function getTrainingMutationVariables(
   const training = await TrainingModel.create(TrainingFactory());
 
   return {
-    _id: training._id.toString(),
+    _id: training._id.toHexString(),
     input: TrainingFactory(input),
   };
 }

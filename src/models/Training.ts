@@ -14,7 +14,7 @@ export class Training extends Model implements TrainingMethods {
   name: string;
 
   @Field(() => TrainingType, { description: '종류' })
-  @prop({ enum: TrainingType, required: true })
+  @prop({ enum: TrainingType, type: String, required: true })
   type: TrainingType;
 
   @Field(() => String, { description: '설명', nullable: true })

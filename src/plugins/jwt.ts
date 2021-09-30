@@ -7,7 +7,7 @@ import { LoginResponse } from '@src/resolvers/types/LoginResponse';
 export const sign = (user: User): LoginResponse => ({
   token: jwt.sign(
     {
-      _id: user._id.toString(),
+      _id: user._id.toHexString(),
     },
     process.env.JWT_SECRET_KEY || '',
     {

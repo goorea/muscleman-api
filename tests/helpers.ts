@@ -14,9 +14,10 @@ export async function signIn(
   token: string;
   refresh_token: string;
 }> {
-  const user = await UserModel.create(
-    Object.assign(UserFactory(input), { roles }),
-  );
+  const user = await UserModel.create({
+    ...UserFactory(input),
+    roles,
+  } as UserInput);
   const { token, refresh_token } = sign(user);
 
   return { user, token, refresh_token };
