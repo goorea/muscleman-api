@@ -1,9 +1,10 @@
 import { GraphQLScalarType, Kind } from 'graphql';
-import { ObjectId } from 'mongodb';
+import { mongoose } from '@typegoose/typegoose';
+import ObjectId = mongoose.Types.ObjectId;
 
 export const ObjectIdScalar = new GraphQLScalarType({
   name: 'ObjectId',
-  description: '몽고의 ObjectID 스칼라 타입',
+  description: 'Mongoose의 ObjectID 스칼라 타입',
   serialize(value: unknown): string {
     if (!(value instanceof ObjectId)) {
       throw new Error('ObjectIdScalar는 ObjectId 값만 직렬화할 수 있습니다');

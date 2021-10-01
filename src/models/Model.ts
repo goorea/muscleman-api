@@ -1,6 +1,5 @@
 import { Field, ID, InterfaceType } from 'type-graphql';
-import { pre, prop } from '@typegoose/typegoose';
-import { ObjectId } from 'mongodb';
+import { mongoose, pre, prop } from '@typegoose/typegoose';
 
 @pre<Model>('save', function () {
   this.updated_at = new Date();
@@ -11,7 +10,7 @@ import { ObjectId } from 'mongodb';
 @InterfaceType()
 export abstract class Model {
   @Field(() => ID)
-  readonly _id: ObjectId;
+  readonly _id: mongoose.Types.ObjectId;
 
   @Field(() => Date, { description: '생성 날짜', defaultValue: new Date() })
   @prop({ type: Date, default: new Date() })
