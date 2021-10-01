@@ -22,11 +22,11 @@ import { Role } from '@src/types/enums';
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Plan extends Model implements PlanMethods {
   @Field(() => User, { description: '사용자' })
-  @prop({ ref: () => User, required: true })
+  @prop({ ref: 'User', required: true })
   user: Ref<User>;
 
   @Field(() => Training, { description: '운동종목' })
-  @prop({ ref: () => Training, required: true })
+  @prop({ ref: 'Training', required: true })
   training: Ref<Training, string>;
 
   @Field(() => Date, { description: '운동 날짜' })

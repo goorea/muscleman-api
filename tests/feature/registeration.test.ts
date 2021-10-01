@@ -5,7 +5,6 @@ import { GraphQLError } from 'graphql';
 import { UserModel } from '@src/models/User';
 import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserInputError } from 'apollo-server';
-import bcrypt from 'bcrypt';
 import { signIn } from '@tests/helpers';
 
 describe('회원가입을 할 수 있다', () => {
@@ -228,17 +227,6 @@ describe('회원가입을 할 수 있다', () => {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
     }
-  });
-
-  it('데이터 베이스에 사용자 정보를 저장하기 전에 비밀번호를 해쉬화 한다', async () => {
-    const input = UserFactory();
-    const { data } = await graphql(registerMutation, {
-      input,
-    });
-
-    expect(
-      await bcrypt.compare(input.password, data?.register.password),
-    ).toBeTruthy();
   });
 
   it('유효성 검사에 통과되면 사용자 입력 데이터를 데이터 베이스에 추가한다', async () => {

@@ -1,12 +1,17 @@
 import { Model } from '@src/models/Model';
 import { Field, Int, ObjectType } from 'type-graphql';
-import { getModelForClass, prop } from '@typegoose/typegoose';
+import { getModelForClass, pre, prop } from '@typegoose/typegoose';
 import { TrainingType } from '@src/types/enums';
 import {
   TrainingMethods,
   TrainingQueryHelpers,
 } from '@src/models/types/Training';
+import { deleteLinkedReferences } from '@src/models/hooks/training-hooks';
 
+@pre<Training>(
+  ['deleteOne', 'deleteMany', 'findOneAndDelete'],
+  deleteLinkedReferences,
+)
 @ObjectType({ implements: Model, description: '운동종목 모델' })
 export class Training extends Model implements TrainingMethods {
   @Field(() => String, { description: '이름' })
