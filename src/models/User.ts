@@ -7,16 +7,19 @@ import {
 } from '@typegoose/typegoose';
 import { Gender, Role } from '@src/types/enums';
 import { Model } from '@src/models/Model';
-import bcrypt from 'bcrypt';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
 import { sign } from '@src/plugins/jwt';
 import { UserMethods, UserQueryHelpers } from '@src/models/types/User';
+import {
+  deleteLinkedReferences,
+  hashPassword,
+} from '@src/models/hooks/user-hooks';
 
-@pre<User>('save', async function () {
-  if (this.password) {
-    this.password = await bcrypt.hash(this.password, 12);
-  }
-})
+@pre<User>('save', hashPassword)
+@pre<User>(
+  ['deleteOne', 'deleteMany', 'findOneAndDelete'],
+  deleteLinkedReferences,
+)
 @ObjectType({ implements: Model, description: '사용자 모델' })
 export class User extends Model implements UserMethods {
   @Field(() => String, { description: '이름' })
