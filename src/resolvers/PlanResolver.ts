@@ -3,6 +3,7 @@ import {
   Ctx,
   FieldResolver,
   Mutation,
+  Query,
   Resolver,
   ResolverInterface,
   Root,
@@ -23,6 +24,18 @@ import { mongoose } from '@typegoose/typegoose';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {
+  @Query(() => [Plan], { description: '사용자의 모든 운동 계획 조회' })
+  @UseMiddleware(AuthenticateMiddleware)
+  async plans(
+    @Ctx() { user }: Context,
+  ): Promise<EnforceDocument<Plan, PlanMethods>[]> {
+    if (!user) {
+      throw new AuthenticationError();
+    }
+
+    return PlanModel.find({ user: user._id });
+  }
+
   @Mutation(() => Plan, { description: '운동계획 생성' })
   @UseMiddleware(AuthenticateMiddleware)
   async createPlan(
