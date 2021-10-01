@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { User } from '@src/models/User';
 import randToken from 'rand-token';
-import { ObjectId } from 'mongodb';
+import { mongoose } from '@typegoose/typegoose';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
 
 export const sign = (user: User): LoginResponse => ({
@@ -23,11 +23,11 @@ export const verify = (token: string): Partial<User> => {
 
   if (typeof verified === 'string') {
     return {
-      _id: new ObjectId(verified),
+      _id: new mongoose.Types.ObjectId(verified),
     };
   }
 
   return {
-    _id: new ObjectId(verified._id),
+    _id: new mongoose.Types.ObjectId(verified._id),
   };
 };
