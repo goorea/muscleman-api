@@ -31,7 +31,11 @@ export class Mail {
     to: string | Address | Array<string | Address>,
     subject: string,
     email: Content,
-  ): Promise<SMTPTransport.SentMessageInfo> {
+  ): Promise<SMTPTransport.SentMessageInfo | true> {
+    if (process.env.NODE_ENV === 'test') {
+      return Mail.transporter.verify();
+    }
+
     return Mail.transporter.sendMail({
       from: `"근육맨 💪" <${process.env.MAIL_FROM_ADDRESS}>`,
       to,
@@ -44,7 +48,7 @@ export class Mail {
   static verify(
     user: User,
     token: string,
-  ): Promise<SMTPTransport.SentMessageInfo> {
+  ): Promise<SMTPTransport.SentMessageInfo | true> {
     return Mail.send(
       { name: user.name, address: user.email },
       `이메일을 인증해주세요 📨`,
