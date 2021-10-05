@@ -73,12 +73,21 @@ export class UserResolver {
     return { ...(await user.getJWTToken(input.device_id)), user };
   }
 
-  @Mutation(() => User, { description: '소셜 로그인 사용자 생성'})
+  @Mutation(() => User, { description: '소셜 로그인 사용자 생성' })
   @UseMiddleware(GuestMiddleware)
-  async socialRegister(@Arg('input') input: SocialUserInput): Promise<User> {
-    const user = await UserModel.findOne({ email: input.email }).exec()
+  async socialLogin(
+    @Arg('input') input: SocialLoginInput,
+  ): Promise<DocumentType<User, UserQueryHelpers>> {
+    const user = await UserModel.findOne({ email: input.email }).exec();
 
-    return user ?? await UserModel.create(input);
+    if (user === null) {
+      return await UserModel.create({
+        ...input,
+        nickname: input.nickname || input.name,
+      } as SocialLoginInput);
+    }
+
+    return user;
   }
 
   @Mutation(() => AuthenticationResponse, {
