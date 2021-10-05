@@ -70,7 +70,9 @@ export class User extends Model implements UserMethods {
   })
   roles: Role[];
 
-  async getJWTToken(this: DocumentType<User>): Promise<LoginResponse> {
+  async getJWTToken(
+    this: DocumentType<User, UserQueryHelpers>,
+  ): Promise<LoginResponse> {
     const jwt = sign(this);
     await this.updateOne({ refresh_token: jwt.refresh_token }).exec();
 

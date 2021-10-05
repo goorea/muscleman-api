@@ -13,8 +13,7 @@ import { PlanMethods, PlanQueryHelpers } from '@src/models/types/Plan';
 import { User } from '@src/models/User';
 import { Training } from '@src/models/Training';
 import { Set } from '@src/models/Set';
-import { EnforceDocument } from 'mongoose';
-import { UserMethods } from '@src/models/types/User';
+import { UserQueryHelpers } from '@src/models/types/User';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
 
@@ -47,8 +46,8 @@ export class Plan extends Model implements PlanMethods {
 
   @Field(() => Boolean, { description: '수정, 삭제 권한' })
   checkPermission(
-    this: DocumentType<Plan>,
-    user: EnforceDocument<User, UserMethods>,
+    this: DocumentType<Plan, PlanQueryHelpers>,
+    user: DocumentType<User, UserQueryHelpers>,
   ): DocumentType<Plan> {
     if (!user) {
       throw new AuthenticationError();

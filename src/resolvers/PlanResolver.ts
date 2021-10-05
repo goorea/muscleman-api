@@ -16,11 +16,10 @@ import { Context } from '@src/context';
 import { Training, TrainingModel } from '@src/models/Training';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { User, UserModel } from '@src/models/User';
-import { EnforceDocument } from 'mongoose';
-import { PlanMethods } from '@src/models/types/Plan';
-import { UserMethods } from '@src/models/types/User';
-import { TrainingMethods } from '@src/models/types/Training';
-import { mongoose } from '@typegoose/typegoose';
+import { PlanQueryHelpers } from '@src/models/types/Plan';
+import { UserQueryHelpers } from '@src/models/types/User';
+import { TrainingQueryHelpers } from '@src/models/types/Training';
+import { DocumentType, mongoose } from '@typegoose/typegoose';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {
@@ -28,7 +27,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
   @UseMiddleware(AuthenticateMiddleware)
   async plans(
     @Ctx() { user }: Context,
-  ): Promise<EnforceDocument<Plan, PlanMethods>[]> {
+  ): Promise<DocumentType<Plan, PlanQueryHelpers>[]> {
     if (!user) {
       throw new AuthenticationError();
     }
@@ -41,7 +40,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
   async createPlan(
     @Arg('input') input: PlanInput,
     @Ctx() { user }: Context,
-  ): Promise<EnforceDocument<Plan, PlanMethods>> {
+  ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
     if (!user) {
       throw new AuthenticationError();
     }
@@ -89,14 +88,16 @@ export class PlanResolver implements ResolverInterface<Plan> {
   }
 
   @FieldResolver()
-  async user(@Root() plan: Plan): Promise<EnforceDocument<User, UserMethods>> {
+  async user(
+    @Root() plan: Plan,
+  ): Promise<DocumentType<User, UserQueryHelpers>> {
     return await UserModel.findById(plan.user).orFail().exec();
   }
 
   @FieldResolver()
   async training(
     @Root() plan: Plan,
-  ): Promise<EnforceDocument<Training, TrainingMethods>> {
+  ): Promise<DocumentType<Training, TrainingQueryHelpers>> {
     return await TrainingModel.findById(plan.training).orFail().exec();
   }
 }

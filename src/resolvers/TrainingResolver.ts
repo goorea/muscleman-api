@@ -1,9 +1,8 @@
 import { Arg, Authorized, Mutation, Resolver } from 'type-graphql';
 import { Training, TrainingModel } from '@src/models/Training';
 import { TrainingInput } from '@src/resolvers/types/TrainingInput';
-import { EnforceDocument } from 'mongoose';
-import { TrainingMethods } from '@src/models/types/Training';
-import { mongoose } from '@typegoose/typegoose';
+import { TrainingQueryHelpers } from '@src/models/types/Training';
+import { DocumentType, mongoose } from '@typegoose/typegoose';
 import { Role } from '@src/types/enums';
 
 @Resolver(() => Training)
@@ -12,7 +11,7 @@ export class TrainingResolver {
   @Authorized(Role.ADMIN)
   async createTraining(
     @Arg('input') input: TrainingInput,
-  ): Promise<EnforceDocument<Training, TrainingMethods>> {
+  ): Promise<DocumentType<Training, TrainingQueryHelpers>> {
     return TrainingModel.create(input);
   }
 

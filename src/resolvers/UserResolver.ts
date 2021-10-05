@@ -16,18 +16,18 @@ import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware'
 import { Context } from '@src/context';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
 import randToken from 'rand-token';
-import { Mail } from '@src/services/Mail';
+import { Mail } from '@src/notifications/Mail';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
 import { UserLimit } from '@src/limits/UserLimit';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
-import { EnforceDocument } from 'mongoose';
-import { UserMethods } from '@src/models/types/User';
+import { UserQueryHelpers } from '@src/models/types/User';
+import { DocumentType } from '@typegoose/typegoose';
 
 @Resolver(() => User)
 export class UserResolver {
   @Query(() => [User], { description: '모든 사용자 조회' })
-  async users(): Promise<EnforceDocument<User, UserMethods>[]> {
+  async users(): Promise<DocumentType<User, UserQueryHelpers>[]> {
     return UserModel.find({});
   }
 
@@ -35,7 +35,7 @@ export class UserResolver {
   @UseMiddleware(AuthenticateMiddleware)
   async me(
     @Ctx() { user }: Context,
-  ): Promise<EnforceDocument<User, UserMethods>> {
+  ): Promise<DocumentType<User, UserQueryHelpers>> {
     if (!user) {
       throw new AuthenticationError();
     }
@@ -47,7 +47,7 @@ export class UserResolver {
   @UseMiddleware(GuestMiddleware)
   async register(
     @Arg('input') input: UserInput,
-  ): Promise<EnforceDocument<User, UserMethods>> {
+  ): Promise<DocumentType<User, UserQueryHelpers>> {
     if (input.password !== input.password_confirmation) {
       throw new UserInputError('비밀번호와 비밀번호 확인 값이 다릅니다');
     }
