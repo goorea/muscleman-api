@@ -35,8 +35,8 @@ export class UserInput implements Partial<User> {
   @MinLength(UserLimit.password.minLength)
   password_confirmation: string;
 
-  @Field(() => Gender, { description: '성별' })
-  gender: Gender;
+  @Field(() => Gender, { description: '성별', nullable: true })
+  gender?: Gender;
 
   @Field(() => Date, { description: '생년월일', nullable: true })
   @IsDate()
