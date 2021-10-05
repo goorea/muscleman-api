@@ -2,11 +2,11 @@ import { verify } from '@src/plugins/jwt';
 import { ContextFunction } from 'apollo-server-core/src/types';
 import { ExpressContext } from 'apollo-server-express/src/ApolloServer';
 import { User, UserModel } from '@src/models/User';
-import { EnforceDocument } from 'mongoose';
-import { UserMethods } from '@src/models/types/User';
+import { UserQueryHelpers } from '@src/models/types/User';
+import { DocumentType } from '@typegoose/typegoose';
 
 export interface Context {
-  user?: EnforceDocument<User, UserMethods>;
+  user?: DocumentType<User, UserQueryHelpers>;
 }
 
 export const context: ContextFunction<ExpressContext, Context> = async ({

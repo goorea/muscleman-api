@@ -5,14 +5,14 @@ import { Plan, PlanModel } from '@src/models/Plan';
 import { User, UserModel } from '@src/models/User';
 import { UserFactory } from '@src/factories/UserFactory';
 import { PlanInput } from '@src/resolvers/types/PlanInput';
-import { EnforceDocument } from 'mongoose';
-import { PlanMethods } from '@src/models/types/Plan';
+import { PlanQueryHelpers } from '@src/models/types/Plan';
 import { signIn } from '@tests/helpers';
 import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
-import { UserMethods } from '@src/models/types/User';
+import { UserQueryHelpers } from '@src/models/types/User';
 import { Role } from '@src/types/enums';
 import { GraphQLError } from 'graphql';
 import * as faker from 'faker';
+import { DocumentType } from '@typegoose/typegoose';
 
 describe('운동 계획 수정', () => {
   const updatePlanMutation = `mutation updatePlan($_id: ObjectId!, $input: PlanInput!) { updatePlan(_id: $_id, input: $input) }`;
@@ -202,8 +202,8 @@ describe('운동 계획 삭제', () => {
 
 async function getPlan(
   input?: Partial<PlanInput>,
-  user?: EnforceDocument<User, UserMethods>,
-): Promise<EnforceDocument<Plan, PlanMethods>> {
+  user?: DocumentType<User, UserQueryHelpers>,
+): Promise<DocumentType<Plan, PlanQueryHelpers>> {
   return PlanModel.create({
     ...(await PlanFactory(input)),
     user: (user ?? (await UserModel.create(UserFactory())))._id.toHexString(),

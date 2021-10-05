@@ -1,16 +1,16 @@
 import { User, UserModel } from '@src/models/User';
 import { UserFactory } from '@src/factories/UserFactory';
 import { sign } from '@src/plugins/jwt';
-import { EnforceDocument } from 'mongoose';
-import { UserMethods } from '@src/models/types/User';
+import { UserQueryHelpers } from '@src/models/types/User';
 import { Role } from '@src/types/enums';
 import { UserInput } from '@src/resolvers/types/UserInput';
+import { DocumentType } from '@typegoose/typegoose';
 
 export async function signIn(
   input?: Partial<UserInput>,
   roles?: Role[],
 ): Promise<{
-  user: EnforceDocument<User, UserMethods>;
+  user: DocumentType<User, UserQueryHelpers>;
   token: string;
   refresh_token: string;
 }> {
