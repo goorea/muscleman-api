@@ -38,9 +38,9 @@ export class User extends Model implements UserMethods {
   @prop({ type: String })
   password?: string;
 
-  @Field(() => Gender, { description: '성별' })
-  @prop({ enum: Gender, type: String })
-  gender: Gender;
+  @Field(() => Gender, { description: '성별', nullable: true })
+  @prop({ enum: Gender, type: String, addNullToEnum: true })
+  gender?: Gender;
 
   @Field(() => Date, { description: '생년월일', nullable: true })
   @prop({ type: Date })
@@ -70,8 +70,11 @@ export class User extends Model implements UserMethods {
   })
   roles: Role[];
 
-  @Field(() => SocialProvider, { description: '소셜 로그인 유형', nullable: true })
-  @prop({ type: SocialProvider })
+  @Field(() => SocialProvider, {
+    description: '소셜 로그인 유형',
+    nullable: true,
+  })
+  @prop({ type: String, enum: SocialProvider })
   provider?: SocialProvider;
 
   async getJWTToken(
