@@ -72,6 +72,7 @@ describe('회원가입을 할 수 있다', () => {
 
     expect(errors).not.toBeUndefined();
     if (errors) {
+      expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
     }
   });
@@ -156,24 +157,9 @@ describe('회원가입을 할 수 있다', () => {
     }
   });
 
-  it('성별 필드는 반드시 필요하다', async () => {
-    const input = UserFactory({
-      gender: undefined,
-    });
-    const { errors } = await graphql(registerMutation, {
-      input,
-    });
-
-    expect(errors).not.toBeUndefined();
-    if (errors) {
-      expect(errors.length).toEqual(1);
-      expect(errors[0]).toBeInstanceOf(GraphQLError);
-    }
-  });
-
-  it('생년월일, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
+  it('생년월일, 휴대폰번호, 프로필 이미지 경로, 성별은 빈 값을 허용한다', async () => {
     await Promise.all(
-      ['birth', 'tel', 'profile_image_path'].map(async field => {
+      ['birth', 'tel', 'profile_image_path', 'gender'].map(async field => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({ [field]: undefined }),
         });
@@ -236,8 +222,6 @@ describe('회원가입을 할 수 있다', () => {
 
     expect(await UserModel.exists({ _id: data?.register._id })).toBeTruthy();
   });
-
-  it('소셜 로그인 사용자 데이터를 데이터 베이스에 추가한다', )
 
   // TODO: #21
   // it('사용자를 생성하고 이벤트를 실행한다', () => {});
