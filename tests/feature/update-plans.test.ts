@@ -7,12 +7,14 @@ import { UserFactory } from '@src/factories/UserFactory';
 import { PlanInput } from '@src/resolvers/types/PlanInput';
 import { PlanQueryHelpers } from '@src/models/types/Plan';
 import { signIn } from '@tests/helpers';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { Role } from '@src/types/enums';
 import { GraphQLError } from 'graphql';
 import * as faker from 'faker';
 import { DocumentType } from '@typegoose/typegoose';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import ValidationError from '@src/errors/ValidationError';
 
 describe('운동 계획 수정', () => {
   const updatePlanMutation = `mutation updatePlan($_id: ObjectId!, $input: PlanInput!) { updatePlan(_id: $_id, input: $input) }`;
@@ -68,7 +70,11 @@ describe('운동 계획 수정', () => {
     expect(errors).toBeUndefined();
     expect(data?.updatePlan).toBeTruthy();
     expect(
-      (await PlanModel.findById(plan._id).orFail().exec()).plan_date,
+      (
+        await PlanModel.findById(plan._id)
+          .orFail(new DocumentNotFoundError())
+          .exec()
+      ).plan_date,
     ).toEqual(updatePlanDate);
   });
 
@@ -90,7 +96,11 @@ describe('운동 계획 수정', () => {
     expect(errors).toBeUndefined();
     expect(data?.updatePlan).toBeTruthy();
     expect(
-      (await PlanModel.findById(plan._id).orFail().exec()).plan_date,
+      (
+        await PlanModel.findById(plan._id)
+          .orFail(new DocumentNotFoundError())
+          .exec()
+      ).plan_date,
     ).toEqual(updatePlanDate);
   });
 
@@ -128,7 +138,7 @@ describe('운동 계획 수정', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 });

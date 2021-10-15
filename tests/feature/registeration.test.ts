@@ -3,9 +3,10 @@ import { graphql } from '@tests/graphql';
 import { UserLimit } from '@src/limits/UserLimit';
 import { GraphQLError } from 'graphql';
 import { UserModel } from '@src/models/User';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserInputError } from 'apollo-server';
 import { signIn } from '@tests/helpers';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import ValidationError from '@src/errors/ValidationError';
 
 describe('회원가입을 할 수 있다', () => {
   const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { _id, password } }`;
@@ -37,9 +38,7 @@ describe('회원가입을 할 수 있다', () => {
           expect(errors).not.toBeUndefined();
           if (errors) {
             expect(errors.length).toEqual(1);
-            expect(errors[0].originalError).toBeInstanceOf(
-              ArgumentValidationError,
-            );
+            expect(errors[0].originalError).toBeInstanceOf(ValidationError);
           }
         },
       ),
@@ -57,9 +56,7 @@ describe('회원가입을 할 수 있다', () => {
 
         expect(errors).not.toBeUndefined();
         if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );
@@ -72,7 +69,7 @@ describe('회원가입을 할 수 있다', () => {
 
     expect(errors).not.toBeUndefined();
     if (errors) {
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -101,9 +98,7 @@ describe('회원가입을 할 수 있다', () => {
 
         expect(errors).not.toBeUndefined();
         if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );
@@ -134,9 +129,7 @@ describe('회원가입을 할 수 있다', () => {
 
         expect(errors).not.toBeUndefined();
         if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );
@@ -197,9 +190,7 @@ describe('회원가입을 할 수 있다', () => {
 
         expect(errors).not.toBeUndefined();
         if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );
@@ -213,7 +204,7 @@ describe('회원가입을 할 수 있다', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -225,7 +216,7 @@ describe('회원가입을 할 수 있다', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 

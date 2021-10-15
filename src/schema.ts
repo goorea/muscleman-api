@@ -5,10 +5,11 @@ import '@src/types/enums';
 import { authChecker } from '@src/auth-checker';
 import { ObjectIdScalar } from '@src/scalars/ObjectIdScalar';
 import { mongoose } from '@typegoose/typegoose';
+import { ErrorInterceptor } from '@src/middlewares/ErrorInterceptorMiddleware';
 
 export const schema: Promise<GraphQLSchema> = buildSchema({
   resolvers: [__dirname + '/**/resolvers/*Resolver.{ts,js}'],
-  globalMiddlewares: [TypegooseMiddleware],
+  globalMiddlewares: [TypegooseMiddleware, ErrorInterceptor],
   scalarsMap: [{ type: mongoose.Types.ObjectId, scalar: ObjectIdScalar }],
   authChecker,
 });

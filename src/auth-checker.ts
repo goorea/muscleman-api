@@ -1,13 +1,19 @@
 import { AuthChecker } from 'type-graphql';
 import { Context } from '@src/context';
+import AuthenticationError from '@src/errors/AuthenticationError';
+import ForbiddenError from '@src/errors/ForbiddenError';
 
 export const authChecker: AuthChecker<Context> = (
   { context: { user } },
   roles,
 ) => {
-  if (roles.length === 0) {
-    return user !== undefined;
+  if (user === undefined) {
+    throw new AuthenticationError();
   }
 
-  return Boolean(user?.roles.some(role => roles.includes(role)));
+  if (user.roles.every(role => !roles.includes(role))) {
+    throw new ForbiddenError();
+  }
+
+  return true;
 };

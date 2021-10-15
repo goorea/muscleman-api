@@ -1,11 +1,13 @@
 import { graphql } from '@tests/graphql';
 import { TrainingFactory } from '@src/factories/TrainingFactory';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { signIn } from '@tests/helpers';
 import { Role } from '@src/types/enums';
 import { TrainingModel } from '@src/models/Training';
 import { GraphQLError } from 'graphql';
 import { TrainingLimit } from '@src/limits/TrainingLimit';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import ValidationError from '@src/errors/ValidationError';
+import AuthenticationError from '@src/errors/AuthenticationError';
 
 describe('운동종목 추가', () => {
   const createTrainingMutation = `mutation createTraining($input: TrainingInput!) { createTraining(input: $input) { _id } }`;
@@ -18,7 +20,7 @@ describe('운동종목 추가', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
+      expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
     }
   });
 
@@ -66,7 +68,7 @@ describe('운동종목 추가', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -145,9 +147,7 @@ describe('운동종목 추가', () => {
 
         expect(errors).not.toBeUndefined();
         if (errors) {
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );
@@ -169,9 +169,7 @@ describe('운동종목 추가', () => {
         expect(errors).not.toBeUndefined();
         if (errors) {
           expect(errors.length).toEqual(1);
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );

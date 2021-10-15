@@ -3,9 +3,8 @@ import { graphql } from '@tests/graphql';
 import { UserInputError } from 'apollo-server';
 import randToken from 'rand-token';
 import { UserModel } from '@src/models/User';
-import { mongoose } from '@typegoose/typegoose';
-import DocumentNotFoundError = mongoose.Error.DocumentNotFoundError;
-import { ForbiddenError } from 'type-graphql';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import ForbiddenError from '@src/errors/ForbiddenError';
 
 describe('JWT 토큰 갱신', () => {
   const refreshTokenMutation = `mutation refreshToken($refresh_token: String!) { refreshToken(refresh_token: $refresh_token) { token, refresh_token } }`;

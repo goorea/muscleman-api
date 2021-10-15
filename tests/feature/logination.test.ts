@@ -1,14 +1,14 @@
 import { signIn } from '@tests/helpers';
 import { graphql } from '@tests/graphql';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
 import { UserFactory } from '@src/factories/UserFactory';
 import { UserLimit } from '@src/limits/UserLimit';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
-import { UserInputError } from 'apollo-server';
 import { UserModel } from '@src/models/User';
-import { mongoose } from '@typegoose/typegoose';
-import DocumentNotFoundError = mongoose.Error.DocumentNotFoundError;
 import { UserInput } from '@src/resolvers/types/UserInput';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import ValidationError from '@src/errors/ValidationError';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
 
 describe('사용자 로그인', () => {
   const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refresh_token } }`;
@@ -42,7 +42,7 @@ describe('사용자 로그인', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -54,7 +54,7 @@ describe('사용자 로그인', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -65,7 +65,7 @@ describe('사용자 로그인', () => {
 
     expect(errors).not.toBeUndefined();
     if (errors) {
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -78,7 +78,7 @@ describe('사용자 로그인', () => {
 
     expect(errors).not.toBeUndefined();
     if (errors) {
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -109,7 +109,7 @@ describe('사용자 로그인', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(UserInputError);
+      expect(errors[0].originalError).toBeInstanceOf(AuthenticateFailedError);
       expect(errors[0].message).toEqual(
         '사용자 로그인 정보가 일치하지 않습니다.',
       );
