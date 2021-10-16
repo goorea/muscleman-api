@@ -20,6 +20,7 @@ import { PlanQueryHelpers } from '@src/models/types/Plan';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { DocumentType, mongoose } from '@typegoose/typegoose';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {
@@ -62,7 +63,9 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    await (await PlanModel.findById(_id).orFail().exec())
+    await (
+      await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec()
+    )
       .checkPermission(user)
       .updateOne(input)
       .exec();
@@ -80,7 +83,9 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    await (await PlanModel.findById(_id).orFail().exec())
+    await (
+      await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec()
+    )
       .checkPermission(user)
       .deleteOne();
 
@@ -91,13 +96,17 @@ export class PlanResolver implements ResolverInterface<Plan> {
   async user(
     @Root() plan: Plan,
   ): Promise<DocumentType<User, UserQueryHelpers>> {
-    return await UserModel.findById(plan.user).orFail().exec();
+    return await UserModel.findById(plan.user)
+      .orFail(new DocumentNotFoundError())
+      .exec();
   }
 
   @FieldResolver()
   async training(
     @Root() plan: Plan,
   ): Promise<DocumentType<Training, TrainingQueryHelpers>> {
-    return await TrainingModel.findById(plan.training).orFail().exec();
+    return await TrainingModel.findById(plan.training)
+      .orFail(new DocumentNotFoundError())
+      .exec();
   }
 }

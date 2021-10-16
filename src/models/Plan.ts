@@ -1,4 +1,4 @@
-import { Field, ForbiddenError, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import {
   DocumentType,
   getModelForClass,
@@ -16,6 +16,7 @@ import { Set } from '@src/models/Set';
 import { UserQueryHelpers } from '@src/models/types/User';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
+import ForbiddenError from '@src/errors/ForbiddenError';
 
 @ObjectType({ implements: Model, description: '운동계획 모델' })
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })

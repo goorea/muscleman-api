@@ -2,11 +2,11 @@ import { graphql } from '@tests/graphql';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { signIn } from '@tests/helpers';
-import { ArgumentValidationError } from 'type-graphql';
 import { GraphQLError } from 'graphql';
 import { TrainingFactory } from '@src/factories/TrainingFactory';
 import { TrainingModel } from '@src/models/Training';
 import { PlanLimit } from '@src/limits/PlanLimit';
+import ValidationError from '@src/errors/ValidationError';
 
 describe('운동 계획 생성', () => {
   const createPlanMutation = `mutation createPlan($input: PlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, plan_date, sets { count, weight } } }`;
@@ -98,7 +98,7 @@ describe('운동 계획 생성', () => {
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -119,7 +119,7 @@ describe('운동 계획 생성', () => {
 
     expect(errors).not.toBeUndefined();
     if (errors) {
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 
@@ -177,9 +177,7 @@ describe('운동 계획 생성', () => {
         expect(errors).not.toBeUndefined();
         if (errors) {
           expect(errors.length).toEqual(1);
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );

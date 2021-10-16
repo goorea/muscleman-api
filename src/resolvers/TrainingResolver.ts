@@ -4,6 +4,7 @@ import { TrainingInput } from '@src/resolvers/types/TrainingInput';
 import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { DocumentType, mongoose } from '@typegoose/typegoose';
 import { Role } from '@src/types/enums';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 
 @Resolver(() => Training)
 export class TrainingResolver {
@@ -21,7 +22,9 @@ export class TrainingResolver {
     @Arg('_id') _id: mongoose.Types.ObjectId,
     @Arg('input') input: TrainingInput,
   ): Promise<boolean> {
-    await TrainingModel.findByIdAndUpdate(_id, input).orFail().exec();
+    await TrainingModel.findByIdAndUpdate(_id, input)
+      .orFail(new DocumentNotFoundError())
+      .exec();
 
     return true;
   }
@@ -31,7 +34,9 @@ export class TrainingResolver {
   async deleteTraining(
     @Arg('_id') _id: mongoose.Types.ObjectId,
   ): Promise<boolean> {
-    await TrainingModel.findByIdAndDelete(_id).orFail().exec();
+    await TrainingModel.findByIdAndDelete(_id)
+      .orFail(new DocumentNotFoundError())
+      .exec();
 
     return true;
   }

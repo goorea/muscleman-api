@@ -23,6 +23,9 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { DocumentType } from '@typegoose/typegoose';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import VerifiedError from '@src/errors/VerifiedError';
+import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -59,17 +62,17 @@ export class UserResolver {
   @UseMiddleware(GuestMiddleware)
   async login(@Arg('input') input: LoginInput): Promise<LoginResponse> {
     const user = await UserModel.findOne({ email: input.email })
-      .orFail()
+      .orFail(new DocumentNotFoundError())
       .exec();
 
     if (!user.password) {
-      throw new UserInputError('해당 사용자는 소셜 로그인 사용자입니다');
+      throw new UserInputError('해당 사용자는 소셜 로그인 사용자입니다.');
     }
 
     const compare = await bcrypt.compare(input.password, user.password);
 
     if (!compare) {
-      throw new UserInputError('사용자 로그인 정보가 일치하지 않습니다.');
+      throw new AuthenticateFailedError();
     }
 
     return user.getJWTToken();
@@ -85,7 +88,9 @@ export class UserResolver {
     }
 
     return (
-      await UserModel.findOne({ refresh_token }).orFail().exec()
+      await UserModel.findOne({ refresh_token })
+        .orFail(new DocumentNotFoundError())
+        .exec()
     ).getJWTToken();
   }
 
@@ -97,7 +102,7 @@ export class UserResolver {
     }
 
     if (user.roles.some(role => role === Role.VERIFIED)) {
-      throw new Error('이미 인증된 이메일 입니다.');
+      throw new VerifiedError();
     }
 
     const token = randToken.uid(UserLimit.email_verify_token.minLength);
