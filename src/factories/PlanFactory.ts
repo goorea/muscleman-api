@@ -14,6 +14,6 @@ export const PlanFactory: (input?: Partial<PlanInput>) => Promise<PlanInput> =
         plan_date: faker.date.future().toISOString(),
         sets: [...Array(faker.datatype.number(10))].map(() => SetFactory()),
         complete: faker.datatype.boolean(),
-      },
+      } as PlanInput,
       input,
-    ) as PlanInput;
+    );

@@ -15,7 +15,7 @@ describe('이메일 인증', () => {
     it('로그인하지 않고 요청할 수 없다', async () => {
       const { errors } = await graphql(sendVerifyEmailMutation);
 
-      expect(errors).not.toBeUndefined();
+      expect(errors).toBeDefined();
       if (errors) {
         expect(errors.length).toEqual(1);
         expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
@@ -30,7 +30,7 @@ describe('이메일 인증', () => {
         token,
       );
 
-      expect(errors).not.toBeUndefined();
+      expect(errors).toBeDefined();
       if (errors) {
         expect(errors.length).toEqual(1);
         expect(errors[0].originalError).toBeInstanceOf(Error);
@@ -61,7 +61,7 @@ describe('이메일 인증', () => {
         input: getVerifyInput({ email: '' }),
       });
 
-      expect(errors).not.toBeUndefined();
+      expect(errors).toBeDefined();
       if (errors) {
         expect(errors.length).toEqual(1);
         expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -73,7 +73,7 @@ describe('이메일 인증', () => {
         input: getVerifyInput({ email: 'HelloWorld' }),
       });
 
-      expect(errors).not.toBeUndefined();
+      expect(errors).toBeDefined();
       if (errors) {
         expect(errors[0].originalError).toBeInstanceOf(ValidationError);
       }
@@ -84,7 +84,7 @@ describe('이메일 인증', () => {
         input: getVerifyInput({ email_verify_token: '' }),
       });
 
-      expect(errors).not.toBeUndefined();
+      expect(errors).toBeDefined();
       if (errors) {
         expect(errors.length).toEqual(1);
         expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -105,9 +105,6 @@ describe('이메일 인증', () => {
         ),
       ).toBeTruthy();
     });
-
-    // TODO: #21
-    // it('이메일이 인증되면 이벤트를 실행한다', async () => {});
   });
 });
 

@@ -20,7 +20,7 @@ describe('회원가입을 할 수 있다', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
@@ -35,7 +35,7 @@ describe('회원가입을 할 수 있다', () => {
             input: UserFactory({ [field]: '' }),
           });
 
-          expect(errors).not.toBeUndefined();
+          expect(errors).toBeDefined();
           if (errors) {
             expect(errors.length).toEqual(1);
             expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -54,7 +54,7 @@ describe('회원가입을 할 수 있다', () => {
           }),
         });
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
@@ -67,7 +67,7 @@ describe('회원가입을 할 수 있다', () => {
       input: UserFactory({ email: 'HelloWorld' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
@@ -80,7 +80,7 @@ describe('회원가입을 할 수 있다', () => {
       input: UserFactory({ email }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].message).toContain('E11000 duplicate key error dup key');
@@ -96,7 +96,7 @@ describe('회원가입을 할 수 있다', () => {
           }),
         });
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
@@ -111,7 +111,7 @@ describe('회원가입을 할 수 있다', () => {
       input: UserFactory({ nickname }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].message).toContain('E11000 duplicate key error dup key');
@@ -127,7 +127,7 @@ describe('회원가입을 할 수 있다', () => {
           }),
         });
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
@@ -143,7 +143,7 @@ describe('회원가입을 할 수 있다', () => {
       }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors[0].originalError).toBeInstanceOf(UserInputError);
     }
@@ -157,7 +157,7 @@ describe('회원가입을 할 수 있다', () => {
       input,
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0]).toBeInstanceOf(GraphQLError);
@@ -188,7 +188,7 @@ describe('회원가입을 할 수 있다', () => {
           }),
         });
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
@@ -201,7 +201,7 @@ describe('회원가입을 할 수 있다', () => {
       input: UserFactory({ tel: '1-206-123-4567' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -213,7 +213,7 @@ describe('회원가입을 할 수 있다', () => {
       input: UserFactory({ profile_image_path: '/foo/bar/baz.jpg' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -227,7 +227,4 @@ describe('회원가입을 할 수 있다', () => {
 
     expect(await UserModel.exists({ _id: data?.register._id })).toBeTruthy();
   });
-
-  // TODO: #21
-  // it('사용자를 생성하고 이벤트를 실행한다', () => {});
 });

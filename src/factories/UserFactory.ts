@@ -4,7 +4,7 @@ import { UserLimit } from '@src/limits/UserLimit';
 import { Gender } from '@src/types/enums';
 
 export const UserFactory: (input?: Partial<UserInput>) => UserInput = input => {
-  const password = faker.random.words(4);
+  const password = faker.internet.password(UserLimit.password.minLength);
 
   return Object.assign(
     {
@@ -21,7 +21,7 @@ export const UserFactory: (input?: Partial<UserInput>) => UserInput = input => {
         .toISOString(),
       tel: faker.phone.phoneNumber('010-####-####'),
       profile_image_path: faker.image.imageUrl(64, 64),
-    },
+    } as UserInput,
     input,
-  ) as UserInput;
+  );
 };

@@ -26,7 +26,7 @@ describe('사용자 로그인', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
@@ -38,7 +38,7 @@ describe('사용자 로그인', () => {
       input: LoginInputFactory({ email: '' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -50,7 +50,7 @@ describe('사용자 로그인', () => {
       input: LoginInputFactory({ password: '' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -62,7 +62,7 @@ describe('사용자 로그인', () => {
       input: LoginInputFactory({ device_id: '' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -74,7 +74,7 @@ describe('사용자 로그인', () => {
       input: LoginInputFactory({ email: 'HelloWorld' }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
@@ -87,7 +87,7 @@ describe('사용자 로그인', () => {
       }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
@@ -99,7 +99,7 @@ describe('사용자 로그인', () => {
       input: LoginInputFactory({ email }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(DocumentNotFoundError);
@@ -117,7 +117,7 @@ describe('사용자 로그인', () => {
       }),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticateFailedError);
@@ -154,7 +154,7 @@ describe('사용자 로그인', () => {
     const jane2 = await UserModel.findById(jane1._id)
       .orFail(new DocumentNotFoundError())
       .exec();
-    expect(jane2.refresh_token).not.toBeUndefined();
+    expect(jane2.refresh_token).toBeDefined();
     if (jane2.refresh_token) {
       expect(jane2.refresh_token[input.device_id]).toBeTruthy();
     }
@@ -166,7 +166,7 @@ describe('사용자 로그인', () => {
     const jane3 = await UserModel.findById(jane1._id)
       .orFail(new DocumentNotFoundError())
       .exec();
-    expect(jane3.refresh_token).not.toBeUndefined();
+    expect(jane3.refresh_token).toBeDefined();
     if (jane3.refresh_token && jane2.refresh_token) {
       expect(
         jane3.refresh_token[input.device_id] !==

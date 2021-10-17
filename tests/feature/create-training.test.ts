@@ -17,7 +17,7 @@ describe('운동종목 추가', () => {
       input: TrainingFactory(),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
@@ -34,7 +34,7 @@ describe('운동종목 추가', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
@@ -65,7 +65,7 @@ describe('운동종목 추가', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -84,7 +84,7 @@ describe('운동종목 추가', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].message).toContain('E11000 duplicate key error dup key');
@@ -103,7 +103,7 @@ describe('운동종목 추가', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0]).toBeInstanceOf(GraphQLError);
@@ -145,7 +145,7 @@ describe('운동종목 추가', () => {
           token,
         );
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
@@ -166,7 +166,7 @@ describe('운동종목 추가', () => {
           token,
         );
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors.length).toEqual(1);
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -174,7 +174,4 @@ describe('운동종목 추가', () => {
       }),
     );
   });
-
-  // TODO: #21
-  // it('종목을 생성하고 이벤트를 실행한다', () => {});
 });

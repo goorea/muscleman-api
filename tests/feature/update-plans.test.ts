@@ -26,7 +26,7 @@ describe('운동 계획 수정', () => {
       input: await PlanFactory(),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
@@ -45,7 +45,7 @@ describe('운동 계획 수정', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
@@ -116,7 +116,7 @@ describe('운동 계획 수정', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0]).toBeInstanceOf(GraphQLError);
@@ -135,7 +135,7 @@ describe('운동 계획 수정', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -152,7 +152,7 @@ describe('운동 계획 삭제', () => {
       _id: plan._id.toHexString(),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
@@ -170,7 +170,7 @@ describe('운동 계획 삭제', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);

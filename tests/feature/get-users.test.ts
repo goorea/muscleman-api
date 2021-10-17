@@ -36,7 +36,7 @@ describe('사용자 조회', () => {
       `,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
