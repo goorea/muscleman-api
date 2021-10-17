@@ -15,3 +15,7 @@ afterAll(async () => {
   await mongoose.disconnect();
   await mongoMemoryServer.stop();
 });
+
+afterEach(() => {
+  jest.useRealTimers();
+});

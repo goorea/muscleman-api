@@ -1,8 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt, {
+  TokenExpiredError as JsonWebTokenTokenExpiredError,
+} from 'jsonwebtoken';
 import { User } from '@src/models/User';
 import randToken from 'rand-token';
 import { mongoose } from '@typegoose/typegoose';
 import { LoginResponse } from '@src/resolvers/types/LoginResponse';
+import TokenExpiredError from '@src/errors/TokenExpiredError';
 
 export const sign = (user: User): LoginResponse => ({
   token: jwt.sign(
@@ -19,15 +22,23 @@ export const sign = (user: User): LoginResponse => ({
 });
 
 export const verify = (token: string): Partial<User> => {
-  const verified = jwt.verify(token, process.env.JWT_SECRET_KEY || '');
+  try {
+    const verified = jwt.verify(token, process.env.JWT_SECRET_KEY || '');
 
-  if (typeof verified === 'string') {
+    if (typeof verified === 'string') {
+      return {
+        _id: new mongoose.Types.ObjectId(verified),
+      };
+    }
+
     return {
-      _id: new mongoose.Types.ObjectId(verified),
+      _id: new mongoose.Types.ObjectId(verified._id),
     };
-  }
+  } catch (e) {
+    if (e instanceof JsonWebTokenTokenExpiredError) {
+      throw new TokenExpiredError(e.expiredAt);
+    }
 
-  return {
-    _id: new mongoose.Types.ObjectId(verified._id),
-  };
+    throw e;
+  }
 };

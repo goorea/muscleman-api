@@ -26,6 +26,7 @@ import { DocumentType } from '@typegoose/typegoose';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import VerifiedError from '@src/errors/VerifiedError';
 import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
+import ValidationError from '@src/errors/ValidationError';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -75,23 +76,24 @@ export class UserResolver {
       throw new AuthenticateFailedError();
     }
 
-    return user.getJWTToken();
+    return user.getJWTToken(input.device_id);
   }
 
   @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 갱신' })
   @UseMiddleware(GuestMiddleware)
   async refreshToken(
     @Arg('refresh_token') refresh_token: string,
+    @Arg('device_id') device_id: string,
   ): Promise<LoginResponse> {
-    if (!refresh_token) {
-      throw new UserInputError('refresh_token은 반드시 필요합니다.');
+    if (!refresh_token || !device_id) {
+      throw new ValidationError();
     }
 
     return (
-      await UserModel.findOne({ refresh_token })
+      await UserModel.findOne({ [`refresh_token.${device_id}`]: refresh_token })
         .orFail(new DocumentNotFoundError())
         .exec()
-    ).getJWTToken();
+    ).getJWTToken(device_id);
   }
 
   @Mutation(() => String, { description: '사용자 이메일 인증 메일 전송' })

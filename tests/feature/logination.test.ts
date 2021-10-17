@@ -2,13 +2,15 @@ import { signIn } from '@tests/helpers';
 import { graphql } from '@tests/graphql';
 import { UserFactory } from '@src/factories/UserFactory';
 import { UserLimit } from '@src/limits/UserLimit';
-import { LoginInput } from '@src/resolvers/types/LoginInput';
 import { UserModel } from '@src/models/User';
-import { UserInput } from '@src/resolvers/types/UserInput';
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
+import TokenExpiredError from '@src/errors/TokenExpiredError';
+import * as faker from 'faker';
+import { LoginInputFactory } from '@src/factories/LoginInputFactory';
+import { LoginInput } from '@src/resolvers/types/LoginInput';
 
 describe('사용자 로그인', () => {
   const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refresh_token } }`;
@@ -19,10 +21,7 @@ describe('사용자 로그인', () => {
     const { errors } = await graphql(
       loginMutation,
       {
-        input: {
-          email: user.email,
-          password,
-        },
+        input: LoginInputFactory({ email: user.email, password }),
       },
       token,
     );
@@ -36,7 +35,7 @@ describe('사용자 로그인', () => {
 
   it('이메일 필드는 반드시 필요하다', async () => {
     const { errors } = await graphql(loginMutation, {
-      input: getLoginInput({ email: '' }),
+      input: LoginInputFactory({ email: '' }),
     });
 
     expect(errors).not.toBeUndefined();
@@ -48,7 +47,19 @@ describe('사용자 로그인', () => {
 
   it('비밀번호 필드는 반드시 필요하다', async () => {
     const { errors } = await graphql(loginMutation, {
-      input: getLoginInput({ password: '' }),
+      input: LoginInputFactory({ password: '' }),
+    });
+
+    expect(errors).not.toBeUndefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
+    }
+  });
+
+  it('기기 식별 필드는 반드시 필요하다', async () => {
+    const { errors } = await graphql(loginMutation, {
+      input: LoginInputFactory({ device_id: '' }),
     });
 
     expect(errors).not.toBeUndefined();
@@ -60,7 +71,7 @@ describe('사용자 로그인', () => {
 
   it('이메일 형식이 아닌 이메일은 사용할 수 없다', async () => {
     const { errors } = await graphql(loginMutation, {
-      input: getLoginInput({ email: 'HelloWorld' }),
+      input: LoginInputFactory({ email: 'HelloWorld' }),
     });
 
     expect(errors).not.toBeUndefined();
@@ -71,7 +82,7 @@ describe('사용자 로그인', () => {
 
   it(`비밀번호는 ${UserLimit.password.minLength}글자 이상이어야 한다`, async () => {
     const { errors } = await graphql(loginMutation, {
-      input: getLoginInput({
+      input: LoginInputFactory({
         password: 'a'.repeat(UserLimit.password.minLength - 1),
       }),
     });
@@ -85,7 +96,7 @@ describe('사용자 로그인', () => {
   it('사용자 이메일이 존재하지 않는 이메일이면 에러를 반환한다', async () => {
     const email = 'john@naver.com';
     const { errors } = await graphql(loginMutation, {
-      input: getLoginInput({ email }),
+      input: LoginInputFactory({ email }),
     });
 
     expect(errors).not.toBeUndefined();
@@ -100,7 +111,7 @@ describe('사용자 로그인', () => {
       UserFactory({ email: 'john@example.com' }),
     );
     const { errors } = await graphql(loginMutation, {
-      input: getLoginInput({
+      input: LoginInputFactory({
         email: john.email,
         password: 'HelloWorld',
       }),
@@ -110,9 +121,6 @@ describe('사용자 로그인', () => {
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticateFailedError);
-      expect(errors[0].message).toEqual(
-        '사용자 로그인 정보가 일치하지 않습니다.',
-      );
     }
   });
 
@@ -123,35 +131,77 @@ describe('사용자 로그인', () => {
     };
     await UserModel.create(UserFactory(input));
     const { data } = await graphql(loginMutation, {
-      input: getLoginInput(input),
+      input: LoginInputFactory(input),
     });
 
     expect(data?.login).toHaveProperty('token');
     expect(data?.login).toHaveProperty('refresh_token');
   });
 
-  it('refresh_token 값이 비어있는 사용자가 로그인하면 값을 채운다', async () => {
-    const input = {
+  it('사용자가 로그인하면 요청한 기기의 refresh_token 값을 채우거나 갱신한다', async () => {
+    const input: LoginInput = {
       email: 'jane@example.com',
       password: '123123123',
+      device_id: faker.internet.mac(),
     };
-    const beforeJane = await UserModel.create(UserFactory(input));
-    expect(beforeJane?.refresh_token).toBeFalsy();
+    const jane1 = await UserModel.create(UserFactory(input));
+    expect(jane1.refresh_token).toBeFalsy();
 
     await graphql(loginMutation, {
-      input: getLoginInput(input),
+      input: LoginInputFactory(input),
     });
 
-    const afterJane = await UserModel.findById(beforeJane._id).exec();
-    expect(afterJane?.refresh_token).toBeTruthy();
+    const jane2 = await UserModel.findById(jane1._id)
+      .orFail(new DocumentNotFoundError())
+      .exec();
+    expect(jane2.refresh_token).not.toBeUndefined();
+    if (jane2.refresh_token) {
+      expect(jane2.refresh_token[input.device_id]).toBeTruthy();
+    }
+
+    await graphql(loginMutation, {
+      input: LoginInputFactory(input),
+    });
+
+    const jane3 = await UserModel.findById(jane1._id)
+      .orFail(new DocumentNotFoundError())
+      .exec();
+    expect(jane3.refresh_token).not.toBeUndefined();
+    if (jane3.refresh_token && jane2.refresh_token) {
+      expect(
+        jane3.refresh_token[input.device_id] !==
+          jane2.refresh_token[input.device_id],
+      ).toBeTruthy();
+    }
+  });
+
+  it('JWT 토큰이 만료되면 TokenExpiredError를 반환한다', async () => {
+    process.env.JWT_EXPIRES_INT = '1s';
+
+    const input = {
+      email: 'bar@example.com',
+      password: '123123123',
+    };
+    await UserModel.create(UserFactory(input));
+    const { data } = await graphql(loginMutation, {
+      input: LoginInputFactory(input),
+    });
+
+    jest.useFakeTimers().advanceTimersByTime(1001);
+
+    expect.assertions(1);
+    try {
+      await graphql(
+        `
+          mutation sendVerifyEmail {
+            sendVerifyEmail
+          }
+        `,
+        undefined,
+        data?.login.token,
+      );
+    } catch (e) {
+      expect(e).toBeInstanceOf(TokenExpiredError);
+    }
   });
 });
-
-function getLoginInput(input?: Partial<UserInput>): LoginInput {
-  const { email, password } = UserFactory(input);
-
-  return {
-    email,
-    password,
-  };
-}
