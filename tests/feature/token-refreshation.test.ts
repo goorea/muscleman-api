@@ -18,7 +18,7 @@ describe('JWT 토큰 갱신', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
@@ -31,7 +31,7 @@ describe('JWT 토큰 갱신', () => {
       getRefreshTokenInput(''),
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -44,7 +44,7 @@ describe('JWT 토큰 갱신', () => {
       getRefreshTokenInput(undefined, ''),
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -57,7 +57,7 @@ describe('JWT 토큰 갱신', () => {
       getRefreshTokenInput(),
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(DocumentNotFoundError);
@@ -78,9 +78,9 @@ describe('JWT 토큰 갱신', () => {
     const refreshedUser = await UserModel.findById(user._id).exec();
 
     expect(errors).toBeUndefined();
-    expect(data).not.toBeUndefined();
+    expect(data).toBeDefined();
     if (refreshedUser && data) {
-      expect(refreshedUser.refresh_token).not.toBeUndefined();
+      expect(refreshedUser.refresh_token).toBeDefined();
 
       if (refreshedUser.refresh_token) {
         expect(

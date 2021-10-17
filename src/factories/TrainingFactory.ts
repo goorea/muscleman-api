@@ -26,6 +26,6 @@ export const TrainingFactory: (
       }),
       thumbnail_path: faker.image.imageUrl(64, 64),
       video_path: faker.image.imageUrl(64, 64),
-    },
+    } as TrainingInput,
     input,
-  ) as TrainingInput;
+  );

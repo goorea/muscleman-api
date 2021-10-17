@@ -10,7 +10,7 @@ describe('운동 계획 조회', () => {
   it('로그인 하지 않은 사용자는 모든 운동 계획을 조회할 수 없다', async () => {
     const { errors } = await graphql(plansQuery);
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);

@@ -16,7 +16,7 @@ describe('운동 계획 생성', () => {
       input: await PlanFactory(),
     });
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(AuthenticationError);
@@ -63,7 +63,7 @@ describe('운동 계획 생성', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0]).toBeInstanceOf(GraphQLError);
@@ -95,7 +95,7 @@ describe('운동 계획 생성', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
@@ -117,7 +117,7 @@ describe('운동 계획 생성', () => {
       token,
     );
 
-    expect(errors).not.toBeUndefined();
+    expect(errors).toBeDefined();
     if (errors) {
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
@@ -174,7 +174,7 @@ describe('운동 계획 생성', () => {
           token,
         );
 
-        expect(errors).not.toBeUndefined();
+        expect(errors).toBeDefined();
         if (errors) {
           expect(errors.length).toEqual(1);
           expect(errors[0].originalError).toBeInstanceOf(ValidationError);
