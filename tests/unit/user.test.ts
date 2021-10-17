@@ -5,6 +5,7 @@ import { Plan, PlanModel } from '@src/models/Plan';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { graphql } from '@tests/graphql';
 import bcrypt from 'bcrypt';
+import * as faker from 'faker';
 
 describe('사용자 모델', () => {
   it('Model을 상속받고 있다', () => {
@@ -13,13 +14,15 @@ describe('사용자 모델', () => {
 
   it('refresh_token을 업데이트하고 JWT 토큰을 반환하는 getJWTToken 메서드를 가지고 있다', async () => {
     const user = await UserModel.create(UserFactory());
-    const beforeRefreshToken = user.refresh_token;
 
     expect(user).toHaveProperty('getJWTToken');
-    const { token, refresh_token } = await user.getJWTToken();
+    const { token, refresh_token } = await user.getJWTToken(
+      faker.internet.mac(),
+    );
 
-    expect(beforeRefreshToken === refresh_token).toBeFalsy();
-    expect(token).not.toBeUndefined();
+    expect(user.refresh_token).toBeUndefined();
+    expect(token).toBeDefined();
+    expect(refresh_token).toBeDefined();
   });
 
   it('데이터 베이스에 사용자 정보를 저장하기 전에 비밀번호를 해쉬화 한다', async () => {

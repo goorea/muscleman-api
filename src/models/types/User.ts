@@ -5,6 +5,7 @@ import { User } from '@src/models/User';
 export interface UserMethods {
   getJWTToken: (
     this: DocumentType<User, UserQueryHelpers>,
+    device_id: string,
   ) => Promise<LoginResponse>;
 }
 

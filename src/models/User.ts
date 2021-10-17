@@ -2,8 +2,11 @@ import { Field, ObjectType } from 'type-graphql';
 import {
   DocumentType,
   getModelForClass,
+  modelOptions,
+  mongoose,
   pre,
   prop,
+  Severity,
 } from '@typegoose/typegoose';
 import { Gender, Role } from '@src/types/enums';
 import { Model } from '@src/models/Model';
@@ -21,6 +24,7 @@ import {
   deleteLinkedReferences,
 )
 @ObjectType({ implements: Model, description: '사용자 모델' })
+@modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class User extends Model implements UserMethods {
   @Field(() => String, { description: '이름' })
   @prop({ type: String, required: true })
@@ -54,9 +58,12 @@ export class User extends Model implements UserMethods {
   @prop({ type: String })
   profile_image_path?: string;
 
-  @Field(() => String, { description: 'JWT Refresh 토큰', nullable: true })
-  @prop({ type: String })
-  refresh_token?: string;
+  @Field(() => Object, {
+    description: 'JWT Refresh 토큰 객체 { 디바이스 ID: Refresh 토큰 }',
+    nullable: true,
+  })
+  @prop({ type: mongoose.Schema.Types.Mixed })
+  refresh_token?: Record<string, string>;
 
   @Field(() => String, { description: '이메일 인증 토큰', nullable: true })
   @prop({ type: String })
@@ -72,9 +79,14 @@ export class User extends Model implements UserMethods {
 
   async getJWTToken(
     this: DocumentType<User, UserQueryHelpers>,
+    device_id: string,
   ): Promise<LoginResponse> {
     const jwt = sign(this);
-    await this.updateOne({ refresh_token: jwt.refresh_token }).exec();
+    await this.updateOne({
+      $set: {
+        [`refresh_token.${device_id}`]: jwt.refresh_token,
+      },
+    }).exec();
 
     return jwt;
   }
