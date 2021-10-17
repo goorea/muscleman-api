@@ -24,7 +24,7 @@ import { User, UserModel } from '@src/models/User';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { Mail } from '@src/notifications/Mail';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
-import { SocialUserInput } from "@src/resolvers/types/SocialUserInput";
+import { SocialLoginInput } from '@src/resolvers/types/SocialLoginInput';
 import { Role } from '@src/types/enums';
 
 import { AuthenticationResponse } from './types/AuthenticationResponse';

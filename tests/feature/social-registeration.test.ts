@@ -95,16 +95,4 @@ describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.',
       expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
     }
   });
-
-  it('소셜 로그인 유형 필드는 반드시 필요하다', async () => {
-    const { errors } = await graphql(socialLoginMutation, {
-      input: SocialUserFactory({ provider: undefined }),
-    });
-
-    expect(errors).not.toBeUndefined();
-    if (errors) {
-      expect(errors.length).toEqual(1);
-      expect(errors[0]).toBeInstanceOf(GraphQLError);
-    }
-  });
 });
