@@ -63,7 +63,7 @@ export class UserResolver {
   ): Promise<DocumentType<User, UserQueryHelpers>> {
     const user = await UserModel.findOne({ email: input.email }).exec();
 
-    if (user == null) {
+    if (user === null) {
       return await UserModel.create({
         ...input,
         nickname: input.nickname || input.name,
