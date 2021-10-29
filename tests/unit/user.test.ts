@@ -31,8 +31,10 @@ describe('사용자 모델', () => {
       `
         mutation register($input: UserInput!) {
           register(input: $input) {
-            _id
-            password
+            user {
+              _id
+              password
+            }
           }
         }
       `,
@@ -42,7 +44,7 @@ describe('사용자 모델', () => {
     );
 
     expect(
-      await bcrypt.compare(input.password, data?.register.password),
+      await bcrypt.compare(input.password, data?.register.user.password),
     ).toBeTruthy();
   });
 

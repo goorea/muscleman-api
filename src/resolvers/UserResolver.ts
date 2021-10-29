@@ -27,6 +27,7 @@ import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import VerifiedError from '@src/errors/VerifiedError';
 import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
 import ValidationError from '@src/errors/ValidationError';
+import { RegisterResponse } from '@src/resolvers/types/RegisterResponse';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -47,16 +48,16 @@ export class UserResolver {
     return user;
   }
 
-  @Mutation(() => User, { description: '사용자 생성' })
+  @Mutation(() => RegisterResponse, { description: '사용자 생성' })
   @UseMiddleware(GuestMiddleware)
-  async register(
-    @Arg('input') input: UserInput,
-  ): Promise<DocumentType<User, UserQueryHelpers>> {
+  async register(@Arg('input') input: UserInput): Promise<RegisterResponse> {
     if (input.password !== input.password_confirmation) {
       throw new UserInputError('비밀번호와 비밀번호 확인 값이 다릅니다');
     }
 
-    return UserModel.create(input);
+    const user = await UserModel.create(input);
+
+    return { ...(await user.getJWTToken(input.device_id)), user };
   }
 
   @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 반환' })
