@@ -48,6 +48,14 @@ export class UserResolver {
     return user;
   }
 
+  @Query(() => Boolean, { description: '해당 필드의 주어진 값 존재 여부' })
+  async existUser(
+    @Arg('field') field: string,
+    @Arg('value') value: string,
+  ): Promise<boolean> {
+    return await UserModel.exists({ [field]: value });
+  }
+
   @Mutation(() => AuthenticationResponse, { description: '사용자 생성' })
   @UseMiddleware(GuestMiddleware)
   async register(
