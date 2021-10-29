@@ -2,6 +2,7 @@ import { Field, InputType } from 'type-graphql';
 import { User } from '@src/models/User';
 import { Gender } from '@src/types/enums';
 import {
+  IsAscii,
   IsDate,
   IsEmail,
   IsMobilePhone,
@@ -37,6 +38,10 @@ export class UserInput implements Partial<User> {
 
   @Field(() => Gender, { description: '성별' })
   gender: Gender;
+
+  @Field(() => String, { description: '디바이스 ID' })
+  @IsAscii()
+  device_id: string;
 
   @Field(() => Date, { description: '생년월일', nullable: true })
   @IsDate()

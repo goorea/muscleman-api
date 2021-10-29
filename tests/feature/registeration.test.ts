@@ -9,7 +9,7 @@ import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
 
 describe('회원가입을 할 수 있다', () => {
-  const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { _id, password } }`;
+  const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { user { _id, password } } }`;
 
   it('로그인한 사용자는 요청할 수 없다', async () => {
     const { token } = await signIn();
@@ -27,21 +27,26 @@ describe('회원가입을 할 수 있다', () => {
     }
   });
 
-  it('이름, 이메일, 닉네임, 비밀번호, 비밀번호 확인 필드는 반드시 필요하다', async () => {
+  it('이름, 이메일, 닉네임, 비밀번호, 비밀번호 확인, 디바이스 ID 필드는 반드시 필요하다', async () => {
     await Promise.all(
-      ['name', 'email', 'nickname', 'password', 'password_confirmation'].map(
-        async field => {
-          const { errors } = await graphql(registerMutation, {
-            input: UserFactory({ [field]: '' }),
-          });
+      [
+        'name',
+        'email',
+        'nickname',
+        'password',
+        'password_confirmation',
+        'device_id',
+      ].map(async field => {
+        const { errors } = await graphql(registerMutation, {
+          input: UserFactory({ [field]: '' }),
+        });
 
-          expect(errors).toBeDefined();
-          if (errors) {
-            expect(errors.length).toEqual(1);
-            expect(errors[0].originalError).toBeInstanceOf(ValidationError);
-          }
-        },
-      ),
+        expect(errors).toBeDefined();
+        if (errors) {
+          expect(errors.length).toEqual(1);
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
+        }
+      }),
     );
   });
 
@@ -225,6 +230,8 @@ describe('회원가입을 할 수 있다', () => {
       input: UserFactory(),
     });
 
-    expect(await UserModel.exists({ _id: data?.register._id })).toBeTruthy();
+    expect(
+      await UserModel.exists({ _id: data?.register.user._id }),
+    ).toBeTruthy();
   });
 });

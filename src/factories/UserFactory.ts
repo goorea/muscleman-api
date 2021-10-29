@@ -21,6 +21,7 @@ export const UserFactory: (input?: Partial<UserInput>) => UserInput = input => {
         .toISOString(),
       tel: faker.phone.phoneNumber('010-####-####'),
       profile_image_path: faker.image.imageUrl(64, 64),
+      device_id: faker.internet.mac(),
     } as UserInput,
     input,
   );
