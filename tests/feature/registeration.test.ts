@@ -10,6 +10,7 @@ import ValidationError from '@src/errors/ValidationError';
 
 describe('회원가입을 할 수 있다', () => {
   const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { user { _id, password } } }`;
+  const existUserQuery = `query existUser($field: String!, $value: String!) { existUser(field: $field, value: $value) }`;
 
   it('로그인한 사용자는 요청할 수 없다', async () => {
     const { token } = await signIn();
@@ -65,6 +66,50 @@ describe('회원가입을 할 수 있다', () => {
         }
       }),
     );
+  });
+
+  it('주어진 닉네임이 이미 있는지 확인할 수 있다', async () => {
+    const nickname = 'Jane';
+
+    const { data, errors } = await graphql(existUserQuery, {
+      field: 'nickname',
+      value: nickname,
+    });
+
+    expect(errors).toBeUndefined();
+    expect(data?.existUser).toBeFalsy();
+
+    await UserModel.create(UserFactory({ nickname }));
+
+    const { data: data2, errors: errors2 } = await graphql(existUserQuery, {
+      field: 'nickname',
+      value: nickname,
+    });
+
+    expect(errors2).toBeUndefined();
+    expect(data2?.existUser).toBeTruthy();
+  });
+
+  it('주어진 이메일이 이미 있는지 확인할 수 있다', async () => {
+    const email = 'jane@example.com';
+
+    const { data, errors } = await graphql(existUserQuery, {
+      field: 'email',
+      value: email,
+    });
+
+    expect(errors).toBeUndefined();
+    expect(data?.existUser).toBeFalsy();
+
+    await UserModel.create(UserFactory({ email }));
+
+    const { data: data2, errors: errors2 } = await graphql(existUserQuery, {
+      field: 'email',
+      value: email,
+    });
+
+    expect(errors2).toBeUndefined();
+    expect(data2?.existUser).toBeTruthy();
   });
 
   it('이메일 형식이 아닌 이메일은 사용할 수 없다', async () => {
