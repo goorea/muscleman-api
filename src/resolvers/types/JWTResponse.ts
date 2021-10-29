@@ -1,7 +1,7 @@
 import { Field, ObjectType } from 'type-graphql';
 
 @ObjectType({ description: '사용자 JWT 토큰 응답' })
-export class LoginResponse {
+export class JWTResponse {
   @Field(() => String, { description: 'JWT 토큰' })
   token: string;
 
