@@ -10,7 +10,7 @@ import {
 } from '@typegoose/typegoose';
 import { Gender, Role } from '@src/types/enums';
 import { Model } from '@src/models/Model';
-import { LoginResponse } from '@src/resolvers/types/LoginResponse';
+import { JWTResponse } from '@src/resolvers/types/JWTResponse';
 import { sign } from '@src/plugins/jwt';
 import { UserMethods, UserQueryHelpers } from '@src/models/types/User';
 import {
@@ -80,7 +80,7 @@ export class User extends Model implements UserMethods {
   async getJWTToken(
     this: DocumentType<User, UserQueryHelpers>,
     device_id: string,
-  ): Promise<LoginResponse> {
+  ): Promise<JWTResponse> {
     const jwt = sign(this);
     await this.updateOne({
       $set: {

@@ -4,10 +4,10 @@ import jwt, {
 import { User } from '@src/models/User';
 import randToken from 'rand-token';
 import { mongoose } from '@typegoose/typegoose';
-import { LoginResponse } from '@src/resolvers/types/LoginResponse';
+import { JWTResponse } from '@src/resolvers/types/JWTResponse';
 import TokenExpiredError from '@src/errors/TokenExpiredError';
 
-export const sign = (user: User): LoginResponse => ({
+export const sign = (user: User): JWTResponse => ({
   token: jwt.sign(
     {
       _id: user._id.toHexString(),

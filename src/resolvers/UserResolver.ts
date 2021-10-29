@@ -14,7 +14,7 @@ import { LoginInput } from '@src/resolvers/types/LoginInput';
 import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
 import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
 import { Context } from '@src/context';
-import { LoginResponse } from '@src/resolvers/types/LoginResponse';
+import { JWTResponse } from '@src/resolvers/types/JWTResponse';
 import randToken from 'rand-token';
 import { Mail } from '@src/notifications/Mail';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
@@ -27,7 +27,7 @@ import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import VerifiedError from '@src/errors/VerifiedError';
 import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
 import ValidationError from '@src/errors/ValidationError';
-import { RegisterResponse } from '@src/resolvers/types/RegisterResponse';
+import { AuthenticationResponse } from '@src/resolvers/types/AuthenticationResponse';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -48,9 +48,11 @@ export class UserResolver {
     return user;
   }
 
-  @Mutation(() => RegisterResponse, { description: '사용자 생성' })
+  @Mutation(() => AuthenticationResponse, { description: '사용자 생성' })
   @UseMiddleware(GuestMiddleware)
-  async register(@Arg('input') input: UserInput): Promise<RegisterResponse> {
+  async register(
+    @Arg('input') input: UserInput,
+  ): Promise<AuthenticationResponse> {
     if (input.password !== input.password_confirmation) {
       throw new UserInputError('비밀번호와 비밀번호 확인 값이 다릅니다');
     }
@@ -60,9 +62,13 @@ export class UserResolver {
     return { ...(await user.getJWTToken(input.device_id)), user };
   }
 
-  @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 반환' })
+  @Mutation(() => AuthenticationResponse, {
+    description: '사용자 JWT 토큰 반환',
+  })
   @UseMiddleware(GuestMiddleware)
-  async login(@Arg('input') input: LoginInput): Promise<LoginResponse> {
+  async login(
+    @Arg('input') input: LoginInput,
+  ): Promise<AuthenticationResponse> {
     const user = await UserModel.findOne({ email: input.email })
       .orFail(new DocumentNotFoundError())
       .exec();
@@ -77,15 +83,15 @@ export class UserResolver {
       throw new AuthenticateFailedError();
     }
 
-    return user.getJWTToken(input.device_id);
+    return { ...(await user.getJWTToken(input.device_id)), user };
   }
 
-  @Mutation(() => LoginResponse, { description: '사용자 JWT 토큰 갱신' })
+  @Mutation(() => JWTResponse, { description: '사용자 JWT 토큰 갱신' })
   @UseMiddleware(GuestMiddleware)
   async refreshToken(
     @Arg('refresh_token') refresh_token: string,
     @Arg('device_id') device_id: string,
-  ): Promise<LoginResponse> {
+  ): Promise<JWTResponse> {
     if (!refresh_token || !device_id) {
       throw new ValidationError();
     }
