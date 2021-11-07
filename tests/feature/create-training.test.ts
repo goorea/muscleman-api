@@ -10,7 +10,7 @@ import ValidationError from '@src/errors/ValidationError';
 import AuthenticationError from '@src/errors/AuthenticationError';
 
 describe('운동종목 추가', () => {
-  const createTrainingMutation = `mutation createTraining($input: TrainingInput!) { createTraining(input: $input) { _id } }`;
+  const createTrainingMutation = `mutation createTraining($input: CreateTrainingInput!) { createTraining(input: $input) { _id } }`;
 
   it('로그인 하지 않으면 추가할 수 없다', async () => {
     const { errors } = await graphql(createTrainingMutation, {

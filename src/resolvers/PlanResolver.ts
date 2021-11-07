@@ -11,7 +11,7 @@ import {
 } from 'type-graphql';
 import { Plan, PlanModel } from '@src/models/Plan';
 import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
-import { PlanInput } from '@src/resolvers/types/PlanInput';
+import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
 import { Context } from '@src/context';
 import { Training, TrainingModel } from '@src/models/Training';
 import AuthenticationError from '@src/errors/AuthenticationError';
@@ -21,6 +21,7 @@ import { UserQueryHelpers } from '@src/models/types/User';
 import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { DocumentType, mongoose } from '@typegoose/typegoose';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {
@@ -39,7 +40,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
   @Mutation(() => Plan, { description: '운동계획 생성' })
   @UseMiddleware(AuthenticateMiddleware)
   async createPlan(
-    @Arg('input') input: PlanInput,
+    @Arg('input') input: CreatePlanInput,
     @Ctx() { user }: Context,
   ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
     if (!user) {
@@ -56,7 +57,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
   @UseMiddleware(AuthenticateMiddleware)
   async updatePlan(
     @Arg('_id') _id: mongoose.Types.ObjectId,
-    @Arg('input') input: PlanInput,
+    @Arg('input') input: UpdatePlanInput,
     @Ctx() { user }: Context,
   ): Promise<boolean> {
     if (!user) {

@@ -15,7 +15,7 @@ import {
 import { UserLimit } from '@src/limits/UserLimit';
 
 @InputType({ description: '사용자 입력 객체' })
-export class UserInput implements Partial<User> {
+export class RegisterInput implements Partial<User> {
   @Field(() => String, { description: '이름' })
   @Length(UserLimit.name.minLength, UserLimit.name.maxLength)
   name: string;

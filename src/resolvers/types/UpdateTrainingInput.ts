@@ -4,13 +4,13 @@ import { IsNotEmpty, IsUrl, Max, Min } from 'class-validator';
 import { TrainingType } from '@src/types/enums';
 
 @InputType({ description: '운동종목 추가 입력 객체' })
-export class TrainingInput implements Partial<Training> {
-  @Field(() => String, { description: '이름' })
+export class UpdateTrainingInput implements Partial<Training> {
+  @Field(() => String, { description: '이름', nullable: true })
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
-  @Field(() => TrainingType, { description: '종류' })
-  type: TrainingType;
+  @Field(() => TrainingType, { description: '종류', nullable: true })
+  type?: TrainingType;
 
   @Field(() => String, { description: '설명', nullable: true })
   description?: string;

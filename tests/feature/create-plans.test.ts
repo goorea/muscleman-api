@@ -9,7 +9,7 @@ import { PlanLimit } from '@src/limits/PlanLimit';
 import ValidationError from '@src/errors/ValidationError';
 
 describe('운동 계획 생성', () => {
-  const createPlanMutation = `mutation createPlan($input: PlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, plan_date, sets { count, weight } } }`;
+  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, plan_date, sets { count, weight } } }`;
 
   it('로그인 하지 않은 사용자는 요청할 수 없다', async () => {
     const { errors } = await graphql(createPlanMutation, {
