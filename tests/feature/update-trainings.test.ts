@@ -3,15 +3,14 @@ import { TrainingFactory } from '@src/factories/TrainingFactory';
 import { signIn } from '@tests/helpers';
 import { Role } from '@src/types/enums';
 import { TrainingModel } from '@src/models/Training';
-import { GraphQLError } from 'graphql';
 import { TrainingLimit } from '@src/limits/TrainingLimit';
-import { TrainingInput } from '@src/resolvers/types/TrainingInput';
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
 import AuthenticationError from '@src/errors/AuthenticationError';
+import { UpdateTrainingInput } from '@src/resolvers/types/UpdateTrainingInput';
 
 describe('운동종목 수정', () => {
-  const updateTrainingMutation = `mutation updateTraining($_id: ObjectId!, $input: TrainingInput!) { updateTraining(_id: $_id, input: $input) }`;
+  const updateTrainingMutation = `mutation updateTraining($_id: ObjectId!, $input: UpdateTrainingInput!) { updateTraining(_id: $_id, input: $input) }`;
 
   it('로그인 하지 않으면 수정할 수 없다', async () => {
     const { errors } = await graphql(
@@ -82,21 +81,6 @@ describe('운동종목 수정', () => {
     if (errors) {
       expect(errors.length).toEqual(1);
       expect(errors[0].message).toContain('E11000 duplicate key error dup key');
-    }
-  });
-
-  it('종류 필드는 반드시 필요하다', async () => {
-    const { token } = await signIn(undefined, [Role.ADMIN]);
-    const { errors } = await graphql(
-      updateTrainingMutation,
-      await getTrainingMutationVariables({ type: undefined }),
-      token,
-    );
-
-    expect(errors).toBeDefined();
-    if (errors) {
-      expect(errors.length).toEqual(1);
-      expect(errors[0]).toBeInstanceOf(GraphQLError);
     }
   });
 
@@ -209,10 +193,10 @@ describe('운동종목 삭제', () => {
 });
 
 async function getTrainingMutationVariables(
-  input?: Partial<TrainingInput>,
+  input?: UpdateTrainingInput,
 ): Promise<{
   _id: string;
-  input: TrainingInput;
+  input: UpdateTrainingInput;
 }> {
   const training = await TrainingModel.create(TrainingFactory());
 

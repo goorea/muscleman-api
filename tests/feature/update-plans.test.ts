@@ -4,7 +4,6 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import { Plan, PlanModel } from '@src/models/Plan';
 import { User, UserModel } from '@src/models/User';
 import { UserFactory } from '@src/factories/UserFactory';
-import { PlanInput } from '@src/resolvers/types/PlanInput';
 import { PlanQueryHelpers } from '@src/models/types/Plan';
 import { signIn } from '@tests/helpers';
 import { UserQueryHelpers } from '@src/models/types/User';
@@ -15,9 +14,10 @@ import { DocumentType } from '@typegoose/typegoose';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
+import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
 
 describe('운동 계획 수정', () => {
-  const updatePlanMutation = `mutation updatePlan($_id: ObjectId!, $input: PlanInput!) { updatePlan(_id: $_id, input: $input) }`;
+  const updatePlanMutation = `mutation updatePlan($_id: ObjectId!, $input: UpdatePlanInput!) { updatePlan(_id: $_id, input: $input) }`;
 
   it('로그인 하지 않은 사용자는 수정 요청할 수 없다', async () => {
     const plan = await getPlan();
@@ -211,7 +211,7 @@ describe('운동 계획 삭제', () => {
 });
 
 async function getPlan(
-  input?: Partial<PlanInput>,
+  input?: UpdatePlanInput,
   user?: DocumentType<User, UserQueryHelpers>,
 ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
   return PlanModel.create({

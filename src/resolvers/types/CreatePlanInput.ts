@@ -5,7 +5,7 @@ import { SetInput } from '@src/resolvers/types/SetInput';
 import { PlanLimit } from '@src/limits/PlanLimit';
 
 @InputType({ description: '운동 계획 입력 객체' })
-export class PlanInput implements Partial<Plan> {
+export class CreatePlanInput implements Partial<Plan> {
   @Field(() => ID, { description: '운동종목' })
   training: string;
 

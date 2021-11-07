@@ -9,7 +9,7 @@ import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
 
 describe('회원가입을 할 수 있다', () => {
-  const registerMutation = `mutation register($input: UserInput!) { register(input: $input) { user { _id, password } } }`;
+  const registerMutation = `mutation register($input: RegisterInput!) { register(input: $input) { user { _id, password } } }`;
   const existUserQuery = `query existUser($field: String!, $value: String!) { existUser(field: $field, value: $value) }`;
 
   it('로그인한 사용자는 요청할 수 없다', async () => {

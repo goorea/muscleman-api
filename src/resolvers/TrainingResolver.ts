@@ -1,17 +1,18 @@
 import { Arg, Authorized, Mutation, Resolver } from 'type-graphql';
 import { Training, TrainingModel } from '@src/models/Training';
-import { TrainingInput } from '@src/resolvers/types/TrainingInput';
+import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
 import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { DocumentType, mongoose } from '@typegoose/typegoose';
 import { Role } from '@src/types/enums';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import { UpdateTrainingInput } from '@src/resolvers/types/UpdateTrainingInput';
 
 @Resolver(() => Training)
 export class TrainingResolver {
   @Mutation(() => Training, { description: '운동종목 추가' })
   @Authorized(Role.ADMIN)
   async createTraining(
-    @Arg('input') input: TrainingInput,
+    @Arg('input') input: CreateTrainingInput,
   ): Promise<DocumentType<Training, TrainingQueryHelpers>> {
     return TrainingModel.create(input);
   }
@@ -20,7 +21,7 @@ export class TrainingResolver {
   @Authorized(Role.ADMIN)
   async updateTraining(
     @Arg('_id') _id: mongoose.Types.ObjectId,
-    @Arg('input') input: TrainingInput,
+    @Arg('input') input: UpdateTrainingInput,
   ): Promise<boolean> {
     await TrainingModel.findByIdAndUpdate(_id, input)
       .orFail(new DocumentNotFoundError())

@@ -7,7 +7,7 @@ import {
   Resolver,
   UseMiddleware,
 } from 'type-graphql';
-import { UserInput } from '@src/resolvers/types/UserInput';
+import { RegisterInput } from '@src/resolvers/types/RegisterInput';
 import bcrypt from 'bcrypt';
 import { UserInputError } from 'apollo-server';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
@@ -59,7 +59,7 @@ export class UserResolver {
   @Mutation(() => AuthenticationResponse, { description: '사용자 생성' })
   @UseMiddleware(GuestMiddleware)
   async register(
-    @Arg('input') input: UserInput,
+    @Arg('input') input: RegisterInput,
   ): Promise<AuthenticationResponse> {
     if (input.password !== input.password_confirmation) {
       throw new UserInputError('비밀번호와 비밀번호 확인 값이 다릅니다');

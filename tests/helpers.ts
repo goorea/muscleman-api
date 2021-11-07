@@ -3,11 +3,11 @@ import { UserFactory } from '@src/factories/UserFactory';
 import { sign } from '@src/plugins/jwt';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { Role } from '@src/types/enums';
-import { UserInput } from '@src/resolvers/types/UserInput';
+import { RegisterInput } from '@src/resolvers/types/RegisterInput';
 import { DocumentType } from '@typegoose/typegoose';
 
 export async function signIn(
-  input?: Partial<UserInput>,
+  input?: Partial<RegisterInput>,
   roles?: Role[],
 ): Promise<{
   user: DocumentType<User, UserQueryHelpers>;
@@ -17,7 +17,7 @@ export async function signIn(
   const user = await UserModel.create({
     ...UserFactory(input),
     roles,
-  } as UserInput);
+  } as RegisterInput);
   const { token, refresh_token } = sign(user);
 
   return { user, token, refresh_token };

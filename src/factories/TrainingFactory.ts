@@ -1,11 +1,11 @@
 import faker from 'faker';
 import { TrainingType } from '@src/types/enums';
-import { TrainingInput } from '@src/resolvers/types/TrainingInput';
+import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
 import { TrainingLimit } from '@src/limits/TrainingLimit';
 
 export const TrainingFactory: (
-  input?: Partial<TrainingInput>,
-) => TrainingInput = input =>
+  input?: Partial<CreateTrainingInput>,
+) => CreateTrainingInput = input =>
   Object.assign(
     {
       name: faker.unique(faker.name.lastName),
@@ -26,6 +26,6 @@ export const TrainingFactory: (
       }),
       thumbnail_path: faker.image.imageUrl(64, 64),
       video_path: faker.image.imageUrl(64, 64),
-    } as TrainingInput,
+    } as CreateTrainingInput,
     input,
   );

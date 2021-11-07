@@ -29,7 +29,7 @@ describe('사용자 모델', () => {
     const input = UserFactory();
     const { data } = await graphql(
       `
-        mutation register($input: UserInput!) {
+        mutation register($input: RegisterInput!) {
           register(input: $input) {
             user {
               _id
