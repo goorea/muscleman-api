@@ -33,19 +33,21 @@ export class Plan extends Model implements PlanMethods {
   @prop({ type: Date, required: true })
   plan_date: string;
 
-  @Field(() => [Set], { description: '세트', nullable: true, defaultValue: [] })
+  @Field(() => [Set], { description: '세트', defaultValue: [] })
   @prop({ type: [mongoose.Schema.Types.Mixed], default: [] })
-  sets?: Set[];
+  sets: (Set | WeightSet)[];
 
   @Field(() => Boolean, {
     description: '완료 여부',
-    nullable: true,
     defaultValue: false,
   })
   @prop({ type: Boolean, default: false })
-  complete?: boolean;
+  complete: boolean;
 
-  @Field(() => Boolean, { description: '수정, 삭제 권한' })
+  @Field(() => Number, { description: '1rm', defaultValue: 0 })
+  @prop({ type: Number, default: 0 })
+  one_rm: number;
+
   checkPermission(
     this: DocumentType<Plan, PlanQueryHelpers>,
     user: DocumentType<User, UserQueryHelpers>,
