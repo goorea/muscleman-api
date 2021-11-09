@@ -1,7 +1,10 @@
 import { connect } from 'mongoose';
-import { ApolloServer } from 'apollo-server';
+import { ApolloServer } from 'apollo-server-express';
 import { schema } from '@src/schema';
 import { context } from '@src/context';
+import express from 'express';
+import { createServer } from 'http';
+import { subscription } from '@src/subscription';
 
 async function bootstrap() {
   try {
@@ -11,13 +14,34 @@ async function bootstrap() {
       pass: process.env.DB_PASSWORD,
     });
 
+    const app = express();
+    const httpServer = createServer(app);
+
     const server = new ApolloServer({
       schema: await schema,
       context,
+      plugins: [
+        {
+          async serverWillStart() {
+            return {
+              async drainServer() {
+                subscriptionServer.close();
+              },
+            };
+          },
+        },
+      ],
     });
 
-    const { url } = await server.listen(process.env.APP_PORT || 4000);
-    console.log(`서버 실행 중, GraphQL이 ${url} 에서 실행되고 있습니다`);
+    const subscriptionServer = await subscription(httpServer, server);
+
+    await server.start();
+    server.applyMiddleware({ app });
+
+    const PORT = process.env.APP_PORT || 4000;
+    httpServer.listen(PORT, () =>
+      console.log(`Server is now running on http://localhost:${PORT}/graphql`),
+    );
   } catch (err) {
     console.error(err);
   }
