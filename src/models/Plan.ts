@@ -1,4 +1,4 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Float, ObjectType } from 'type-graphql';
 import {
   DocumentType,
   getModelForClass,
@@ -48,8 +48,8 @@ export class Plan extends Model implements PlanMethods {
   @prop({ type: Boolean, default: false })
   complete: boolean;
 
-  @Field(() => Number, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
+  @Field(() => Float, { description: '1rm', defaultValue: 0 })
+  @prop({ type: Float, default: 0 })
   one_rm: number;
 
   checkPermission(
