@@ -3,10 +3,13 @@ import {
   Ctx,
   FieldResolver,
   Mutation,
+  PubSub,
+  PubSubEngine,
   Query,
   Resolver,
   ResolverInterface,
   Root,
+  Subscription,
   UseMiddleware,
 } from 'type-graphql';
 import { Plan, PlanModel } from '@src/models/Plan';
@@ -37,6 +40,40 @@ export class PlanResolver implements ResolverInterface<Plan> {
     return PlanModel.find({ user: user._id });
   }
 
+  @Query(() => Number, { description: '최대 무게' })
+  @UseMiddleware(AuthenticateMiddleware)
+  async oneRM(
+    @Arg('type') type: string,
+    @Ctx() { user }: Context,
+  ): Promise<number> {
+    if (!user) {
+      throw new AuthenticationError();
+    }
+
+    return (
+      (
+        await PlanModel.findOne({ user })
+          .populate<Training>({
+            path: 'training',
+            match: { type },
+          })
+          .sort({ one_rm: -1 })
+      )?.one_rm || 0
+    );
+  }
+
+  @Subscription(() => Number, {
+    description: '최대 무게 구독',
+    topics: ({ args }) => args.topic,
+  })
+  @UseMiddleware(AuthenticateMiddleware)
+  async subscribeOneRM(
+    @Arg('topic') topic: string,
+    @Ctx() context: Context,
+  ): Promise<number> {
+    return this.oneRM(topic, context);
+  }
+
   @Mutation(() => Plan, { description: '운동계획 생성' })
   @UseMiddleware(AuthenticateMiddleware)
   async createPlan(
@@ -56,6 +93,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
   @Mutation(() => Boolean, { description: '운동계획 수정' })
   @UseMiddleware(AuthenticateMiddleware)
   async updatePlan(
+    @PubSub() pubSub: PubSubEngine,
     @Arg('_id') _id: mongoose.Types.ObjectId,
     @Arg('input') input: UpdatePlanInput,
     @Ctx() { user }: Context,
@@ -64,12 +102,17 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    await (
-      await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec()
-    )
-      .checkPermission(user)
-      .updateOne(input)
+    const plan = await PlanModel.findById(_id)
+      .orFail(new DocumentNotFoundError())
       .exec();
+    const training = (await plan.populate<Training>({ path: 'training' }))
+      .training as Training;
+
+    await plan.checkPermission(user).updateOne(input).exec();
+
+    if (input.complete !== undefined) {
+      await pubSub.publish(training.type, undefined);
+    }
 
     return true;
   }
