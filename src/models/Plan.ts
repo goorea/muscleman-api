@@ -1,9 +1,10 @@
-import { Field, ObjectType } from 'type-graphql';
+import { Field, Float, ObjectType } from 'type-graphql';
 import {
   DocumentType,
   getModelForClass,
   modelOptions,
   mongoose,
+  pre,
   prop,
   Ref,
   Severity,
@@ -17,7 +18,10 @@ import { UserQueryHelpers } from '@src/models/types/User';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
 import ForbiddenError from '@src/errors/ForbiddenError';
+import { toggleOneRM } from '@src/models/hooks/plan-hooks';
+import { WeightSet } from '@src/models/types/WeightSet';
 
+@pre<Plan>(['updateOne', 'findOneAndUpdate', 'updateMany'], toggleOneRM)
 @ObjectType({ implements: Model, description: '운동계획 모델' })
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Plan extends Model implements PlanMethods {
@@ -44,8 +48,8 @@ export class Plan extends Model implements PlanMethods {
   @prop({ type: Boolean, default: false })
   complete: boolean;
 
-  @Field(() => Number, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
+  @Field(() => Float, { description: '1rm', defaultValue: 0 })
+  @prop({ type: Float, default: 0 })
   one_rm: number;
 
   checkPermission(
@@ -64,6 +68,29 @@ export class Plan extends Model implements PlanMethods {
     }
 
     return this;
+  }
+
+  hasWeightSets(
+    this: DocumentType<Plan, PlanQueryHelpers>,
+    sets: Plan['sets'],
+  ): sets is WeightSet[] {
+    return this.sets.every(
+      set =>
+        (set as WeightSet).weight !== undefined &&
+        (set as WeightSet).count !== undefined,
+    );
+  }
+
+  getOneRM(this: DocumentType<Plan, PlanQueryHelpers>): number {
+    if (this.hasWeightSets(this.sets)) {
+      const { weight, count } = this.sets
+        .sort((a, b) => b.weight - a.weight)
+        .slice(-1)[0];
+
+      return weight + weight * count * 0.025;
+    }
+
+    return 0;
   }
 }
 
