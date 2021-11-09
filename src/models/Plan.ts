@@ -49,7 +49,7 @@ export class Plan extends Model implements PlanMethods {
   complete: boolean;
 
   @Field(() => Float, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Float, default: 0 })
+  @prop({ type: Number, default: 0 })
   one_rm: number;
 
   checkPermission(
