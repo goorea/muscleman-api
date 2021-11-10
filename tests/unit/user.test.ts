@@ -1,11 +1,12 @@
-import { User, UserModel } from '@src/models/User';
-import { Model } from '@src/models/Model';
-import { UserFactory } from '@src/factories/UserFactory';
-import { Plan, PlanModel } from '@src/models/Plan';
-import { PlanFactory } from '@src/factories/PlanFactory';
-import { graphql } from '@tests/graphql';
-import bcrypt from 'bcrypt';
+import { compare } from 'bcrypt';
 import * as faker from 'faker';
+
+import { PlanFactory } from '@src/factories/PlanFactory';
+import { UserFactory } from '@src/factories/UserFactory';
+import { Model } from '@src/models/Model';
+import { Plan, PlanModel } from '@src/models/Plan';
+import { User, UserModel } from '@src/models/User';
+import { graphql } from '@tests/graphql';
 
 describe('사용자 모델', () => {
   it('Model을 상속받고 있다', () => {
@@ -44,7 +45,7 @@ describe('사용자 모델', () => {
     );
 
     expect(
-      await bcrypt.compare(input.password, data?.register.user.password),
+      await compare(input.password, data?.register.user.password),
     ).toBeTruthy();
   });
 

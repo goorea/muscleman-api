@@ -1,10 +1,12 @@
-import { SubscriptionServer } from 'subscriptions-transport-ws';
-import { schema } from '@src/schema';
-import { execute, subscribe } from 'graphql';
-import { ApolloServer } from 'apollo-server-express';
-import { context } from '@src/context';
 import { IncomingHttpHeaders, Server } from 'http';
+
+import { ApolloServer } from 'apollo-server-express';
 import express from 'express';
+import { execute, subscribe } from 'graphql';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+
+import { context } from '@src/context';
+import { schema } from '@src/schema';
 
 export const subscription = async (
   httpServer: Server,

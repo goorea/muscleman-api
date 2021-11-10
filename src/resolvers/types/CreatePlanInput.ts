@@ -1,8 +1,10 @@
-import { Field, ID, InputType } from 'type-graphql';
 import { IsBoolean, IsDate, MinDate, ValidateNested } from 'class-validator';
-import { Plan } from '@src/models/Plan';
-import { SetInput } from '@src/resolvers/types/SetInput';
+import { Field, ID, InputType } from 'type-graphql';
+
 import { PlanLimit } from '@src/limits/PlanLimit';
+import { Plan } from '@src/models/Plan';
+
+import { SetInput } from './SetInput';
 
 @InputType({ description: '운동 계획 입력 객체' })
 export class CreatePlanInput implements Partial<Plan> {

@@ -1,7 +1,8 @@
-import { Field, Float, InputType, Int } from 'type-graphql';
-import { Set } from '@src/models/Set';
 import { Min } from 'class-validator';
+import { Field, Float, InputType, Int } from 'type-graphql';
+
 import { PlanLimit } from '@src/limits/PlanLimit';
+import { Set } from '@src/models/Set';
 
 @InputType({ description: '세트 입력 객체' })
 export class SetInput implements Partial<Set> {

@@ -1,12 +1,13 @@
-import { graphql } from '@tests/graphql';
-import { signIn } from '@tests/helpers';
+import { uid } from 'rand-token';
+
+import AuthenticationError from '@src/errors/AuthenticationError';
+import ValidationError from '@src/errors/ValidationError';
+import { UserFactory } from '@src/factories/UserFactory';
 import { UserModel } from '@src/models/User';
 import { VerifyInput } from '@src/resolvers/types/VerifyInput';
-import { UserFactory } from '@src/factories/UserFactory';
-import randToken from 'rand-token';
-import AuthenticationError from '@src/errors/AuthenticationError';
 import { Role } from '@src/types/enums';
-import ValidationError from '@src/errors/ValidationError';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('이메일 인증', () => {
   describe('인증 메일 전송', () => {
@@ -113,6 +114,6 @@ function getVerifyInput(input?: Partial<VerifyInput>): VerifyInput {
 
   return {
     email,
-    email_verify_token: input?.email_verify_token ?? randToken.uid(64),
+    email_verify_token: input?.email_verify_token ?? uid(64),
   };
 }

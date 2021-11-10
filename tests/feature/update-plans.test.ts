@@ -1,20 +1,21 @@
-import { graphql } from '@tests/graphql';
-import { PlanFactory } from '@src/factories/PlanFactory';
-import AuthenticationError from '@src/errors/AuthenticationError';
-import { Plan, PlanModel } from '@src/models/Plan';
-import { User, UserModel } from '@src/models/User';
-import { UserFactory } from '@src/factories/UserFactory';
-import { PlanQueryHelpers } from '@src/models/types/Plan';
-import { signIn } from '@tests/helpers';
-import { UserQueryHelpers } from '@src/models/types/User';
-import { Role } from '@src/types/enums';
-import { GraphQLError } from 'graphql';
-import * as faker from 'faker';
 import { DocumentType } from '@typegoose/typegoose';
+import * as faker from 'faker';
+import { GraphQLError } from 'graphql';
+
+import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
+import { PlanFactory } from '@src/factories/PlanFactory';
+import { UserFactory } from '@src/factories/UserFactory';
+import { Plan, PlanModel } from '@src/models/Plan';
+import { User, UserModel } from '@src/models/User';
+import { PlanQueryHelpers } from '@src/models/types/Plan';
+import { UserQueryHelpers } from '@src/models/types/User';
 import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
+import { Role } from '@src/types/enums';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('운동 계획 수정', () => {
   const updatePlanMutation = `mutation updatePlan($_id: ObjectId!, $input: UpdatePlanInput!) { updatePlan(_id: $_id, input: $input) }`;

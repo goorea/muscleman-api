@@ -1,7 +1,8 @@
 import faker from 'faker';
-import { TrainingType } from '@src/types/enums';
-import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
+
 import { TrainingLimit } from '@src/limits/TrainingLimit';
+import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
+import { TrainingType } from '@src/types/enums';
 
 export const TrainingFactory: (
   input?: Partial<CreateTrainingInput>,

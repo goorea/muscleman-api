@@ -1,10 +1,10 @@
-import { Training, TrainingModel } from '@src/models/Training';
-import { Model } from '@src/models/Model';
-import { Plan, PlanModel } from '@src/models/Plan';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { TrainingFactory } from '@src/factories/TrainingFactory';
-import { UserModel } from '@src/models/User';
 import { UserFactory } from '@src/factories/UserFactory';
+import { Model } from '@src/models/Model';
+import { Plan, PlanModel } from '@src/models/Plan';
+import { Training, TrainingModel } from '@src/models/Training';
+import { UserModel } from '@src/models/User';
 
 describe('운동종목 모델', () => {
   it('Model을 상속받고 있다', () => {

@@ -1,8 +1,9 @@
 import faker from 'faker';
-import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
-import { TrainingFactory } from '@src/factories/TrainingFactory';
+
 import { SetFactory } from '@src/factories/SetFactory';
+import { TrainingFactory } from '@src/factories/TrainingFactory';
 import { TrainingModel } from '@src/models/Training';
+import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
 
 export const PlanFactory: (
   input?: Partial<CreatePlanInput>,

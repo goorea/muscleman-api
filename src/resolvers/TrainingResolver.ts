@@ -1,11 +1,13 @@
-import { Arg, Authorized, Mutation, Resolver } from 'type-graphql';
-import { Training, TrainingModel } from '@src/models/Training';
-import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
-import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { DocumentType, mongoose } from '@typegoose/typegoose';
-import { Role } from '@src/types/enums';
+import { Arg, Authorized, Mutation, Resolver } from 'type-graphql';
+
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
-import { UpdateTrainingInput } from '@src/resolvers/types/UpdateTrainingInput';
+import { Training, TrainingModel } from '@src/models/Training';
+import { TrainingQueryHelpers } from '@src/models/types/Training';
+import { Role } from '@src/types/enums';
+
+import { CreateTrainingInput } from './types/CreateTrainingInput';
+import { UpdateTrainingInput } from './types/UpdateTrainingInput';
 
 @Resolver(() => Training)
 export class TrainingResolver {

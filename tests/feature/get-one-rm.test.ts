@@ -1,8 +1,8 @@
-import { signIn } from '@tests/helpers';
-import { PlanModel } from '@src/models/Plan';
 import { PlanFactory } from '@src/factories/PlanFactory';
-import { graphql } from '@tests/graphql';
+import { PlanModel } from '@src/models/Plan';
 import { Training } from '@src/models/Training';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('최대 무게 조회', () => {
   it('사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {

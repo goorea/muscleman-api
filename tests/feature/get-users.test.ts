@@ -1,8 +1,8 @@
-import { UserModel } from '@src/models/User';
+import AuthenticationError from '@src/errors/AuthenticationError';
 import { UserFactory } from '@src/factories/UserFactory';
+import { UserModel } from '@src/models/User';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
-import AuthenticationError from '@src/errors/AuthenticationError';
 
 describe('사용자 조회', () => {
   it('모든 사용자를 조회할 수 있다', async () => {

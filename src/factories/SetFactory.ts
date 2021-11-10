@@ -1,4 +1,5 @@
 import faker from 'faker';
+
 import { SetInput } from '@src/resolvers/types/SetInput';
 
 export const SetFactory: (input?: Partial<SetInput>) => SetInput = input =>

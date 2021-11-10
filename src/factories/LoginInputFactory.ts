@@ -1,4 +1,5 @@
 import faker from 'faker';
+
 import { UserLimit } from '@src/limits/UserLimit';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
 

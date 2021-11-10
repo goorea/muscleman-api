@@ -1,4 +1,5 @@
 import { MiddlewareFn } from 'type-graphql';
+
 import { Context } from '@src/context';
 import ForbiddenError from '@src/errors/ForbiddenError';
 

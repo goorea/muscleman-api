@@ -1,12 +1,13 @@
-import nodemailer, { Transporter } from 'nodemailer';
 import Mailgen, { Content } from 'mailgen';
-import { User } from '@src/models/User';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { Transporter, createTransport } from 'nodemailer';
 import { Address } from 'nodemailer/lib/mailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+
+import { User } from '@src/models/User';
 
 export class Mail {
   private static get transporter(): Transporter<SMTPTransport.SentMessageInfo> {
-    return nodemailer.createTransport({
+    return createTransport({
       host: process.env.MAIL_HOST || '',
       port: Number(process.env.MAIL_PORT),
       secure: Number(process.env.MAIL_PORT) === 465,

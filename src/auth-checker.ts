@@ -1,4 +1,5 @@
 import { AuthChecker } from 'type-graphql';
+
 import { Context } from '@src/context';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import ForbiddenError from '@src/errors/ForbiddenError';

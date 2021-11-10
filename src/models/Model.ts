@@ -1,5 +1,5 @@
-import { Field, ID, InterfaceType } from 'type-graphql';
 import { mongoose, pre, prop } from '@typegoose/typegoose';
+import { Field, ID, InterfaceType } from 'type-graphql';
 
 @pre<Model>('save', function () {
   this.updated_at = new Date();

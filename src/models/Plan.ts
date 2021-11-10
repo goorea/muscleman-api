@@ -1,4 +1,3 @@
-import { Field, Float, ObjectType } from 'type-graphql';
 import {
   DocumentType,
   getModelForClass,
@@ -9,17 +8,20 @@ import {
   Ref,
   Severity,
 } from '@typegoose/typegoose';
-import { Model } from '@src/models/Model';
-import { PlanMethods, PlanQueryHelpers } from '@src/models/types/Plan';
-import { User } from '@src/models/User';
-import { Training } from '@src/models/Training';
-import { Set } from '@src/models/Set';
-import { UserQueryHelpers } from '@src/models/types/User';
+import { Field, Float, ObjectType } from 'type-graphql';
+
 import AuthenticationError from '@src/errors/AuthenticationError';
-import { Role } from '@src/types/enums';
 import ForbiddenError from '@src/errors/ForbiddenError';
-import { toggleOneRM } from '@src/models/hooks/plan-hooks';
-import { WeightSet } from '@src/models/types/WeightSet';
+import { Role } from '@src/types/enums';
+
+import { Model } from './Model';
+import { Set } from './Set';
+import { Training } from './Training';
+import { User } from './User';
+import { toggleOneRM } from './hooks/plan-hooks';
+import { PlanMethods, PlanQueryHelpers } from './types/Plan';
+import { UserQueryHelpers } from './types/User';
+import { WeightSet } from './types/WeightSet';
 
 @pre<Plan>(['updateOne', 'findOneAndUpdate', 'updateMany'], toggleOneRM)
 @ObjectType({ implements: Model, description: '운동계획 모델' })
