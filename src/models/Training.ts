@@ -1,12 +1,11 @@
-import { Model } from '@src/models/Model';
-import { Field, Int, ObjectType } from 'type-graphql';
 import { getModelForClass, pre, prop } from '@typegoose/typegoose';
+import { Field, Int, ObjectType } from 'type-graphql';
+
 import { TrainingType } from '@src/types/enums';
-import {
-  TrainingMethods,
-  TrainingQueryHelpers,
-} from '@src/models/types/Training';
-import { deleteLinkedReferences } from '@src/models/hooks/training-hooks';
+
+import { Model } from './Model';
+import { deleteLinkedReferences } from './hooks/training-hooks';
+import { TrainingMethods, TrainingQueryHelpers } from './types/Training';
 
 @pre<Training>(
   ['deleteOne', 'deleteMany', 'findOneAndDelete'],

@@ -1,4 +1,5 @@
 import { ArgumentValidationError, MiddlewareFn } from 'type-graphql';
+
 import { Context } from '@src/context';
 import ValidationError from '@src/errors/ValidationError';
 

@@ -1,5 +1,6 @@
-import { GraphQLScalarType, Kind } from 'graphql';
 import { mongoose } from '@typegoose/typegoose';
+import { GraphQLScalarType, Kind } from 'graphql';
+
 import ObjectId = mongoose.Types.ObjectId;
 
 export const ObjectIdScalar = new GraphQLScalarType({

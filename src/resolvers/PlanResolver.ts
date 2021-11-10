@@ -1,3 +1,4 @@
+import { DocumentType, mongoose } from '@typegoose/typegoose';
 import {
   Arg,
   Ctx,
@@ -12,19 +13,20 @@ import {
   Subscription,
   UseMiddleware,
 } from 'type-graphql';
-import { Plan, PlanModel } from '@src/models/Plan';
-import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
-import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
+
 import { Context } from '@src/context';
-import { Training, TrainingModel } from '@src/models/Training';
 import AuthenticationError from '@src/errors/AuthenticationError';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
+import { Plan, PlanModel } from '@src/models/Plan';
+import { Training, TrainingModel } from '@src/models/Training';
 import { User, UserModel } from '@src/models/User';
 import { PlanQueryHelpers } from '@src/models/types/Plan';
-import { UserQueryHelpers } from '@src/models/types/User';
 import { TrainingQueryHelpers } from '@src/models/types/Training';
-import { DocumentType, mongoose } from '@typegoose/typegoose';
-import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
-import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
+import { UserQueryHelpers } from '@src/models/types/User';
+
+import { CreatePlanInput } from './types/CreatePlanInput';
+import { UpdatePlanInput } from './types/UpdatePlanInput';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {

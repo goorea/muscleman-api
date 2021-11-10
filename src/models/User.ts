@@ -1,4 +1,3 @@
-import { Field, ObjectType } from 'type-graphql';
 import {
   DocumentType,
   getModelForClass,
@@ -8,15 +7,15 @@ import {
   prop,
   Severity,
 } from '@typegoose/typegoose';
-import { Gender, Role } from '@src/types/enums';
-import { Model } from '@src/models/Model';
-import { JWTResponse } from '@src/resolvers/types/JWTResponse';
+import { Field, ObjectType } from 'type-graphql';
+
 import { sign } from '@src/plugins/jwt';
-import { UserMethods, UserQueryHelpers } from '@src/models/types/User';
-import {
-  deleteLinkedReferences,
-  hashPassword,
-} from '@src/models/hooks/user-hooks';
+import { JWTResponse } from '@src/resolvers/types/JWTResponse';
+import { Gender, Role } from '@src/types/enums';
+
+import { Model } from './Model';
+import { deleteLinkedReferences, hashPassword } from './hooks/user-hooks';
+import { UserMethods, UserQueryHelpers } from './types/User';
 
 @pre<User>('save', hashPassword)
 @pre<User>(

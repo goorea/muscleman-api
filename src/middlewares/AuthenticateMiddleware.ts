@@ -1,4 +1,5 @@
 import { MiddlewareFn } from 'type-graphql';
+
 import { Context } from '@src/context';
 import AuthenticationError from '@src/errors/AuthenticationError';
 

@@ -1,16 +1,17 @@
-import { signIn } from '@tests/helpers';
-import { graphql } from '@tests/graphql';
+import * as faker from 'faker';
+
+import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import ForbiddenError from '@src/errors/ForbiddenError';
+import TokenExpiredError from '@src/errors/TokenExpiredError';
+import ValidationError from '@src/errors/ValidationError';
+import { LoginInputFactory } from '@src/factories/LoginInputFactory';
 import { UserFactory } from '@src/factories/UserFactory';
 import { UserLimit } from '@src/limits/UserLimit';
 import { UserModel } from '@src/models/User';
-import ForbiddenError from '@src/errors/ForbiddenError';
-import ValidationError from '@src/errors/ValidationError';
-import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
-import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
-import TokenExpiredError from '@src/errors/TokenExpiredError';
-import * as faker from 'faker';
-import { LoginInputFactory } from '@src/factories/LoginInputFactory';
 import { LoginInput } from '@src/resolvers/types/LoginInput';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('사용자 로그인', () => {
   const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refresh_token } }`;

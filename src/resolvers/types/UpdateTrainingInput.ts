@@ -1,6 +1,7 @@
-import { Field, InputType, Int } from 'type-graphql';
-import { Training } from '@src/models/Training';
 import { IsNotEmpty, IsUrl, Max, Min } from 'class-validator';
+import { Field, InputType, Int } from 'type-graphql';
+
+import { Training } from '@src/models/Training';
 import { TrainingType } from '@src/types/enums';
 
 @InputType({ description: '운동종목 추가 입력 객체' })

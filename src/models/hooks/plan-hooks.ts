@@ -1,7 +1,9 @@
-import { PreFnWithQuery } from '@src/types/hooks';
-import { Plan, PlanModel } from '@src/models/Plan';
-import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { UpdateQuery, UpdateWithAggregationPipeline } from 'mongoose';
+
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
+import { PreFnWithQuery } from '@src/types/hooks';
+
+import { Plan, PlanModel } from '../Plan';
 
 const isCompleteUpdateQuery = <T>(
   update: UpdateQuery<T> | UpdateWithAggregationPipeline | null,

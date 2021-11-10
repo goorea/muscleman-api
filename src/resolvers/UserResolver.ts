@@ -1,4 +1,7 @@
-import { User, UserModel } from '@src/models/User';
+import { DocumentType } from '@typegoose/typegoose';
+import { UserInputError } from 'apollo-server';
+import { compare } from 'bcrypt';
+import { uid } from 'rand-token';
 import {
   Arg,
   Ctx,
@@ -7,27 +10,26 @@ import {
   Resolver,
   UseMiddleware,
 } from 'type-graphql';
-import { RegisterInput } from '@src/resolvers/types/RegisterInput';
-import bcrypt from 'bcrypt';
-import { UserInputError } from 'apollo-server';
-import { LoginInput } from '@src/resolvers/types/LoginInput';
-import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
-import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
+
 import { Context } from '@src/context';
-import { JWTResponse } from '@src/resolvers/types/JWTResponse';
-import randToken from 'rand-token';
-import { Mail } from '@src/notifications/Mail';
-import { VerifyInput } from '@src/resolvers/types/VerifyInput';
-import { UserLimit } from '@src/limits/UserLimit';
-import AuthenticationError from '@src/errors/AuthenticationError';
-import { Role } from '@src/types/enums';
-import { UserQueryHelpers } from '@src/models/types/User';
-import { DocumentType } from '@typegoose/typegoose';
-import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
-import VerifiedError from '@src/errors/VerifiedError';
 import AuthenticateFailedError from '@src/errors/AuthenticateFailedError';
+import AuthenticationError from '@src/errors/AuthenticationError';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ValidationError from '@src/errors/ValidationError';
-import { AuthenticationResponse } from '@src/resolvers/types/AuthenticationResponse';
+import VerifiedError from '@src/errors/VerifiedError';
+import { UserLimit } from '@src/limits/UserLimit';
+import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
+import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
+import { User, UserModel } from '@src/models/User';
+import { UserQueryHelpers } from '@src/models/types/User';
+import { Mail } from '@src/notifications/Mail';
+import { Role } from '@src/types/enums';
+
+import { AuthenticationResponse } from './types/AuthenticationResponse';
+import { JWTResponse } from './types/JWTResponse';
+import { LoginInput } from './types/LoginInput';
+import { RegisterInput } from './types/RegisterInput';
+import { VerifyInput } from './types/VerifyInput';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -85,9 +87,7 @@ export class UserResolver {
       throw new UserInputError('해당 사용자는 소셜 로그인 사용자입니다.');
     }
 
-    const compare = await bcrypt.compare(input.password, user.password);
-
-    if (!compare) {
+    if (!(await compare(input.password, user.password))) {
       throw new AuthenticateFailedError();
     }
 
@@ -122,7 +122,7 @@ export class UserResolver {
       throw new VerifiedError();
     }
 
-    const token = randToken.uid(UserLimit.email_verify_token.minLength);
+    const token = uid(UserLimit.email_verify_token.minLength);
     await Mail.verify(user, token);
     await user.updateOne({ email_verify_token: token }).exec();
 

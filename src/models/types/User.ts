@@ -1,6 +1,8 @@
 import { DocumentType } from '@typegoose/typegoose';
+
 import { JWTResponse } from '@src/resolvers/types/JWTResponse';
-import { User } from '@src/models/User';
+
+import { User } from '../User';
 
 export interface UserMethods {
   getJWTToken: (

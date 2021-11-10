@@ -1,11 +1,12 @@
-import { signIn } from '@tests/helpers';
-import { graphql } from '@tests/graphql';
-import randToken from 'rand-token';
-import { UserModel } from '@src/models/User';
+import * as faker from 'faker';
+import { uid } from 'rand-token';
+
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ForbiddenError from '@src/errors/ForbiddenError';
-import * as faker from 'faker';
 import ValidationError from '@src/errors/ValidationError';
+import { UserModel } from '@src/models/User';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('JWT 토큰 갱신', () => {
   const refreshTokenMutation = `mutation refreshToken($refresh_token: String!, $device_id: String!) { refreshToken(refresh_token: $refresh_token, device_id: $device_id) { token, refresh_token } }`;
@@ -97,7 +98,7 @@ describe('JWT 토큰 갱신', () => {
 
 function getRefreshTokenInput(refresh_token?: string, device_id?: string) {
   return {
-    refresh_token: refresh_token ?? randToken.uid(256),
+    refresh_token: refresh_token ?? uid(256),
     device_id: device_id ?? faker.internet.mac(),
   };
 }

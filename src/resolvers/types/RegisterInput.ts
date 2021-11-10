@@ -1,6 +1,3 @@
-import { Field, InputType } from 'type-graphql';
-import { User } from '@src/models/User';
-import { Gender } from '@src/types/enums';
 import {
   IsAscii,
   IsDate,
@@ -12,7 +9,11 @@ import {
   MinDate,
   MinLength,
 } from 'class-validator';
+import { Field, InputType } from 'type-graphql';
+
 import { UserLimit } from '@src/limits/UserLimit';
+import { User } from '@src/models/User';
+import { Gender } from '@src/types/enums';
 
 @InputType({ description: '사용자 입력 객체' })
 export class RegisterInput implements Partial<User> {

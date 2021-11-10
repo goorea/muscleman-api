@@ -1,12 +1,13 @@
-import { graphql } from '@tests/graphql';
-import AuthenticationError from '@src/errors/AuthenticationError';
-import { PlanFactory } from '@src/factories/PlanFactory';
-import { signIn } from '@tests/helpers';
 import { GraphQLError } from 'graphql';
-import { TrainingFactory } from '@src/factories/TrainingFactory';
-import { TrainingModel } from '@src/models/Training';
-import { PlanLimit } from '@src/limits/PlanLimit';
+
+import AuthenticationError from '@src/errors/AuthenticationError';
 import ValidationError from '@src/errors/ValidationError';
+import { PlanFactory } from '@src/factories/PlanFactory';
+import { TrainingFactory } from '@src/factories/TrainingFactory';
+import { PlanLimit } from '@src/limits/PlanLimit';
+import { TrainingModel } from '@src/models/Training';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('운동 계획 생성', () => {
   const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, plan_date, sets { count, weight } } }`;

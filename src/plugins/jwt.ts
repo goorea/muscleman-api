@@ -1,14 +1,17 @@
-import jwt, {
-  TokenExpiredError as JsonWebTokenTokenExpiredError,
-} from 'jsonwebtoken';
-import { User } from '@src/models/User';
-import randToken from 'rand-token';
 import { mongoose } from '@typegoose/typegoose';
-import { JWTResponse } from '@src/resolvers/types/JWTResponse';
+import {
+  TokenExpiredError as JsonWebTokenTokenExpiredError,
+  sign as jwtSign,
+  verify as jwtVerify,
+} from 'jsonwebtoken';
+import { uid } from 'rand-token';
+
 import TokenExpiredError from '@src/errors/TokenExpiredError';
+import { User } from '@src/models/User';
+import { JWTResponse } from '@src/resolvers/types/JWTResponse';
 
 export const sign = (user: User): JWTResponse => ({
-  token: jwt.sign(
+  token: jwtSign(
     {
       _id: user._id.toHexString(),
     },
@@ -18,12 +21,12 @@ export const sign = (user: User): JWTResponse => ({
       expiresIn: process.env.JWT_EXPIRES_INT,
     },
   ),
-  refresh_token: randToken.uid(256),
+  refresh_token: uid(256),
 });
 
 export const verify = (token: string): Partial<User> => {
   try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET_KEY || '');
+    const verified = jwtVerify(token, process.env.JWT_SECRET_KEY || '');
 
     if (typeof verified === 'string') {
       return {

@@ -1,7 +1,8 @@
-import { User } from '@src/models/User';
-import { Field, InputType } from 'type-graphql';
 import { IsAscii, IsEmail, MinLength } from 'class-validator';
+import { Field, InputType } from 'type-graphql';
+
 import { UserLimit } from '@src/limits/UserLimit';
+import { User } from '@src/models/User';
 
 @InputType({ description: '사용자 JWT 토큰 입력 객체' })
 export class LoginInput implements Partial<User> {

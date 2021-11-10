@@ -1,6 +1,7 @@
 import faker from 'faker';
-import { RegisterInput } from '@src/resolvers/types/RegisterInput';
+
 import { UserLimit } from '@src/limits/UserLimit';
+import { RegisterInput } from '@src/resolvers/types/RegisterInput';
 import { Gender } from '@src/types/enums';
 
 export const UserFactory: (input?: Partial<RegisterInput>) => RegisterInput =

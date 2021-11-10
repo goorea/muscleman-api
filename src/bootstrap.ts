@@ -1,9 +1,11 @@
-import { connect } from 'mongoose';
-import { ApolloServer } from 'apollo-server-express';
-import { schema } from '@src/schema';
-import { context } from '@src/context';
-import express from 'express';
 import { createServer } from 'http';
+
+import { ApolloServer } from 'apollo-server-express';
+import express from 'express';
+import { connect } from 'mongoose';
+
+import { context } from '@src/context';
+import { schema } from '@src/schema';
 import { subscription } from '@src/subscription';
 
 async function bootstrap() {

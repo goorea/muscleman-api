@@ -1,8 +1,8 @@
-import { graphql } from '@tests/graphql';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import { PlanFactory } from '@src/factories/PlanFactory';
-import { signIn } from '@tests/helpers';
 import { Plan, PlanModel } from '@src/models/Plan';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('운동 계획 조회', () => {
   const plansQuery = `query plans { plans { _id } }`;

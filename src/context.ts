@@ -1,9 +1,10 @@
-import { verify } from '@src/plugins/jwt';
+import { DocumentType } from '@typegoose/typegoose';
 import { ContextFunction } from 'apollo-server-core/src/types';
 import { ExpressContext } from 'apollo-server-express/src/ApolloServer';
+
 import { User, UserModel } from '@src/models/User';
 import { UserQueryHelpers } from '@src/models/types/User';
-import { DocumentType } from '@typegoose/typegoose';
+import { verify } from '@src/plugins/jwt';
 
 export interface Context {
   user?: DocumentType<User, UserQueryHelpers>;

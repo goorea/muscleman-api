@@ -1,13 +1,14 @@
-import { graphql } from '@tests/graphql';
-import { TrainingFactory } from '@src/factories/TrainingFactory';
-import { signIn } from '@tests/helpers';
-import { Role } from '@src/types/enums';
-import { TrainingModel } from '@src/models/Training';
 import { GraphQLError } from 'graphql';
-import { TrainingLimit } from '@src/limits/TrainingLimit';
+
+import AuthenticationError from '@src/errors/AuthenticationError';
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
-import AuthenticationError from '@src/errors/AuthenticationError';
+import { TrainingFactory } from '@src/factories/TrainingFactory';
+import { TrainingLimit } from '@src/limits/TrainingLimit';
+import { TrainingModel } from '@src/models/Training';
+import { Role } from '@src/types/enums';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('운동종목 추가', () => {
   const createTrainingMutation = `mutation createTraining($input: CreateTrainingInput!) { createTraining(input: $input) { _id } }`;

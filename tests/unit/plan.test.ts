@@ -1,8 +1,8 @@
+import { PlanFactory } from '@src/factories/PlanFactory';
 import { Model } from '@src/models/Model';
 import { Plan, PlanModel } from '@src/models/Plan';
-import { signIn } from '@tests/helpers';
-import { PlanFactory } from '@src/factories/PlanFactory';
 import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('운동계획 모델', () => {
   const updatePlanMutation = `mutation updatePlan($_id: ObjectId!, $input: UpdatePlanInput!) { updatePlan(_id: $_id, input: $input) }`;

@@ -1,8 +1,10 @@
 import { DocumentType } from '@typegoose/typegoose';
-import { Plan } from '@src/models/Plan';
-import { User } from '@src/models/User';
-import { UserQueryHelpers } from '@src/models/types/User';
-import { WeightSet } from '@src/models/types/WeightSet';
+
+import { Plan } from '../Plan';
+import { User } from '../User';
+
+import { UserQueryHelpers } from './User';
+import { WeightSet } from './WeightSet';
 
 export interface PlanMethods {
   checkPermission: (

@@ -1,12 +1,13 @@
-import { UserFactory } from '@src/factories/UserFactory';
-import { graphql } from '@tests/graphql';
-import { UserLimit } from '@src/limits/UserLimit';
-import { GraphQLError } from 'graphql';
-import { UserModel } from '@src/models/User';
 import { UserInputError } from 'apollo-server';
-import { signIn } from '@tests/helpers';
+import { GraphQLError } from 'graphql';
+
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
+import { UserFactory } from '@src/factories/UserFactory';
+import { UserLimit } from '@src/limits/UserLimit';
+import { UserModel } from '@src/models/User';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('회원가입을 할 수 있다', () => {
   const registerMutation = `mutation register($input: RegisterInput!) { register(input: $input) { user { _id, password } } }`;
