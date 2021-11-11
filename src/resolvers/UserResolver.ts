@@ -23,14 +23,14 @@ import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
 import { User, UserModel } from '@src/models/User';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { Mail } from '@src/notifications/Mail';
-import { VerifyInput } from '@src/resolvers/types/VerifyInput';
-import { SocialLoginInput } from '@src/resolvers/types/SocialLoginInput';
 import { Role } from '@src/types/enums';
 
 import { AuthenticationResponse } from './types/AuthenticationResponse';
 import { JWTResponse } from './types/JWTResponse';
 import { LoginInput } from './types/LoginInput';
 import { RegisterInput } from './types/RegisterInput';
+import { SocialLoginInput } from './types/SocialLoginInput';
+import { VerifyInput } from './types/VerifyInput';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -73,21 +73,21 @@ export class UserResolver {
     return { ...(await user.getJWTToken(input.device_id)), user };
   }
 
-  @Mutation(() => User, { description: '소셜 로그인 사용자 생성' })
+  @Mutation(() => AuthenticationResponse, {
+    description: '소셜 로그인 사용자 생성',
+  })
   @UseMiddleware(GuestMiddleware)
   async socialLogin(
     @Arg('input') input: SocialLoginInput,
-  ): Promise<DocumentType<User, UserQueryHelpers>> {
-    const user = await UserModel.findOne({ email: input.email }).exec();
-
-    if (user === null) {
-      return await UserModel.create({
+  ): Promise<AuthenticationResponse> {
+    const user =
+      (await UserModel.findOne({ email: input.email }).exec()) ||
+      (await UserModel.create({
         ...input,
         nickname: input.nickname || input.name,
-      } as SocialLoginInput);
-    }
+      } as SocialLoginInput));
 
-    return user;
+    return { ...(await user.getJWTToken(input.device_id)), user };
   }
 
   @Mutation(() => AuthenticationResponse, {

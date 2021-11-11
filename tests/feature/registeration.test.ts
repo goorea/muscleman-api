@@ -1,5 +1,4 @@
 import { UserInputError } from 'apollo-server';
-import { GraphQLError } from 'graphql';
 
 import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';

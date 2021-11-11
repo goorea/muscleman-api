@@ -1,7 +1,8 @@
-import { User } from '@src/models/User';
+import { IsAscii, IsDefined, IsEmail, IsEnum, Length } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
-import { IsDefined, IsEmail, IsEnum, Length } from 'class-validator';
+
 import { UserLimit } from '@src/limits/UserLimit';
+import { User } from '@src/models/User';
 import { SocialProvider } from '@src/types/enums';
 
 @InputType({ description: 'SNS 로그인 사용자 객체' })
@@ -22,4 +23,8 @@ export class SocialLoginInput implements Partial<User> {
   @IsDefined()
   @IsEnum(SocialProvider)
   provider: SocialProvider;
+
+  @Field(() => String, { description: '디바이스 ID' })
+  @IsAscii()
+  device_id: string;
 }
