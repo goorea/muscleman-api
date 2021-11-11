@@ -9,7 +9,7 @@ import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.', () => {
-  const socialLoginMutation = `mutation socialLogin($input: SocialLoginInput!) { socialLogin(input: $input) { _id, password } }`;
+  const socialLoginMutation = `mutation socialLogin($input: SocialLoginInput!) { socialLogin(input: $input) { user { _id } } }`;
 
   it('로그인한 사용자는 요청할 수 없다', async () => {
     const { token } = await signIn();
@@ -27,9 +27,9 @@ describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.',
     }
   });
 
-  it('이름, 이메일 필드는 반드시 필요하다', async () => {
+  it('이름, 이메일, 디바이스 ID 필드는 반드시 필요하다', async () => {
     await Promise.all(
-      ['name', 'email'].map(async field => {
+      ['name', 'email', 'device_id'].map(async field => {
         const { errors } = await graphql(socialLoginMutation, {
           input: SocialUserFactory({ [field]: '' }),
         });
