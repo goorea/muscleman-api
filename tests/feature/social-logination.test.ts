@@ -1,10 +1,12 @@
-import { signIn } from '@tests/helpers';
-import { graphql } from '@tests/graphql';
-import { UserFactory } from '@src/factories/UserFactory';
-import { ArgumentValidationError, ForbiddenError } from 'type-graphql';
-import { SocialUserFactory } from '@src/factories/SocialUserFactory';
 import { GraphQLError } from 'graphql';
+
+import ForbiddenError from '@src/errors/ForbiddenError';
+import ValidationError from '@src/errors/ValidationError';
+import { SocialUserFactory } from '@src/factories/SocialUserFactory';
+import { UserFactory } from '@src/factories/UserFactory';
 import { UserModel } from '@src/models/User';
+import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.', () => {
   const socialLoginMutation = `mutation socialLogin($input: SocialLoginInput!) { socialLogin(input: $input) { _id, password } }`;
@@ -35,9 +37,7 @@ describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.',
         expect(errors).not.toBeUndefined();
         if (errors) {
           expect(errors.length).toEqual(1);
-          expect(errors[0].originalError).toBeInstanceOf(
-            ArgumentValidationError,
-          );
+          expect(errors[0].originalError).toBeInstanceOf(ValidationError);
         }
       }),
     );
@@ -92,7 +92,7 @@ describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.',
     expect(errors).not.toBeUndefined();
     if (errors) {
       expect(errors.length).toEqual(1);
-      expect(errors[0].originalError).toBeInstanceOf(ArgumentValidationError);
+      expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
 });

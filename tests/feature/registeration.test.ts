@@ -200,24 +200,9 @@ describe('회원가입을 할 수 있다', () => {
     }
   });
 
-  it('성별 필드는 반드시 필요하다', async () => {
-    const input = UserFactory({
-      gender: undefined,
-    });
-    const { errors } = await graphql(registerMutation, {
-      input,
-    });
-
-    expect(errors).toBeDefined();
-    if (errors) {
-      expect(errors.length).toEqual(1);
-      expect(errors[0]).toBeInstanceOf(GraphQLError);
-    }
-  });
-
-  it('생년월일, 휴대폰번호, 프로필 이미지 경로는 빈 값을 허용한다', async () => {
+  it('생년월일, 휴대폰번호, 프로필 이미지 경로, 성별은 빈 값을 허용한다', async () => {
     await Promise.all(
-      ['birth', 'tel', 'profile_image_path'].map(async field => {
+      ['birth', 'tel', 'profile_image_path', 'gender'].map(async field => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({ [field]: undefined }),
         });
