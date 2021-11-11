@@ -37,8 +37,8 @@ export class RegisterInput implements Partial<User> {
   @MinLength(UserLimit.password.minLength)
   password_confirmation: string;
 
-  @Field(() => Gender, { description: '성별' })
-  gender: Gender;
+  @Field(() => Gender, { description: '성별', nullable: true })
+  gender?: Gender;
 
   @Field(() => String, { description: '디바이스 ID' })
   @IsAscii()
