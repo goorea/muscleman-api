@@ -1,5 +1,6 @@
-import { SocialLoginInput } from '@src/resolvers/types/SocialLoginInput';
 import * as faker from 'faker';
+
+import { SocialLoginInput } from '@src/resolvers/types/SocialLoginInput';
 import { SocialProvider } from '@src/types/enums';
 
 export const SocialUserFactory: (

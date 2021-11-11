@@ -7,12 +7,13 @@ import {
   prop,
   Severity,
 } from '@typegoose/typegoose';
-import { Gender, Role, SocialProvider } from '@src/types/enums';
-import { Model } from '@src/models/Model';
-import { sign } from '@src/plugins/jwt';
-import { JWTResponse } from '@src/resolvers/types/JWTResponse';
 import { Field, ObjectType } from 'type-graphql';
 
+import { sign } from '@src/plugins/jwt';
+import { JWTResponse } from '@src/resolvers/types/JWTResponse';
+import { Gender, Role, SocialProvider } from '@src/types/enums';
+
+import { Model } from './Model';
 import { deleteLinkedReferences, hashPassword } from './hooks/user-hooks';
 import { UserMethods, UserQueryHelpers } from './types/User';
 

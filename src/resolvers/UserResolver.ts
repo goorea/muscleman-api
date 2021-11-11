@@ -23,14 +23,14 @@ import { GuestMiddleware } from '@src/middlewares/GuestMiddleware';
 import { User, UserModel } from '@src/models/User';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { Mail } from '@src/notifications/Mail';
-import { VerifyInput } from '@src/resolvers/types/VerifyInput';
-import { SocialLoginInput } from '@src/resolvers/types/SocialLoginInput';
 import { Role } from '@src/types/enums';
 
 import { AuthenticationResponse } from './types/AuthenticationResponse';
 import { JWTResponse } from './types/JWTResponse';
 import { LoginInput } from './types/LoginInput';
 import { RegisterInput } from './types/RegisterInput';
+import { SocialLoginInput } from './types/SocialLoginInput';
+import { VerifyInput } from './types/VerifyInput';
 
 @Resolver(() => User)
 export class UserResolver {

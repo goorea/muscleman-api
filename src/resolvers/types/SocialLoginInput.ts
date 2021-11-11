@@ -1,7 +1,8 @@
-import { User } from '@src/models/User';
-import { Field, InputType } from 'type-graphql';
 import { IsDefined, IsEmail, IsEnum, Length } from 'class-validator';
+import { Field, InputType } from 'type-graphql';
+
 import { UserLimit } from '@src/limits/UserLimit';
+import { User } from '@src/models/User';
 import { SocialProvider } from '@src/types/enums';
 
 @InputType({ description: 'SNS 로그인 사용자 객체' })
