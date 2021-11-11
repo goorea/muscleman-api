@@ -4,13 +4,10 @@ import {
   Ctx,
   FieldResolver,
   Mutation,
-  PubSub,
-  PubSubEngine,
   Query,
   Resolver,
   ResolverInterface,
   Root,
-  Subscription,
   UseMiddleware,
 } from 'type-graphql';
 
@@ -64,18 +61,6 @@ export class PlanResolver implements ResolverInterface<Plan> {
     );
   }
 
-  @Subscription(() => Number, {
-    description: '최대 무게 구독',
-    topics: ({ args }) => args.topic,
-  })
-  @UseMiddleware(AuthenticateMiddleware)
-  async subscribeOneRM(
-    @Arg('topic') topic: string,
-    @Ctx() context: Context,
-  ): Promise<number> {
-    return this.oneRM(topic, context);
-  }
-
   @Mutation(() => Plan, { description: '운동계획 생성' })
   @UseMiddleware(AuthenticateMiddleware)
   async createPlan(
@@ -95,7 +80,6 @@ export class PlanResolver implements ResolverInterface<Plan> {
   @Mutation(() => Boolean, { description: '운동계획 수정' })
   @UseMiddleware(AuthenticateMiddleware)
   async updatePlan(
-    @PubSub() pubSub: PubSubEngine,
     @Arg('_id') _id: mongoose.Types.ObjectId,
     @Arg('input') input: UpdatePlanInput,
     @Ctx() { user }: Context,
@@ -104,17 +88,12 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    const plan = await PlanModel.findById(_id)
-      .orFail(new DocumentNotFoundError())
+    await (
+      await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec()
+    )
+      .checkPermission(user)
+      .updateOne(input)
       .exec();
-    const training = (await plan.populate<Training>({ path: 'training' }))
-      .training as Training;
-
-    await plan.checkPermission(user).updateOne(input).exec();
-
-    if (input.complete !== undefined) {
-      await pubSub.publish(training.type, undefined);
-    }
 
     return true;
   }
