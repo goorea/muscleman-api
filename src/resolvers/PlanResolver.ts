@@ -42,7 +42,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
   @Query(() => Number, { description: '최대 무게' })
   @UseMiddleware(AuthenticateMiddleware)
   async oneRM(
-    @Arg('type') type: string,
+    @Arg('name') name: string,
     @Ctx() { user }: Context,
   ): Promise<number> {
     if (!user) {
@@ -51,10 +51,10 @@ export class PlanResolver implements ResolverInterface<Plan> {
 
     return (
       (
-        await PlanModel.findOne({ user })
+        await PlanModel.findOne({ user: user._id, complete: true })
           .populate<Training>({
             path: 'training',
-            match: { type },
+            match: { name },
           })
           .sort({ one_rm: -1 })
       )?.one_rm || 0

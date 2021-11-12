@@ -1,22 +1,11 @@
-import { UpdateQuery, UpdateWithAggregationPipeline } from 'mongoose';
+import { PreFnWithDocumentType } from '@src/types/hooks';
 
-import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
-import { PreFnWithQuery } from '@src/types/hooks';
+import { Plan } from '../Plan';
 
-import { Plan, PlanModel } from '../Plan';
+export const setOneRM: PreFnWithDocumentType<Plan> = function () {
+  if (this.sets.length && this.hasWeightSets(this.sets)) {
+    const { weight, count } = this.sets.sort((a, b) => b.weight - a.weight)[0];
 
-const isCompleteUpdateQuery = <T>(
-  update: UpdateQuery<T> | UpdateWithAggregationPipeline | null,
-): update is UpdateQuery<T> =>
-  (update as UpdateQuery<T>).complete !== undefined;
-
-export const toggleOneRM: PreFnWithQuery<Plan> = async function () {
-  const plan = await PlanModel.findById(this.getFilter()._id).orFail(
-    new DocumentNotFoundError(),
-  );
-  const update = this.getUpdate();
-
-  if (isCompleteUpdateQuery(update) && plan.complete !== update.complete) {
-    await plan.updateOne({ one_rm: update.complete ? plan.getOneRM() : 0 });
+    this.one_rm = weight + weight * count * 0.025;
   }
 };
