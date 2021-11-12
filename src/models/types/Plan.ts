@@ -16,8 +16,6 @@ export interface PlanMethods {
     this: DocumentType<Plan, PlanQueryHelpers>,
     sets: Plan['sets'],
   ) => sets is WeightSet[];
-
-  getOneRM: (this: DocumentType<Plan, PlanQueryHelpers>) => number;
 }
 
 export interface PlanQueryHelpers {}

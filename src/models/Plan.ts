@@ -18,12 +18,12 @@ import { Model } from './Model';
 import { Set } from './Set';
 import { Training } from './Training';
 import { User } from './User';
-import { toggleOneRM } from './hooks/plan-hooks';
+import { setOneRM } from './hooks/plan-hooks';
 import { PlanMethods, PlanQueryHelpers } from './types/Plan';
 import { UserQueryHelpers } from './types/User';
 import { WeightSet } from './types/WeightSet';
 
-@pre<Plan>(['updateOne', 'findOneAndUpdate', 'updateMany'], toggleOneRM)
+@pre<Plan>('save', setOneRM)
 @ObjectType({ implements: Model, description: '운동계획 모델' })
 @modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Plan extends Model implements PlanMethods {
@@ -76,23 +76,11 @@ export class Plan extends Model implements PlanMethods {
     this: DocumentType<Plan, PlanQueryHelpers>,
     sets: Plan['sets'],
   ): sets is WeightSet[] {
-    return this.sets.every(
+    return sets.every(
       set =>
         (set as WeightSet).weight !== undefined &&
         (set as WeightSet).count !== undefined,
     );
-  }
-
-  getOneRM(this: DocumentType<Plan, PlanQueryHelpers>): number {
-    if (this.hasWeightSets(this.sets)) {
-      const { weight, count } = this.sets
-        .sort((a, b) => b.weight - a.weight)
-        .slice(-1)[0];
-
-      return weight + weight * count * 0.025;
-    }
-
-    return 0;
   }
 }
 
