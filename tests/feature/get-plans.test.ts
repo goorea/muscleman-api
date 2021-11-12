@@ -1,6 +1,8 @@
 import AuthenticationError from '@src/errors/AuthenticationError';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { Plan, PlanModel } from '@src/models/Plan';
+import { TrainingModel } from '@src/models/Training';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
@@ -32,5 +34,45 @@ describe('운동 계획 조회', () => {
 
     expect(errors).toBeUndefined();
     expect(data?.plans.length).toEqual(count);
+  });
+
+  it('운동 계획이 완료 상태라면 사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {
+    const { token } = await signIn();
+    const createPlanResponse = await graphql(
+      `
+        mutation createPlan($input: CreatePlanInput!) {
+          createPlan(input: $input) {
+            _id
+            one_rm
+          }
+        }
+      `,
+      {
+        input: await PlanFactory({
+          sets: [{ weight: 100, count: 5 }],
+          complete: true,
+        }),
+      },
+      token,
+    );
+    const plan = await PlanModel.findById(
+      createPlanResponse.data?.createPlan._id,
+    ).orFail(new DocumentNotFoundError());
+    const training = await TrainingModel.findById(plan.training);
+
+    const { data, errors } = await graphql(
+      `
+        query oneRM($name: String!) {
+          oneRM(name: $name)
+        }
+      `,
+      {
+        name: training?.name,
+      },
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(data?.oneRM).toEqual(createPlanResponse.data?.createPlan.one_rm);
   });
 });
