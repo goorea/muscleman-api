@@ -13,8 +13,8 @@ export class CreatePlanInput implements Partial<Plan> {
 
   @Field(() => Date, { description: '운동 날짜' })
   @IsDate()
-  @MinDate(PlanLimit.plan_date.minDate)
-  plan_date: string;
+  @MinDate(PlanLimit.planDate.minDate)
+  planDate: string;
 
   @Field(() => [SetInput], { description: '세트', nullable: true })
   @ValidateNested()

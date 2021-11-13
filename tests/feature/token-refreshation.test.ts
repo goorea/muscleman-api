@@ -9,13 +9,13 @@ import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('JWT 토큰 갱신', () => {
-  const refreshTokenMutation = `mutation refreshToken($refresh_token: String!, $device_id: String!) { refreshToken(refresh_token: $refresh_token, device_id: $device_id) { token, refresh_token } }`;
+  const refreshTokenMutation = `mutation refreshToken($refreshToken: String!, $deviceID: String!) { refreshToken(refreshToken: $refreshToken, deviceID: $deviceID) { token, refreshToken } }`;
 
   it('로그인한 사용자는 요청할 수 없다', async () => {
-    const { token, refresh_token } = await signIn();
+    const { token, refreshToken } = await signIn();
     const { errors } = await graphql(
       refreshTokenMutation,
-      getRefreshTokenInput(refresh_token),
+      getRefreshTokenInput(refreshToken),
       token,
     );
 
@@ -26,7 +26,7 @@ describe('JWT 토큰 갱신', () => {
     }
   });
 
-  it('refresh_token 필드는 반드시 필요하다', async () => {
+  it('refreshToken 필드는 반드시 필요하다', async () => {
     const { errors } = await graphql(
       refreshTokenMutation,
       getRefreshTokenInput(''),
@@ -52,7 +52,7 @@ describe('JWT 토큰 갱신', () => {
     }
   });
 
-  it('refresh_token을 가지고 있는 사용자가 없으면 에러를 반환한다', async () => {
+  it('refreshToken을 가지고 있는 사용자가 없으면 에러를 반환한다', async () => {
     const { errors } = await graphql(
       refreshTokenMutation,
       getRefreshTokenInput(),
@@ -66,12 +66,12 @@ describe('JWT 토큰 갱신', () => {
   });
 
   it('만료된 토큰을 디바이스별로 갱신할 수 있다', async () => {
-    const { user, refresh_token } = await signIn();
-    const input = getRefreshTokenInput(refresh_token);
+    const { user, refreshToken } = await signIn();
+    const input = getRefreshTokenInput(refreshToken);
     await user
       .updateOne({
         $set: {
-          [`refresh_token.${input.device_id}`]: refresh_token,
+          [`refreshToken.${input.deviceID}`]: refreshToken,
         },
       })
       .exec();
@@ -81,24 +81,24 @@ describe('JWT 토큰 갱신', () => {
     expect(errors).toBeUndefined();
     expect(data).toBeDefined();
     if (refreshedUser && data) {
-      expect(refreshedUser.refresh_token).toBeDefined();
+      expect(refreshedUser.refreshToken).toBeDefined();
 
-      if (refreshedUser.refresh_token) {
+      if (refreshedUser.refreshToken) {
         expect(
-          refreshedUser.refresh_token[input.device_id] !== refresh_token,
+          refreshedUser.refreshToken[input.deviceID] !== refreshToken,
         ).toBeTruthy();
         expect(
-          refreshedUser.refresh_token[input.device_id] ===
-            data.refreshToken.refresh_token,
+          refreshedUser.refreshToken[input.deviceID] ===
+            data.refreshToken.refreshToken,
         ).toBeTruthy();
       }
     }
   });
 });
 
-function getRefreshTokenInput(refresh_token?: string, device_id?: string) {
+function getRefreshTokenInput(refreshToken?: string, deviceID?: string) {
   return {
-    refresh_token: refresh_token ?? uid(256),
-    device_id: device_id ?? faker.internet.mac(),
+    refreshToken: refreshToken ?? uid(256),
+    deviceID: deviceID ?? faker.internet.mac(),
   };
 }

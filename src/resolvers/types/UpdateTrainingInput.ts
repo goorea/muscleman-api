@@ -23,9 +23,9 @@ export class UpdateTrainingInput implements Partial<Training> {
 
   @Field(() => String, { description: '썸네일 경로', nullable: true })
   @IsUrl()
-  thumbnail_path?: string;
+  thumbnailPath?: string;
 
   @Field(() => String, { description: '운동영상 경로', nullable: true })
   @IsUrl()
-  video_path?: string;
+  videoPath?: string;
 }

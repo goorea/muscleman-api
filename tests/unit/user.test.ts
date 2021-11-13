@@ -13,17 +13,17 @@ describe('사용자 모델', () => {
     expect(Object.getPrototypeOf(User)).toEqual(Model);
   });
 
-  it('refresh_token을 업데이트하고 JWT 토큰을 반환하는 getJWTToken 메서드를 가지고 있다', async () => {
+  it('refreshToken을 업데이트하고 JWT 토큰을 반환하는 getJWTToken 메서드를 가지고 있다', async () => {
     const user = await UserModel.create(UserFactory());
 
     expect(user).toHaveProperty('getJWTToken');
-    const { token, refresh_token } = await user.getJWTToken(
+    const { token, refreshToken } = await user.getJWTToken(
       faker.internet.mac(),
     );
 
-    expect(user.refresh_token).toBeUndefined();
+    expect(user.refreshToken).toBeUndefined();
     expect(token).toBeDefined();
-    expect(refresh_token).toBeDefined();
+    expect(refreshToken).toBeDefined();
   });
 
   it('데이터 베이스에 사용자 정보를 저장하기 전에 비밀번호를 해쉬화 한다', async () => {

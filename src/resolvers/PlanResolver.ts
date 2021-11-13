@@ -41,7 +41,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
 
   @Query(() => Number, { description: '최대 무게' })
   @UseMiddleware(AuthenticateMiddleware)
-  async oneRM(
+  async getOneRM(
     @Arg('name') name: string,
     @Ctx() { user }: Context,
   ): Promise<number> {
@@ -56,8 +56,8 @@ export class PlanResolver implements ResolverInterface<Plan> {
             path: 'training',
             match: { name },
           })
-          .sort({ one_rm: -1 })
-      )?.one_rm || 0
+          .sort({ oneRM: -1 })
+      )?.oneRM || 0
     );
   }
 

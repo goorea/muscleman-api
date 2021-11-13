@@ -35,8 +35,8 @@ describe('회원가입을 할 수 있다', () => {
         'email',
         'nickname',
         'password',
-        'password_confirmation',
-        'device_id',
+        'passwordConfirmation',
+        'deviceID',
       ].map(async field => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({ [field]: '' }),
@@ -170,7 +170,7 @@ describe('회원가입을 할 수 있다', () => {
 
   it(`비밀번호와 비밀번호 확인은 ${UserLimit.password.minLength}글자 이상이어야 한다`, async () => {
     await Promise.all(
-      ['password', 'password_confirmation'].map(async field => {
+      ['password', 'passwordConfirmation'].map(async field => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({
             [field]: 'a'.repeat(UserLimit.password.minLength - 1),
@@ -189,7 +189,7 @@ describe('회원가입을 할 수 있다', () => {
     const { errors } = await graphql(registerMutation, {
       input: UserFactory({
         password: 'It is password',
-        password_confirmation: 'It is password confirmation',
+        passwordConfirmation: 'It is password confirmation',
       }),
     });
 
@@ -201,7 +201,7 @@ describe('회원가입을 할 수 있다', () => {
 
   it('생년월일, 휴대폰번호, 프로필 이미지 경로, 성별은 빈 값을 허용한다', async () => {
     await Promise.all(
-      ['birth', 'tel', 'profile_image_path', 'gender'].map(async field => {
+      ['birth', 'tel', 'profileImagePath', 'gender'].map(async field => {
         const { errors } = await graphql(registerMutation, {
           input: UserFactory({ [field]: undefined }),
         });
@@ -245,7 +245,7 @@ describe('회원가입을 할 수 있다', () => {
 
   it('프로필 이미지 경로는 URL 형식이어야 한다', async () => {
     const { errors } = await graphql(registerMutation, {
-      input: UserFactory({ profile_image_path: '/foo/bar/baz.jpg' }),
+      input: UserFactory({ profileImagePath: '/foo/bar/baz.jpg' }),
     });
 
     expect(errors).toBeDefined();

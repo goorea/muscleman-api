@@ -25,8 +25,8 @@ export const TrainingFactory: (
         min: TrainingLimit.preference.min,
         max: TrainingLimit.preference.max,
       }),
-      thumbnail_path: faker.image.imageUrl(64, 64),
-      video_path: faker.image.imageUrl(64, 64),
+      thumbnailPath: faker.image.imageUrl(64, 64),
+      videoPath: faker.image.imageUrl(64, 64),
     } as CreateTrainingInput,
     input,
   );

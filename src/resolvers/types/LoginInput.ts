@@ -16,5 +16,5 @@ export class LoginInput implements Partial<User> {
 
   @Field(() => String, { description: '디바이스 ID' })
   @IsAscii()
-  device_id: string;
+  deviceID: string;
 }

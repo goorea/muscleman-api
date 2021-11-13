@@ -16,14 +16,14 @@ export const UserFactory: (input?: Partial<RegisterInput>) => RegisterInput =
         }`,
         nickname: faker.unique(faker.name.firstName),
         password,
-        password_confirmation: password,
+        passwordConfirmation: password,
         gender: faker.random.arrayElement([Gender.MALE, Gender.FEMALE]),
         birth: faker.date
           .between(UserLimit.birth.minDate, UserLimit.birth.maxDate)
           .toISOString(),
         tel: faker.phone.phoneNumber('010-####-####'),
-        profile_image_path: faker.image.imageUrl(64, 64),
-        device_id: faker.internet.mac(),
+        profileImagePath: faker.image.imageUrl(64, 64),
+        deviceID: faker.internet.mac(),
       } as RegisterInput,
       input,
     );

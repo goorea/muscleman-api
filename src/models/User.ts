@@ -55,18 +55,18 @@ export class User extends Model implements UserMethods {
 
   @Field(() => String, { description: '프로필 이미지 경로', nullable: true })
   @prop({ type: String })
-  profile_image_path?: string;
+  profileImagePath?: string;
 
   @Field(() => Object, {
     description: 'JWT Refresh 토큰 객체 { 디바이스 ID: Refresh 토큰 }',
     nullable: true,
   })
   @prop({ type: mongoose.Schema.Types.Mixed })
-  refresh_token?: Record<string, string>;
+  refreshToken?: Record<string, string>;
 
   @Field(() => String, { description: '이메일 인증 토큰', nullable: true })
   @prop({ type: String })
-  email_verify_token?: string;
+  emailVerifyToken?: string;
 
   @Field(() => [Role], { description: '권한', defaultValue: [] })
   @prop({
@@ -85,12 +85,12 @@ export class User extends Model implements UserMethods {
 
   async getJWTToken(
     this: DocumentType<User, UserQueryHelpers>,
-    device_id: string,
+    deviceID: string,
   ): Promise<JWTResponse> {
     const jwt = sign(this);
     await this.updateOne({
       $set: {
-        [`refresh_token.${device_id}`]: jwt.refresh_token,
+        [`refreshToken.${deviceID}`]: jwt.refreshToken,
       },
     }).exec();
 

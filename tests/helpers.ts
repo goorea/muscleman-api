@@ -13,13 +13,13 @@ export async function signIn(
 ): Promise<{
   user: DocumentType<User, UserQueryHelpers>;
   token: string;
-  refresh_token: string;
+  refreshToken: string;
 }> {
   const user = await UserModel.create({
     ...UserFactory(input),
     roles,
   } as RegisterInput);
-  const { token, refresh_token } = sign(user);
+  const { token, refreshToken } = sign(user);
 
-  return { user, token, refresh_token };
+  return { user, token, refreshToken };
 }

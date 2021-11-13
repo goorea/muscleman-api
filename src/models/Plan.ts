@@ -37,7 +37,7 @@ export class Plan extends Model implements PlanMethods {
 
   @Field(() => Date, { description: '운동 날짜' })
   @prop({ type: Date, required: true })
-  plan_date: string;
+  planDate: string;
 
   @Field(() => [Set], { description: '세트', defaultValue: [] })
   @prop({ type: [mongoose.Schema.Types.Mixed], default: [] })
@@ -52,7 +52,7 @@ export class Plan extends Model implements PlanMethods {
 
   @Field(() => Float, { description: '1rm', defaultValue: 0 })
   @prop({ type: Number, default: 0 })
-  one_rm: number;
+  oneRM: number;
 
   checkPermission(
     this: DocumentType<Plan, PlanQueryHelpers>,

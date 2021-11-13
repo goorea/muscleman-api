@@ -14,7 +14,7 @@ export const UserLimit = {
     minDate: new Date(1900, 0, 1),
     maxDate: new Date(new Date().getFullYear() - 8, 0, 1),
   },
-  email_verify_token: {
+  emailVerifyToken: {
     minLength: 64,
   },
 };

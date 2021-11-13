@@ -10,7 +10,7 @@ import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('운동 계획 생성', () => {
-  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, plan_date, sets { count, weight } } }`;
+  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, planDate, sets { count, weight } } }`;
 
   it('로그인 하지 않은 사용자는 요청할 수 없다', async () => {
     const { errors } = await graphql(createPlanMutation, {
@@ -37,7 +37,7 @@ describe('운동 계획 생성', () => {
     expect(data?.createPlan).toHaveProperty('_id');
     expect(data?.createPlan).toHaveProperty(['user', '_id']);
     expect(data?.createPlan).toHaveProperty(['training', '_id']);
-    expect(data?.createPlan).toHaveProperty('plan_date');
+    expect(data?.createPlan).toHaveProperty('planDate');
     expect(data?.createPlan).toHaveProperty('sets');
   });
 
@@ -91,7 +91,7 @@ describe('운동 계획 생성', () => {
     const { errors } = await graphql(
       createPlanMutation,
       {
-        input: await PlanFactory({ plan_date: '' }),
+        input: await PlanFactory({ planDate: '' }),
       },
       token,
     );
@@ -103,16 +103,16 @@ describe('운동 계획 생성', () => {
     }
   });
 
-  it(`운동 날짜는 ${PlanLimit.plan_date.minDate.getFullYear()}년 이상 이하이어야 한다`, async () => {
+  it(`운동 날짜는 ${PlanLimit.planDate.minDate.getFullYear()}년 이상 이하이어야 한다`, async () => {
     const { token } = await signIn();
-    const plan_date = new Date(PlanLimit.plan_date.minDate);
-    plan_date.setDate(plan_date.getDate() - 1);
+    const planDate = new Date(PlanLimit.planDate.minDate);
+    planDate.setDate(planDate.getDate() - 1);
 
     const { errors } = await graphql(
       createPlanMutation,
       {
         input: await PlanFactory({
-          plan_date: plan_date.toISOString(),
+          planDate: planDate.toISOString(),
         }),
       },
       token,

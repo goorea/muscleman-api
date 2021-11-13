@@ -21,7 +21,7 @@ export const sign = (user: User): JWTResponse => ({
       expiresIn: process.env.JWT_EXPIRES_INT,
     },
   ),
-  refresh_token: uid(256),
+  refreshToken: uid(256),
 });
 
 export const verify = (token: string): Partial<User> => {
