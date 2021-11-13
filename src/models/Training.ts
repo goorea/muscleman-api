@@ -1,4 +1,9 @@
-import { getModelForClass, pre, prop } from '@typegoose/typegoose';
+import {
+  getModelForClass,
+  modelOptions,
+  pre,
+  prop,
+} from '@typegoose/typegoose';
 import { Field, Int, ObjectType } from 'type-graphql';
 
 import { TrainingType } from '@src/types/enums';
@@ -12,6 +17,7 @@ import { TrainingMethods, TrainingQueryHelpers } from './types/Training';
   deleteLinkedReferences,
 )
 @ObjectType({ implements: Model, description: '운동종목 모델' })
+@modelOptions({ schemaOptions: { timestamps: true } })
 export class Training extends Model implements TrainingMethods {
   @Field(() => String, { description: '이름' })
   @prop({ type: String, required: true, unique: true })

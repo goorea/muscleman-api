@@ -25,7 +25,10 @@ import { WeightSet } from './types/WeightSet';
 
 @pre<Plan>('save', setOneRM)
 @ObjectType({ implements: Model, description: '운동계획 모델' })
-@modelOptions({ options: { allowMixed: Severity.ALLOW } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { timestamps: true },
+})
 export class Plan extends Model implements PlanMethods {
   @Field(() => User, { description: '사용자' })
   @prop({ ref: 'User', required: true })
