@@ -15,7 +15,7 @@ describe('운동계획 모델', () => {
       `
         mutation createPlan($input: CreatePlanInput!) {
           createPlan(input: $input) {
-            one_rm
+            oneRM
           }
         }
       `,
@@ -28,6 +28,6 @@ describe('운동계획 모델', () => {
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.createPlan?.one_rm !== 0).toBeTruthy();
+    expect(data?.createPlan?.oneRM !== 0).toBeTruthy();
   });
 });

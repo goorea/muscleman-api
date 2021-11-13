@@ -48,7 +48,7 @@ describe('이메일 인증', () => {
       );
 
       expect(
-        (await UserModel.findById(user._id).exec())?.email_verify_token,
+        (await UserModel.findById(user._id).exec())?.emailVerifyToken,
       ).toEqual(data?.sendVerifyEmail);
       expect(errors).toBeUndefined();
     });
@@ -82,7 +82,7 @@ describe('이메일 인증', () => {
 
     it('이메일 인증 요청에 이메일 인증 토큰 필드는 반드시 필요하다', async () => {
       const { errors } = await graphql(verifyMutation, {
-        input: getVerifyInput({ email_verify_token: '' }),
+        input: getVerifyInput({ emailVerifyToken: '' }),
       });
 
       expect(errors).toBeDefined();
@@ -114,6 +114,6 @@ function getVerifyInput(input?: Partial<VerifyInput>): VerifyInput {
 
   return {
     email,
-    email_verify_token: input?.email_verify_token ?? uid(64),
+    emailVerifyToken: input?.emailVerifyToken ?? uid(64),
   };
 }

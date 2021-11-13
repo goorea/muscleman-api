@@ -35,14 +35,14 @@ export class RegisterInput implements Partial<User> {
 
   @Field(() => String, { description: '비밀번호 확인' })
   @MinLength(UserLimit.password.minLength)
-  password_confirmation: string;
+  passwordConfirmation: string;
 
   @Field(() => Gender, { description: '성별', nullable: true })
   gender?: Gender;
 
   @Field(() => String, { description: '디바이스 ID' })
   @IsAscii()
-  device_id: string;
+  deviceID: string;
 
   @Field(() => Date, { description: '생년월일', nullable: true })
   @IsDate()
@@ -56,5 +56,5 @@ export class RegisterInput implements Partial<User> {
 
   @Field(() => String, { description: '프로필 이미지 경로', nullable: true })
   @IsUrl()
-  profile_image_path?: string;
+  profileImagePath?: string;
 }

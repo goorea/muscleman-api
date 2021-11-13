@@ -29,7 +29,7 @@ describe('소셜 계정으로 회원가입 또는 로그인을 할 수 있다.',
 
   it('이름, 이메일, 디바이스 ID 필드는 반드시 필요하다', async () => {
     await Promise.all(
-      ['name', 'email', 'device_id'].map(async field => {
+      ['name', 'email', 'deviceID'].map(async field => {
         const { errors } = await graphql(socialLoginMutation, {
           input: SocialUserFactory({ [field]: '' }),
         });

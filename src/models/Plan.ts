@@ -25,7 +25,10 @@ import { WeightSet } from './types/WeightSet';
 
 @pre<Plan>('save', setOneRM)
 @ObjectType({ implements: Model, description: '운동계획 모델' })
-@modelOptions({ options: { allowMixed: Severity.ALLOW } })
+@modelOptions({
+  options: { allowMixed: Severity.ALLOW },
+  schemaOptions: { timestamps: true },
+})
 export class Plan extends Model implements PlanMethods {
   @Field(() => User, { description: '사용자' })
   @prop({ ref: 'User', required: true })
@@ -37,7 +40,7 @@ export class Plan extends Model implements PlanMethods {
 
   @Field(() => Date, { description: '운동 날짜' })
   @prop({ type: Date, required: true })
-  plan_date: string;
+  planDate: string;
 
   @Field(() => [Set], { description: '세트', defaultValue: [] })
   @prop({ type: [mongoose.Schema.Types.Mixed], default: [] })
@@ -52,7 +55,7 @@ export class Plan extends Model implements PlanMethods {
 
   @Field(() => Float, { description: '1rm', defaultValue: 0 })
   @prop({ type: Number, default: 0 })
-  one_rm: number;
+  oneRM: number;
 
   checkPermission(
     this: DocumentType<Plan, PlanQueryHelpers>,

@@ -11,6 +11,6 @@ export class VerifyInput implements Partial<User> {
   email: string;
 
   @Field(() => String, { description: '이메일 인증 토큰' })
-  @MinLength(UserLimit.email_verify_token.minLength)
-  email_verify_token: string;
+  @MinLength(UserLimit.emailVerifyToken.minLength)
+  emailVerifyToken: string;
 }

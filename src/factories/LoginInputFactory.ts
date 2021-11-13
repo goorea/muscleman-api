@@ -11,7 +11,7 @@ export const LoginInputFactory: (input?: Partial<LoginInput>) => LoginInput =
           faker.internet.email().split('@')[1]
         }`,
         password: faker.internet.password(UserLimit.password.minLength),
-        device_id: faker.internet.mac(),
+        deviceID: faker.internet.mac(),
       },
       input,
     ) as LoginInput;

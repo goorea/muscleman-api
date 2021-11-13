@@ -115,7 +115,7 @@ describe('운동종목 추가', () => {
     const { token } = await signIn(undefined, [Role.ADMIN]);
 
     await Promise.all(
-      ['description', 'preference', 'thumbnail_path', 'video_path'].map(
+      ['description', 'preference', 'thumbnailPath', 'videoPath'].map(
         async field => {
           const { errors } = await graphql(
             createTrainingMutation,
@@ -158,7 +158,7 @@ describe('운동종목 추가', () => {
     const { token } = await signIn(undefined, [Role.ADMIN]);
 
     await Promise.all(
-      ['thumbnail_path', 'video_path'].map(async field => {
+      ['thumbnailPath', 'videoPath'].map(async field => {
         const { errors } = await graphql(
           createTrainingMutation,
           {

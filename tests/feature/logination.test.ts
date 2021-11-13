@@ -14,7 +14,7 @@ import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('사용자 로그인', () => {
-  const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refresh_token } }`;
+  const loginMutation = `mutation login($input: LoginInput!) { login(input: $input) { token, refreshToken } }`;
 
   it('로그인한 사용자는 요청할 수 없다', async () => {
     const password = '123123123';
@@ -60,7 +60,7 @@ describe('사용자 로그인', () => {
 
   it('기기 식별 필드는 반드시 필요하다', async () => {
     const { errors } = await graphql(loginMutation, {
-      input: LoginInputFactory({ device_id: '' }),
+      input: LoginInputFactory({ deviceID: '' }),
     });
 
     expect(errors).toBeDefined();
@@ -136,17 +136,17 @@ describe('사용자 로그인', () => {
     });
 
     expect(data?.login).toHaveProperty('token');
-    expect(data?.login).toHaveProperty('refresh_token');
+    expect(data?.login).toHaveProperty('refreshToken');
   });
 
-  it('사용자가 로그인하면 요청한 기기의 refresh_token 값을 채우거나 갱신한다', async () => {
+  it('사용자가 로그인하면 요청한 기기의 refreshToken 값을 채우거나 갱신한다', async () => {
     const input: LoginInput = {
       email: 'jane@example.com',
       password: '123123123',
-      device_id: faker.internet.mac(),
+      deviceID: faker.internet.mac(),
     };
     const jane1 = await UserModel.create(UserFactory(input));
-    expect(jane1.refresh_token).toBeFalsy();
+    expect(jane1.refreshToken).toBeFalsy();
 
     await graphql(loginMutation, {
       input: LoginInputFactory(input),
@@ -155,9 +155,9 @@ describe('사용자 로그인', () => {
     const jane2 = await UserModel.findById(jane1._id)
       .orFail(new DocumentNotFoundError())
       .exec();
-    expect(jane2.refresh_token).toBeDefined();
-    if (jane2.refresh_token) {
-      expect(jane2.refresh_token[input.device_id]).toBeTruthy();
+    expect(jane2.refreshToken).toBeDefined();
+    if (jane2.refreshToken) {
+      expect(jane2.refreshToken[input.deviceID]).toBeTruthy();
     }
 
     await graphql(loginMutation, {
@@ -167,11 +167,11 @@ describe('사용자 로그인', () => {
     const jane3 = await UserModel.findById(jane1._id)
       .orFail(new DocumentNotFoundError())
       .exec();
-    expect(jane3.refresh_token).toBeDefined();
-    if (jane3.refresh_token && jane2.refresh_token) {
+    expect(jane3.refreshToken).toBeDefined();
+    if (jane3.refreshToken && jane2.refreshToken) {
       expect(
-        jane3.refresh_token[input.device_id] !==
-          jane2.refresh_token[input.device_id],
+        jane3.refreshToken[input.deviceID] !==
+          jane2.refreshToken[input.deviceID],
       ).toBeTruthy();
     }
   });

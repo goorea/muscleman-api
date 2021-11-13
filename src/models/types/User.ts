@@ -7,7 +7,7 @@ import { User } from '../User';
 export interface UserMethods {
   getJWTToken: (
     this: DocumentType<User, UserQueryHelpers>,
-    device_id: string,
+    deviceID: string,
   ) => Promise<JWTResponse>;
 }
 

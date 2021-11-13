@@ -43,7 +43,7 @@ describe('운동 계획 조회', () => {
         mutation createPlan($input: CreatePlanInput!) {
           createPlan(input: $input) {
             _id
-            one_rm
+            oneRM
           }
         }
       `,
@@ -62,8 +62,8 @@ describe('운동 계획 조회', () => {
 
     const { data, errors } = await graphql(
       `
-        query oneRM($name: String!) {
-          oneRM(name: $name)
+        query getOneRM($name: String!) {
+          getOneRM(name: $name)
         }
       `,
       {
@@ -73,6 +73,6 @@ describe('운동 계획 조회', () => {
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.oneRM).toEqual(createPlanResponse.data?.createPlan.one_rm);
+    expect(data?.getOneRM).toEqual(createPlanResponse.data?.createPlan.oneRM);
   });
 });

@@ -6,5 +6,5 @@ export class JWTResponse {
   token: string;
 
   @Field(() => String, { description: 'JWT Refresh 토큰' })
-  refresh_token: string;
+  refreshToken: string;
 }

@@ -64,13 +64,13 @@ export class UserResolver {
   async register(
     @Arg('input') input: RegisterInput,
   ): Promise<AuthenticationResponse> {
-    if (input.password !== input.password_confirmation) {
+    if (input.password !== input.passwordConfirmation) {
       throw new UserInputError('비밀번호와 비밀번호 확인 값이 다릅니다');
     }
 
     const user = await UserModel.create(input);
 
-    return { ...(await user.getJWTToken(input.device_id)), user };
+    return { ...(await user.getJWTToken(input.deviceID)), user };
   }
 
   @Mutation(() => AuthenticationResponse, {
@@ -87,7 +87,7 @@ export class UserResolver {
         nickname: input.nickname || input.name,
       } as SocialLoginInput));
 
-    return { ...(await user.getJWTToken(input.device_id)), user };
+    return { ...(await user.getJWTToken(input.deviceID)), user };
   }
 
   @Mutation(() => AuthenticationResponse, {
@@ -109,24 +109,24 @@ export class UserResolver {
       throw new AuthenticateFailedError();
     }
 
-    return { ...(await user.getJWTToken(input.device_id)), user };
+    return { ...(await user.getJWTToken(input.deviceID)), user };
   }
 
   @Mutation(() => JWTResponse, { description: '사용자 JWT 토큰 갱신' })
   @UseMiddleware(GuestMiddleware)
   async refreshToken(
-    @Arg('refresh_token') refresh_token: string,
-    @Arg('device_id') device_id: string,
+    @Arg('refreshToken') refreshToken: string,
+    @Arg('deviceID') deviceID: string,
   ): Promise<JWTResponse> {
-    if (!refresh_token || !device_id) {
+    if (!refreshToken || !deviceID) {
       throw new ValidationError();
     }
 
     return (
-      await UserModel.findOne({ [`refresh_token.${device_id}`]: refresh_token })
+      await UserModel.findOne({ [`refreshToken.${deviceID}`]: refreshToken })
         .orFail(new DocumentNotFoundError())
         .exec()
-    ).getJWTToken(device_id);
+    ).getJWTToken(deviceID);
   }
 
   @Mutation(() => String, { description: '사용자 이메일 인증 메일 전송' })
@@ -140,9 +140,9 @@ export class UserResolver {
       throw new VerifiedError();
     }
 
-    const token = uid(UserLimit.email_verify_token.minLength);
+    const token = uid(UserLimit.emailVerifyToken.minLength);
     await Mail.verify(user, token);
-    await user.updateOne({ email_verify_token: token }).exec();
+    await user.updateOne({ emailVerifyToken: token }).exec();
 
     return token;
   }
@@ -151,7 +151,7 @@ export class UserResolver {
   async verify(@Arg('input') input: VerifyInput): Promise<boolean> {
     await UserModel.updateOne(input, {
       $addToSet: { roles: Role.VERIFIED },
-      email_verify_token: undefined,
+      emailVerifyToken: undefined,
     }).exec();
 
     return true;

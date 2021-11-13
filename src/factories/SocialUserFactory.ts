@@ -18,7 +18,7 @@ export const SocialUserFactory: (
         SocialProvider.GOOGLE,
         SocialProvider.APPLE,
       ]),
-      device_id: faker.internet.mac(),
+      deviceID: faker.internet.mac(),
     },
     input,
   ) as SocialLoginInput;
