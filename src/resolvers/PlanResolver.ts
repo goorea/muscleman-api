@@ -68,14 +68,19 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
+    const training = await TrainingModel.findOne({ name });
+
+    if (training === null) {
+      return 0;
+    }
+
     return (
       (
-        await PlanModel.findOne({ user: user._id, complete: true })
-          .populate<Training>({
-            path: 'training',
-            match: { name },
-          })
-          .sort({ oneRM: -1 })
+        await PlanModel.findOne({
+          user: user._id,
+          training: training._id.toHexString(),
+          complete: true,
+        }).sort({ oneRM: -1 })
       )?.oneRM || 0
     );
   }
