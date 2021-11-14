@@ -62,7 +62,7 @@ describe('운동 계획 수정', () => {
       {
         _id: plan._id.toHexString(),
         input: await PlanFactory({
-          planDate: updatePlanDate.toISOString(),
+          plannedAt: updatePlanDate.toISOString(),
         }),
       },
       token,
@@ -75,7 +75,7 @@ describe('운동 계획 수정', () => {
         await PlanModel.findById(plan._id)
           .orFail(new DocumentNotFoundError())
           .exec()
-      ).planDate,
+      ).plannedAt,
     ).toEqual(updatePlanDate);
   });
 
@@ -88,7 +88,7 @@ describe('운동 계획 수정', () => {
       {
         _id: plan._id.toHexString(),
         input: await PlanFactory({
-          planDate: updatePlanDate.toISOString(),
+          plannedAt: updatePlanDate.toISOString(),
         }),
       },
       token,
@@ -101,7 +101,7 @@ describe('운동 계획 수정', () => {
         await PlanModel.findById(plan._id)
           .orFail(new DocumentNotFoundError())
           .exec()
-      ).planDate,
+      ).plannedAt,
     ).toEqual(updatePlanDate);
   });
 
@@ -131,7 +131,7 @@ describe('운동 계획 수정', () => {
       updatePlanMutation,
       {
         _id: plan._id.toHexString(),
-        input: await PlanFactory({ planDate: '' }),
+        input: await PlanFactory({ plannedAt: '' }),
       },
       token,
     );

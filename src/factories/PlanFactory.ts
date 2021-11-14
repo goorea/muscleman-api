@@ -13,7 +13,7 @@ export const PlanFactory: (
       training: (
         await TrainingModel.create(TrainingFactory())
       )._id.toHexString(),
-      planDate: faker.date.future().toISOString(),
+      plannedAt: faker.date.future().toISOString(),
       sets: [...Array(faker.datatype.number(10))].map(() => SetFactory()),
       complete: faker.datatype.boolean(),
     } as CreatePlanInput,

@@ -40,7 +40,7 @@ export class Plan extends Model implements PlanMethods {
 
   @Field(() => Date, { description: '운동 날짜' })
   @prop({ type: Date, required: true })
-  planDate: string;
+  plannedAt: string;
 
   @Field(() => [Set], { description: '세트', defaultValue: [] })
   @prop({ type: [mongoose.Schema.Types.Mixed], default: [] })

@@ -1,5 +1,5 @@
 export const PlanLimit = {
-  planDate: {
+  plannedAt: {
     minDate: new Date(1900, 0, 1),
   },
   sets: {
