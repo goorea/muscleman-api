@@ -1,14 +1,18 @@
 import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { PlanFactory } from '@src/factories/PlanFactory';
+import { TrainingFactory } from '@src/factories/TrainingFactory';
 import { Plan, PlanModel } from '@src/models/Plan';
 import { TrainingModel } from '@src/models/Training';
+import { TrainingType } from '@src/types/enums';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('운동 계획 조회', () => {
   const plansQuery = `query plans { plans { _id } }`;
   const todayPlansQuery = `query todayPlans { todayPlans { _id } }`;
+  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, oneRM } }`;
+  const getOneRMQuery = `query getOneRM($name: String!) { getOneRM(name: $name) }`;
 
   it('로그인 하지 않은 사용자는 모든 운동 계획을 조회할 수 없다', async () => {
     const { errors } = await graphql(plansQuery);
@@ -65,14 +69,7 @@ describe('운동 계획 조회', () => {
   it('운동 계획이 완료 상태라면 사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {
     const { token } = await signIn();
     const createPlanResponse = await graphql(
-      `
-        mutation createPlan($input: CreatePlanInput!) {
-          createPlan(input: $input) {
-            _id
-            oneRM
-          }
-        }
-      `,
+      createPlanMutation,
       {
         input: await PlanFactory({
           sets: [{ weight: 100, count: 5 }],
@@ -87,11 +84,7 @@ describe('운동 계획 조회', () => {
     const training = await TrainingModel.findById(plan.training);
 
     const { data, errors } = await graphql(
-      `
-        query getOneRM($name: String!) {
-          getOneRM(name: $name)
-        }
-      `,
+      getOneRMQuery,
       {
         name: training?.name,
       },
@@ -100,5 +93,54 @@ describe('운동 계획 조회', () => {
 
     expect(errors).toBeUndefined();
     expect(data?.getOneRM).toEqual(createPlanResponse.data?.createPlan.oneRM);
+  });
+
+  it('운동을 완료하지 않은 계획은 최대 무게를 0으로 반환한다', async () => {
+    const { token } = await signIn();
+    const squatName = '바벨 백스쿼트';
+    const benchPressName = '벤치 프레스';
+    const squat = await TrainingModel.create(
+      TrainingFactory({ name: squatName, type: TrainingType.LOWER }),
+    );
+    const benchPress = await TrainingModel.create(
+      TrainingFactory({ name: benchPressName, type: TrainingType.CHEST }),
+    );
+    await graphql(
+      createPlanMutation,
+      {
+        input: await PlanFactory({
+          training: squat._id.toHexString(),
+          sets: [{ weight: 100, count: 5 }],
+          complete: true,
+        }),
+      },
+      token,
+    );
+    await graphql(
+      createPlanMutation,
+      {
+        input: await PlanFactory({
+          training: benchPress._id.toHexString(),
+          sets: [{ weight: 100, count: 5 }],
+          complete: false,
+        }),
+      },
+      token,
+    );
+
+    const { data, errors } = await graphql(
+      `
+        query SBGetOneRM {
+          squatGetOneRM: getOneRM(name: "${squatName}")
+          benchpressGetOneRM: getOneRM(name: "${benchPressName}")
+        }
+      `,
+      undefined,
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(data?.squatGetOneRM === 0).toBeFalsy();
+    expect(data?.benchpressGetOneRM === 0).toBeTruthy();
   });
 });
