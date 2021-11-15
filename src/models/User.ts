@@ -23,10 +23,7 @@ import { UserMethods, UserQueryHelpers } from './types/User';
   deleteLinkedReferences,
 )
 @ObjectType({ implements: Model, description: '사용자 모델' })
-@modelOptions({
-  options: { allowMixed: Severity.ALLOW },
-  schemaOptions: { timestamps: true },
-})
+@modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class User extends Model implements UserMethods {
   @Field(() => String, { description: '이름' })
   @prop({ type: String, required: true })
