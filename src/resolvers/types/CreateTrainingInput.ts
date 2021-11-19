@@ -2,13 +2,16 @@ import { IsNotEmpty, IsUrl, Max, Min } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
 
 import { Training } from '@src/models/Training';
-import { TrainingType } from '@src/types/enums';
+import { TrainingCategory, TrainingType } from '@src/types/enums';
 
 @InputType({ description: '운동종목 추가 입력 객체' })
 export class CreateTrainingInput implements Partial<Training> {
   @Field(() => String, { description: '이름' })
   @IsNotEmpty()
   name: string;
+
+  @Field(() => TrainingCategory, { description: '분류' })
+  category: TrainingCategory;
 
   @Field(() => TrainingType, { description: '종류' })
   type: TrainingType;

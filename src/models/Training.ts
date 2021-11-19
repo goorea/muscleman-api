@@ -1,7 +1,7 @@
 import { getModelForClass, pre, prop } from '@typegoose/typegoose';
 import { Field, Int, ObjectType } from 'type-graphql';
 
-import { TrainingType } from '@src/types/enums';
+import { TrainingCategory, TrainingType } from '@src/types/enums';
 
 import { Model } from './Model';
 import { deleteLinkedReferences } from './hooks/training-hooks';
@@ -16,6 +16,10 @@ export class Training extends Model implements TrainingMethods {
   @Field(() => String, { description: '이름' })
   @prop({ type: String, required: true, unique: true })
   name: string;
+
+  @Field(() => TrainingCategory, { description: '분류' })
+  @prop({ enum: TrainingCategory, type: String, required: true })
+  category: TrainingCategory;
 
   @Field(() => TrainingType, { description: '종류' })
   @prop({ enum: TrainingType, type: String, required: true })
