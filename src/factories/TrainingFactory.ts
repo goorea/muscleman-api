@@ -2,7 +2,7 @@ import faker from 'faker';
 
 import { TrainingLimit } from '@src/limits/TrainingLimit';
 import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
-import { TrainingType } from '@src/types/enums';
+import { TrainingCategory, TrainingType } from '@src/types/enums';
 
 export const TrainingFactory: (
   input?: Partial<CreateTrainingInput>,
@@ -10,6 +10,11 @@ export const TrainingFactory: (
   Object.assign(
     {
       name: faker.unique(faker.name.lastName),
+      category: faker.random.arrayElement([
+        TrainingCategory.WEIGHT,
+        TrainingCategory.CARDIOVASCULAR,
+        TrainingCategory.CALISTHENICS,
+      ]),
       type: faker.random.arrayElement([
         TrainingType.LOWER,
         TrainingType.CHEST,

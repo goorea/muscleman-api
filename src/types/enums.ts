@@ -7,6 +7,16 @@ export enum Gender {
 }
 registerEnumType(Gender, { name: 'Gender', description: '성별' });
 
+export enum TrainingCategory {
+  WEIGHT = 'WEIGHT', // 중량 운동
+  CALISTHENICS = 'CALISTHENICS', // 맨몸 운동
+  CARDIOVASCULAR = 'CARDIOVASCULAR', // 유산소
+}
+registerEnumType(TrainingCategory, {
+  name: 'TrainingCategory',
+  description: '운동분류',
+});
+
 export enum TrainingType {
   LOWER = 'LOWER', // 하체
   CHEST = 'CHEST', // 가슴

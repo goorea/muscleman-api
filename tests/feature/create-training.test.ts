@@ -92,6 +92,25 @@ describe('운동종목 추가', () => {
     }
   });
 
+  it('분류 필드는 반드시 필요하다', async () => {
+    const { token } = await signIn(undefined, [Role.ADMIN]);
+    const { errors } = await graphql(
+      createTrainingMutation,
+      {
+        input: TrainingFactory({
+          category: undefined,
+        }),
+      },
+      token,
+    );
+
+    expect(errors).toBeDefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0]).toBeInstanceOf(GraphQLError);
+    }
+  });
+
   it('종류 필드는 반드시 필요하다', async () => {
     const { token } = await signIn(undefined, [Role.ADMIN]);
     const { errors } = await graphql(
