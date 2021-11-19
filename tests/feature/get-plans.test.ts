@@ -10,7 +10,6 @@ import { signIn } from '@tests/helpers';
 
 describe('운동 계획 조회', () => {
   const plansQuery = `query plans { plans { _id } }`;
-  const todayPlansQuery = `query todayPlans { todayPlans { _id } }`;
   const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, oneRM } }`;
   const getOneRMQuery = `query getOneRM($name: String!) { getOneRM(name: $name) }`;
 
@@ -39,31 +38,6 @@ describe('운동 계획 조회', () => {
 
     expect(errors).toBeUndefined();
     expect(data?.plans.length).toEqual(count);
-  });
-
-  it('로그인한 사용자는 자신의 오늘의 운동 계획들을 조회할 수 있다', async () => {
-    const count = 2;
-    const { user, token } = await signIn();
-    await Promise.all(
-      [...Array(count)].map(async () => {
-        await PlanModel.create({
-          ...(await PlanFactory({ plannedAt: new Date().toISOString() })),
-          user: user._id,
-        } as Plan);
-      }),
-    );
-    await Promise.all(
-      [...Array(4)].map(async () => {
-        await PlanModel.create({
-          ...(await PlanFactory()),
-          user: user._id,
-        } as Plan);
-      }),
-    );
-    const { data, errors } = await graphql(todayPlansQuery, undefined, token);
-
-    expect(errors).toBeUndefined();
-    expect(data?.todayPlans.length).toEqual(count);
   });
 
   it('운동 계획이 완료 상태라면 사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {
