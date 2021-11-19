@@ -1,5 +1,4 @@
 import { DocumentType, mongoose } from '@typegoose/typegoose';
-import moment from 'moment';
 import {
   Arg,
   Ctx,
@@ -38,24 +37,6 @@ export class PlanResolver implements ResolverInterface<Plan> {
     }
 
     return PlanModel.find({ user: user._id });
-  }
-
-  @Query(() => [Plan], { description: '사용자의 오늘의 운동 계획 조회' })
-  @UseMiddleware(AuthenticateMiddleware)
-  async todayPlans(
-    @Ctx() { user }: Context,
-  ): Promise<DocumentType<Plan, PlanQueryHelpers>[]> {
-    if (!user) {
-      throw new AuthenticationError();
-    }
-
-    return PlanModel.find({
-      user: user._id,
-      plannedAt: {
-        $gte: moment().startOf('day').toISOString(),
-        $lte: moment().endOf('day').toISOString(),
-      },
-    });
   }
 
   @Query(() => Number, { description: '최대 무게' })
