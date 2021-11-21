@@ -1,4 +1,5 @@
 import faker from 'faker';
+import { uniqueId } from 'lodash';
 
 import { TrainingLimit } from '@src/limits/TrainingLimit';
 import { CreateTrainingInput } from '@src/resolvers/types/CreateTrainingInput';
@@ -9,7 +10,7 @@ export const TrainingFactory: (
 ) => CreateTrainingInput = input =>
   Object.assign(
     {
-      name: faker.unique(faker.name.lastName),
+      name: uniqueId(),
       category: faker.random.arrayElement([
         TrainingCategory.WEIGHT,
         TrainingCategory.CARDIOVASCULAR,
