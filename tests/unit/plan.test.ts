@@ -1,7 +1,8 @@
 import { PlanFactory } from '@src/factories/PlanFactory';
+import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { Model } from '@src/models/Model';
-import { Plan } from '@src/models/Plan';
-import { graphql } from '@tests/graphql';
+import { Plan, PlanModel } from '@src/models/Plan';
+import { VolumeModel } from '@src/models/Volume';
 import { signIn } from '@tests/helpers';
 
 describe('운동계획 모델', () => {
@@ -9,25 +10,22 @@ describe('운동계획 모델', () => {
     expect(Object.getPrototypeOf(Plan)).toEqual(Model);
   });
 
-  it('운동 계획을 생성할 때 1rm을 저장하는 훅이 있다', async () => {
-    const { token } = await signIn();
-    const { data, errors } = await graphql(
-      `
-        mutation createPlan($input: CreatePlanInput!) {
-          createPlan(input: $input) {
-            oneRM
-          }
-        }
-      `,
-      {
-        input: await PlanFactory({
-          sets: [{ weight: 100, count: 5 }],
-        }),
-      },
-      token,
+  it('운동계획을 삭제하면 해당 볼륨으로 추가된 모든 볼륨들이 삭제된다', async () => {
+    const { user } = await signIn();
+    const count = 5;
+    const plan = await PlanModel.createWithVolumes(
+      user,
+      await PlanFactory({
+        volumes: await Promise.all(
+          [...Array(count)].map(() => VolumeFactory()),
+        ),
+      }),
     );
 
-    expect(errors).toBeUndefined();
-    expect(data?.createPlan?.oneRM !== 0).toBeTruthy();
+    expect(await VolumeModel.count()).toEqual(count);
+
+    await PlanModel.findByIdAndDelete(plan._id);
+
+    expect(await VolumeModel.count()).toEqual(0);
   });
 });

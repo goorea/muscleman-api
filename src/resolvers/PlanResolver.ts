@@ -16,11 +16,11 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
 import { Plan, PlanModel } from '@src/models/Plan';
-import { Training, TrainingModel } from '@src/models/Training';
 import { User, UserModel } from '@src/models/User';
+import { Volume, VolumeModel } from '@src/models/Volume';
 import { PlanQueryHelpers } from '@src/models/types/Plan';
-import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { UserQueryHelpers } from '@src/models/types/User';
+import { VolumeQueryHelpers } from '@src/models/types/Volume';
 
 import { CreatePlanInput } from './types/CreatePlanInput';
 import { UpdatePlanInput } from './types/UpdatePlanInput';
@@ -39,33 +39,6 @@ export class PlanResolver implements ResolverInterface<Plan> {
     return PlanModel.find({ user: user._id });
   }
 
-  @Query(() => Number, { description: '최대 무게' })
-  @UseMiddleware(AuthenticateMiddleware)
-  async getOneRM(
-    @Arg('name') name: string,
-    @Ctx() { user }: Context,
-  ): Promise<number> {
-    if (!user) {
-      throw new AuthenticationError();
-    }
-
-    const training = await TrainingModel.findOne({ name });
-
-    if (training === null) {
-      return 0;
-    }
-
-    return (
-      (
-        await PlanModel.findOne({
-          user: user._id,
-          training: training._id.toHexString(),
-          complete: true,
-        }).sort({ oneRM: -1 })
-      )?.oneRM || 0
-    );
-  }
-
   @Mutation(() => Plan, { description: '운동계획 생성' })
   @UseMiddleware(AuthenticateMiddleware)
   async createPlan(
@@ -76,10 +49,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    return PlanModel.create({
-      ...input,
-      user: user._id,
-    } as Plan);
+    return PlanModel.createWithVolumes(user, input);
   }
 
   @Mutation(() => Boolean, { description: '운동계획 수정' })
@@ -93,14 +63,7 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    await (
-      await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec()
-    )
-      .checkPermission(user)
-      .updateOne(input)
-      .exec();
-
-    return true;
+    return PlanModel.updateOneWithVolumes(user, _id, input);
   }
 
   @Mutation(() => Boolean, { description: '운동계획 삭제' })
@@ -132,11 +95,16 @@ export class PlanResolver implements ResolverInterface<Plan> {
   }
 
   @FieldResolver()
-  async training(
+  async volumes(
     @Root() plan: Plan,
-  ): Promise<DocumentType<Training, TrainingQueryHelpers>> {
-    return await TrainingModel.findById(plan.training)
-      .orFail(new DocumentNotFoundError())
-      .exec();
+  ): Promise<DocumentType<Volume, VolumeQueryHelpers>[]> {
+    return await Promise.all(
+      plan.volumes.map(
+        async _id =>
+          await VolumeModel.findById(_id)
+            .orFail(new DocumentNotFoundError())
+            .exec(),
+      ),
+    );
   }
 }
