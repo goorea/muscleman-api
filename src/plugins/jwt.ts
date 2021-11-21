@@ -24,7 +24,7 @@ export const sign = (user: User): JWTResponse => ({
   refreshToken: uid(256),
 });
 
-export const verify = (token: string): Partial<User> => {
+export const verify = (token: string): Pick<User, '_id'> => {
   try {
     const verified = jwtVerify(token, process.env.JWT_SECRET_KEY || '');
 
