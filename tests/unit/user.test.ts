@@ -28,7 +28,7 @@ describe('사용자 모델', () => {
 
   it('데이터 베이스에 사용자 정보를 저장하기 전에 비밀번호를 해쉬화 한다', async () => {
     const input = UserFactory();
-    const { data } = await graphql(
+    const { data, errors } = await graphql(
       `
         mutation register($input: RegisterInput!) {
           register(input: $input) {
@@ -44,6 +44,7 @@ describe('사용자 모델', () => {
       },
     );
 
+    expect(errors).toBeUndefined();
     expect(
       await compare(input.password, data?.register.user.password),
     ).toBeTruthy();

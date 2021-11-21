@@ -1,4 +1,5 @@
 import * as faker from 'faker';
+import { uniqueId } from 'lodash';
 
 import { SocialLoginInput } from '@src/resolvers/types/SocialLoginInput';
 import { SocialProvider } from '@src/types/enums';
@@ -9,9 +10,7 @@ export const SocialUserFactory: (
   Object.assign(
     {
       name: faker.name.lastName() + faker.name.firstName(),
-      email: `${faker.unique(faker.random.words, [1])}@${
-        faker.internet.email().split('@')[1]
-      }`,
+      email: `${uniqueId('email')}@${faker.internet.email().split('@')[1]}`,
       provider: faker.random.arrayElement([
         SocialProvider.KAKAO,
         SocialProvider.NAVER,

@@ -1,4 +1,5 @@
 import faker from 'faker';
+import { uniqueId } from 'lodash';
 
 import { UserLimit } from '@src/limits/UserLimit';
 import { RegisterInput } from '@src/resolvers/types/RegisterInput';
@@ -11,10 +12,8 @@ export const UserFactory: (input?: Partial<RegisterInput>) => RegisterInput =
     return Object.assign(
       {
         name: faker.name.lastName() + faker.name.firstName(),
-        email: `${faker.unique(faker.random.words, [1])}@${
-          faker.internet.email().split('@')[1]
-        }`,
-        nickname: faker.unique(faker.name.firstName),
+        email: `${uniqueId('email')}@${faker.internet.email().split('@')[1]}`,
+        nickname: uniqueId('nn'),
         password,
         passwordConfirmation: password,
         gender: faker.random.arrayElement([Gender.MALE, Gender.FEMALE]),
