@@ -4,14 +4,16 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import ValidationError from '@src/errors/ValidationError';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { TrainingFactory } from '@src/factories/TrainingFactory';
+import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { PlanLimit } from '@src/limits/PlanLimit';
+import { VolumeLimit } from '@src/limits/VolumeLimit';
 import { TrainingModel } from '@src/models/Training';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
-describe('운동 계획 생성', () => {
-  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, training { _id, name }, plannedAt, sets { count, weight } } }`;
+const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, plannedAt, volumes { training { _id, name }, count, weight } } }`;
 
+describe('운동 계획 생성', () => {
   it('로그인 하지 않은 사용자는 요청할 수 없다', async () => {
     const { errors } = await graphql(createPlanMutation, {
       input: await PlanFactory(),
@@ -36,9 +38,8 @@ describe('운동 계획 생성', () => {
 
     expect(data?.createPlan).toHaveProperty('_id');
     expect(data?.createPlan).toHaveProperty(['user', '_id']);
-    expect(data?.createPlan).toHaveProperty(['training', '_id']);
     expect(data?.createPlan).toHaveProperty('plannedAt');
-    expect(data?.createPlan).toHaveProperty('sets');
+    expect(data?.createPlan).toHaveProperty('volumes');
   });
 
   it('사용자 _id를 전달하면 해당 사용자를 저장한다', async () => {
@@ -52,38 +53,6 @@ describe('운동 계획 생성', () => {
     );
 
     expect(user.name === data?.createPlan.user.name).toBeTruthy();
-  });
-
-  it('운동종목 필드는 반드시 필요하다', async () => {
-    const { token } = await signIn();
-    const { errors } = await graphql(
-      createPlanMutation,
-      {
-        input: await PlanFactory({ training: undefined }),
-      },
-      token,
-    );
-
-    expect(errors).toBeDefined();
-    if (errors) {
-      expect(errors.length).toEqual(1);
-      expect(errors[0]).toBeInstanceOf(GraphQLError);
-    }
-  });
-
-  it('운동종목 _id를 전달하면 해당 운동종목을 저장한다', async () => {
-    const { token } = await signIn();
-    const training = await TrainingModel.create(TrainingFactory());
-    const { data, errors } = await graphql(
-      createPlanMutation,
-      {
-        input: await PlanFactory({ training: training._id.toHexString() }),
-      },
-      token,
-    );
-
-    expect(errors).toBeUndefined();
-    expect(training.name === data?.createPlan.training.name).toBeTruthy();
   });
 
   it('운동 날짜 필드는 반드시 필요하다', async () => {
@@ -123,26 +92,69 @@ describe('운동 계획 생성', () => {
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
+});
 
-  it('세트와 완료 여부는 빈 값을 허용한다', async () => {
+describe('운동 볼륨 생성', () => {
+  it('운동종목 필드는 반드시 필요하다', async () => {
     const { token } = await signIn();
-
-    await Promise.all(
-      ['sets', 'complete'].map(async field => {
-        const { errors } = await graphql(
-          createPlanMutation,
-          {
-            input: await PlanFactory({ [field]: undefined }),
-          },
-          token,
-        );
-
-        expect(errors).toBeUndefined();
-      }),
+    const { errors } = await graphql(
+      createPlanMutation,
+      {
+        input: await PlanFactory({
+          volumes: [await VolumeFactory({ training: undefined })],
+        }),
+      },
+      token,
     );
+
+    expect(errors).toBeDefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0]).toBeInstanceOf(GraphQLError);
+    }
   });
 
-  it('세트의 횟수, 무게, 시간, 거리는 빈 값을 허용한다', async () => {
+  it('운동종목 _id를 전달하면 해당 운동종목을 저장한다', async () => {
+    const { token } = await signIn();
+    const training = await TrainingModel.create(TrainingFactory());
+    const { data, errors } = await graphql(
+      createPlanMutation,
+      {
+        input: await PlanFactory({
+          volumes: [
+            await VolumeFactory({
+              training: training._id.toHexString(),
+            }),
+          ],
+        }),
+      },
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(
+      training.name === data?.createPlan.volumes[0].training.name,
+    ).toBeTruthy();
+  });
+
+  it('완료 여부는 빈 값을 허용하고 default가 false이다', async () => {
+    const { token } = await signIn();
+
+    const { data, errors } = await graphql(
+      createPlanMutation,
+      {
+        input: await PlanFactory({
+          volumes: [await VolumeFactory({ complete: undefined })],
+        }),
+      },
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(data?.createPlan.volumes[0].complete).toBeFalsy();
+  });
+
+  it('볼륨의 횟수, 무게, 시간, 거리는 빈 값을 허용한다', async () => {
     const { token } = await signIn();
 
     await Promise.all(
@@ -150,7 +162,9 @@ describe('운동 계획 생성', () => {
         const { errors } = await graphql(
           createPlanMutation,
           {
-            input: await PlanFactory({ sets: [{ [field]: undefined }] }),
+            input: await PlanFactory({
+              volumes: [await VolumeFactory({ [field]: undefined })],
+            }),
           },
           token,
         );
@@ -160,16 +174,16 @@ describe('운동 계획 생성', () => {
     );
   });
 
-  it(`세트의 횟수는 ${PlanLimit.sets.count.min}개 이상, 무게는 ${PlanLimit.sets.weight.min}kg 이상, 시간은 ${PlanLimit.sets.times.min}초 이상, 거리는 ${PlanLimit.sets.distances.min}m 이상 이어야 한다`, async () => {
+  it(`볼륨의 횟수는 ${VolumeLimit.count.min}개 이상, 무게는 ${VolumeLimit.weight.min}kg 이상, 시간은 ${VolumeLimit.times.min}초 이상, 거리는 ${VolumeLimit.distances.min}m 이상 이어야 한다`, async () => {
     const { token } = await signIn();
 
     await Promise.all(
-      Object.entries(PlanLimit.sets).map(async ([key, { min }]) => {
+      Object.entries(VolumeLimit).map(async ([key, { min }]) => {
         const { errors } = await graphql(
           createPlanMutation,
           {
             input: await PlanFactory({
-              sets: [{ [key]: min - 1 }],
+              volumes: [await VolumeFactory({ [key]: min - 1 })],
             }),
           },
           token,

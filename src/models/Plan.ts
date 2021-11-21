@@ -1,63 +1,50 @@
 import {
   DocumentType,
   getModelForClass,
-  modelOptions,
   mongoose,
   pre,
   prop,
   Ref,
-  Severity,
+  ReturnModelType,
 } from '@typegoose/typegoose';
-import { Field, Float, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 
 import AuthenticationError from '@src/errors/AuthenticationError';
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ForbiddenError from '@src/errors/ForbiddenError';
+import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
+import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
 import { Role } from '@src/types/enums';
 
 import { Model } from './Model';
-import { Set } from './Set';
-import { Training } from './Training';
 import { User } from './User';
-import { setOneRM } from './hooks/plan-hooks';
+import { Volume, VolumeModel } from './Volume';
+import { deleteLinkedReferences } from './hooks/plan-hooks';
 import { PlanMethods, PlanQueryHelpers } from './types/Plan';
 import { UserQueryHelpers } from './types/User';
-import { WeightSet } from './types/WeightSet';
 
-@pre<Plan>('save', setOneRM)
+@pre<Plan>(
+  ['deleteOne', 'deleteMany', 'findOneAndDelete'],
+  deleteLinkedReferences,
+)
 @ObjectType({ implements: Model, description: '운동계획 모델' })
-@modelOptions({ options: { allowMixed: Severity.ALLOW } })
 export class Plan extends Model implements PlanMethods {
   @Field(() => User, { description: '사용자' })
   @prop({ ref: 'User', required: true })
   user: Ref<User>;
 
-  @Field(() => Training, { description: '운동종목' })
-  @prop({ ref: 'Training', required: true })
-  training: Ref<Training, string>;
-
   @Field(() => Date, { description: '운동 날짜' })
   @prop({ type: Date, required: true })
   plannedAt: string;
 
-  @Field(() => [Set], { description: '세트', defaultValue: [] })
-  @prop({ type: [mongoose.Schema.Types.Mixed], default: [] })
-  sets: (Set | WeightSet)[];
-
-  @Field(() => Boolean, {
-    description: '완료 여부',
-    defaultValue: false,
-  })
-  @prop({ type: Boolean, default: false })
-  complete: boolean;
-
-  @Field(() => Float, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
-  oneRM: number;
+  @Field(() => [Volume], { description: '볼륨', defaultValue: [] })
+  @prop({ ref: 'Volume', default: [] })
+  volumes: Ref<Volume>[];
 
   checkPermission(
     this: DocumentType<Plan, PlanQueryHelpers>,
     user: DocumentType<User, UserQueryHelpers>,
-  ): DocumentType<Plan> {
+  ): DocumentType<Plan, PlanQueryHelpers> {
     if (!user) {
       throw new AuthenticationError();
     }
@@ -72,15 +59,80 @@ export class Plan extends Model implements PlanMethods {
     return this;
   }
 
-  hasWeightSets(
-    this: DocumentType<Plan, PlanQueryHelpers>,
-    sets: Plan['sets'],
-  ): sets is WeightSet[] {
-    return sets.every(
-      set =>
-        (set as WeightSet).weight !== undefined &&
-        (set as WeightSet).count !== undefined,
+  static async createWithVolumes(
+    this: ReturnModelType<typeof Plan>,
+    user: DocumentType<User, UserQueryHelpers>,
+    input: CreatePlanInput,
+  ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
+    const plan = await this.create({
+      user: user._id,
+      plannedAt: input.plannedAt,
+    });
+    await plan.updateOne({
+      volumes: await Promise.all(
+        input.volumes.map(
+          async volume =>
+            (
+              await VolumeModel.create({
+                plan: plan._id,
+                ...volume,
+              })
+            )._id,
+        ),
+      ),
+    });
+
+    return await this.findById(plan._id)
+      .orFail(new DocumentNotFoundError())
+      .exec();
+  }
+
+  static async updateOneWithVolumes(
+    this: ReturnModelType<typeof Plan>,
+    user: DocumentType<User, UserQueryHelpers>,
+    _id: mongoose.Types.ObjectId,
+    input: UpdatePlanInput,
+  ): Promise<boolean> {
+    const plan = await this.findById(_id)
+      .orFail(new DocumentNotFoundError())
+      .exec();
+
+    // 삭제
+    await Promise.all(
+      plan.volumes?.map(async volume => {
+        if (
+          volume &&
+          input.volumes?.every(
+            _volume => !_volume._id || _volume._id !== volume._id,
+          )
+        ) {
+          return await VolumeModel.deleteOne({ _id: volume._id });
+        }
+
+        return Promise.resolve();
+      }),
     );
+
+    await plan
+      .checkPermission(user)
+      .updateOne({
+        plannedAt: input.plannedAt,
+        volumes: await Promise.all(
+          input.volumes?.map(async volume => {
+            if (!volume._id) {
+              return (await VolumeModel.create({ plan: plan._id, ...volume }))
+                ._id;
+            }
+
+            await VolumeModel.updateOne({ _id: volume._id }, volume);
+
+            return volume._id;
+          }) || [],
+        ),
+      })
+      .exec();
+
+    return true;
   }
 }
 

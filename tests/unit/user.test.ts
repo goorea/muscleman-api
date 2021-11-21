@@ -4,9 +4,10 @@ import * as faker from 'faker';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { UserFactory } from '@src/factories/UserFactory';
 import { Model } from '@src/models/Model';
-import { Plan, PlanModel } from '@src/models/Plan';
+import { PlanModel } from '@src/models/Plan';
 import { User, UserModel } from '@src/models/User';
 import { graphql } from '@tests/graphql';
+import { signIn } from '@tests/helpers';
 
 describe('사용자 모델', () => {
   it('Model을 상속받고 있다', () => {
@@ -52,20 +53,17 @@ describe('사용자 모델', () => {
 
   it('사용자를 삭제하면 해당 사용자로 추가된 모든 운동 계획들이 삭제된다', async () => {
     const count = 5;
-    const user = await UserModel.create(UserFactory());
+    const { user } = await signIn();
     await Promise.all(
       [...Array(count)].map(async () =>
-        PlanModel.create({
-          ...(await PlanFactory()),
-          user: user._id,
-        } as Plan),
+        PlanModel.createWithVolumes(user, await PlanFactory()),
       ),
     );
 
-    expect(await PlanModel.find().count().exec()).toEqual(count);
+    expect(await PlanModel.count()).toEqual(count);
 
     await UserModel.findByIdAndDelete(user._id);
 
-    expect(await PlanModel.find().count().exec()).toEqual(0);
+    expect(await PlanModel.count()).toEqual(0);
   });
 });

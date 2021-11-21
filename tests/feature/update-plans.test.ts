@@ -8,8 +8,10 @@ import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { UserFactory } from '@src/factories/UserFactory';
+import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { Plan, PlanModel } from '@src/models/Plan';
 import { User, UserModel } from '@src/models/User';
+import { VolumeModel } from '@src/models/Volume';
 import { PlanQueryHelpers } from '@src/models/types/Plan';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
@@ -112,7 +114,9 @@ describe('운동 계획 수정', () => {
       updatePlanMutation,
       {
         _id: plan._id.toHexString(),
-        input: await PlanFactory({ training: undefined }),
+        input: await PlanFactory({
+          volumes: [await VolumeFactory({ training: undefined })],
+        }),
       },
       token,
     );
@@ -141,6 +145,36 @@ describe('운동 계획 수정', () => {
       expect(errors.length).toEqual(1);
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
+  });
+
+  it('기존에 존재하던 볼륨이 업데이트 항목에 없다면 제거된다', async () => {
+    await VolumeModel.collection.drop();
+    const { user, token } = await signIn();
+    const count = 5;
+    const plan = await PlanModel.createWithVolumes(
+      user,
+      await PlanFactory({
+        volumes: await Promise.all(
+          [...Array(count)].map(() => VolumeFactory()),
+        ),
+      }),
+    );
+
+    expect(await VolumeModel.count()).toEqual(count);
+
+    const { errors } = await graphql(
+      updatePlanMutation,
+      {
+        _id: plan._id.toHexString(),
+        input: {
+          volumes: [await VolumeFactory()],
+        },
+      },
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(await VolumeModel.count()).toEqual(1);
   });
 });
 
@@ -215,11 +249,8 @@ async function getPlan(
   input?: UpdatePlanInput,
   user?: DocumentType<User, UserQueryHelpers>,
 ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
-  return PlanModel.create({
-    ...(await PlanFactory(input)),
-    user: (user ?? (await UserModel.create(UserFactory())))._id.toHexString(),
-  });
+  return PlanModel.createWithVolumes(
+    user ?? (await UserModel.create(UserFactory())),
+    await PlanFactory(input),
+  );
 }
-
-// 로그인 하지 않은 사용자는 삭제 요청할 수 없다
-// 관리자가 아니거나 해당 계획을 추가한 사용자가 아니면 삭제 요청할 수 없다

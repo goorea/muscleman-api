@@ -1,13 +1,8 @@
-import { round } from 'lodash';
-
-import { PreFnWithDocumentType } from '@src/types/hooks';
+import { PreFnWithQuery } from '@src/types/hooks';
 
 import { Plan } from '../Plan';
+import { VolumeModel } from '../Volume';
 
-export const setOneRM: PreFnWithDocumentType<Plan> = function () {
-  if (this.sets.length && this.hasWeightSets(this.sets)) {
-    const { weight, count } = this.sets.sort((a, b) => b.weight - a.weight)[0];
-
-    this.oneRM = round(weight + weight * count * 0.025, 1);
-  }
+export const deleteLinkedReferences: PreFnWithQuery<Plan> = async function () {
+  await VolumeModel.deleteMany({ plan: this.getFilter()._id });
 };

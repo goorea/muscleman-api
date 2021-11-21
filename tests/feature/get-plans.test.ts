@@ -2,15 +2,17 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { TrainingFactory } from '@src/factories/TrainingFactory';
-import { Plan, PlanModel } from '@src/models/Plan';
+import { VolumeFactory } from '@src/factories/VolumeFactory';
+import { PlanModel } from '@src/models/Plan';
 import { TrainingModel } from '@src/models/Training';
-import { TrainingType } from '@src/types/enums';
+import { VolumeModel } from '@src/models/Volume';
+import { TrainingCategory, TrainingType } from '@src/types/enums';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('운동 계획 조회', () => {
   const plansQuery = `query plans { plans { _id } }`;
-  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, oneRM } }`;
+  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, volumes { _id, oneRM } } }`;
   const getOneRMQuery = `query getOneRM($name: String!) { getOneRM(name: $name) }`;
 
   it('로그인 하지 않은 사용자는 모든 운동 계획을 조회할 수 없다', async () => {
@@ -27,12 +29,9 @@ describe('운동 계획 조회', () => {
     const count = 5;
     const { user, token } = await signIn();
     await Promise.all(
-      [...Array(count)].map(async () => {
-        await PlanModel.create({
-          ...(await PlanFactory()),
-          user: user._id,
-        } as Plan);
-      }),
+      [...Array(count)].map(async () =>
+        PlanModel.createWithVolumes(user, await PlanFactory()),
+      ),
     );
     const { data, errors } = await graphql(plansQuery, undefined, token);
 
@@ -40,22 +39,23 @@ describe('운동 계획 조회', () => {
     expect(data?.plans.length).toEqual(count);
   });
 
-  it('운동 계획이 완료 상태라면 사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {
+  it('운동 계획이 완료 상태고 중량 볼륨이라면 사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {
     const { token } = await signIn();
     const createPlanResponse = await graphql(
       createPlanMutation,
       {
         input: await PlanFactory({
-          sets: [{ weight: 100, count: 5 }],
-          complete: true,
+          volumes: [
+            await VolumeFactory({ complete: true, weight: 100, count: 5 }),
+          ],
         }),
       },
       token,
     );
-    const plan = await PlanModel.findById(
-      createPlanResponse.data?.createPlan._id,
+    const volume = await VolumeModel.findById(
+      createPlanResponse.data?.createPlan.volumes[0]._id,
     ).orFail(new DocumentNotFoundError());
-    const training = await TrainingModel.findById(plan.training);
+    const training = await TrainingModel.findById(volume.training);
 
     const { data, errors } = await graphql(
       getOneRMQuery,
@@ -66,26 +66,41 @@ describe('운동 계획 조회', () => {
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.getOneRM).toEqual(createPlanResponse.data?.createPlan.oneRM);
+    expect(data?.getOneRM).toEqual(
+      createPlanResponse.data?.createPlan.volumes[0].oneRM,
+    );
   });
 
-  it('운동을 완료하지 않은 계획은 최대 무게를 0으로 반환한다', async () => {
+  it('중량 볼륨이고 운동을 완료하지 않았다면 최대 무게를 0으로 반환한다', async () => {
     const { token } = await signIn();
     const squatName = '바벨 백스쿼트';
     const benchPressName = '벤치 프레스';
     const squat = await TrainingModel.create(
-      TrainingFactory({ name: squatName, type: TrainingType.LOWER }),
+      TrainingFactory({
+        name: squatName,
+        category: TrainingCategory.WEIGHT,
+        type: TrainingType.LOWER,
+      }),
     );
     const benchPress = await TrainingModel.create(
-      TrainingFactory({ name: benchPressName, type: TrainingType.CHEST }),
+      TrainingFactory({
+        name: benchPressName,
+        category: TrainingCategory.WEIGHT,
+        type: TrainingType.CHEST,
+      }),
     );
     await graphql(
       createPlanMutation,
       {
         input: await PlanFactory({
-          training: squat._id.toHexString(),
-          sets: [{ weight: 100, count: 5 }],
-          complete: true,
+          volumes: [
+            await VolumeFactory({
+              training: squat._id.toHexString(),
+              complete: true,
+              weight: 100,
+              count: 5,
+            }),
+          ],
         }),
       },
       token,
@@ -94,9 +109,14 @@ describe('운동 계획 조회', () => {
       createPlanMutation,
       {
         input: await PlanFactory({
-          training: benchPress._id.toHexString(),
-          sets: [{ weight: 100, count: 5 }],
-          complete: false,
+          volumes: [
+            await VolumeFactory({
+              training: benchPress._id.toHexString(),
+              complete: false,
+              weight: 100,
+              count: 5,
+            }),
+          ],
         }),
       },
       token,

@@ -1,8 +1,6 @@
 import faker from 'faker';
 
-import { SetFactory } from '@src/factories/SetFactory';
-import { TrainingFactory } from '@src/factories/TrainingFactory';
-import { TrainingModel } from '@src/models/Training';
+import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
 
 export const PlanFactory: (
@@ -10,12 +8,10 @@ export const PlanFactory: (
 ) => Promise<CreatePlanInput> = async input =>
   Object.assign(
     {
-      training: (
-        await TrainingModel.create(TrainingFactory())
-      )._id.toHexString(),
       plannedAt: faker.date.future().toISOString(),
-      sets: [...Array(faker.datatype.number(10))].map(() => SetFactory()),
-      complete: faker.datatype.boolean(),
+      volumes: await Promise.all(
+        [...Array(faker.datatype.number(10))].map(() => VolumeFactory()),
+      ),
     } as CreatePlanInput,
     input,
   );
