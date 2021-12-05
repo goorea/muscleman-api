@@ -16,9 +16,11 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { AuthenticateMiddleware } from '@src/middlewares/AuthenticateMiddleware';
 import { Plan, PlanModel } from '@src/models/Plan';
+import { Training, TrainingModel } from '@src/models/Training';
 import { User, UserModel } from '@src/models/User';
 import { Volume, VolumeModel } from '@src/models/Volume';
 import { PlanQueryHelpers } from '@src/models/types/Plan';
+import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { VolumeQueryHelpers } from '@src/models/types/Volume';
 
@@ -37,6 +39,33 @@ export class PlanResolver implements ResolverInterface<Plan> {
     }
 
     return PlanModel.find({ user: user._id });
+  }
+
+  @Query(() => Number, { description: '최대 무게' })
+  @UseMiddleware(AuthenticateMiddleware)
+  async getOneRM(
+    @Arg('name') name: string,
+    @Ctx() { user }: Context,
+  ): Promise<number> {
+    if (!user) {
+      throw new AuthenticationError();
+    }
+
+    const training = await TrainingModel.findOne({ name });
+
+    if (training === null) {
+      return 0;
+    }
+
+    return (
+      (
+        await PlanModel.findOne({
+          user: user._id,
+          training: training._id.toHexString(),
+          complete: true,
+        }).sort({ oneRM: -1 })
+      )?.oneRM || 0
+    );
   }
 
   @Mutation(() => Plan, { description: '운동계획 생성' })
@@ -90,6 +119,15 @@ export class PlanResolver implements ResolverInterface<Plan> {
     @Root() plan: Plan,
   ): Promise<DocumentType<User, UserQueryHelpers>> {
     return await UserModel.findById(plan.user)
+      .orFail(new DocumentNotFoundError())
+      .exec();
+  }
+
+  @FieldResolver()
+  async training(
+    @Root() plan: Plan,
+  ): Promise<DocumentType<Training, TrainingQueryHelpers>> {
+    return await TrainingModel.findById(plan.training)
       .orFail(new DocumentNotFoundError())
       .exec();
   }

@@ -1,3 +1,4 @@
+import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { PlanFactory } from '@src/factories/PlanFactory';
 import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { Model } from '@src/models/Model';
@@ -16,9 +17,7 @@ describe('운동계획 모델', () => {
     const plan = await PlanModel.createWithVolumes(
       user,
       await PlanFactory({
-        volumes: await Promise.all(
-          [...Array(count)].map(() => VolumeFactory()),
-        ),
+        volumes: [...Array(count)].map(() => VolumeFactory()),
       }),
     );
 
@@ -27,5 +26,20 @@ describe('운동계획 모델', () => {
     await PlanModel.findByIdAndDelete(plan._id);
 
     expect(await VolumeModel.count()).toEqual(0);
+  });
+
+  it('운동 계획을 생성할 때 1rm을 저장하는 훅이 있다', async () => {
+    const { user } = await signIn();
+    const { _id } = await PlanModel.createWithVolumes(
+      user,
+      await PlanFactory({
+        volumes: [VolumeFactory({ weight: 100, count: 5 })],
+      }),
+    );
+
+    expect(
+      (await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec())
+        .oneRM !== 0,
+    ).toBeTruthy();
   });
 });
