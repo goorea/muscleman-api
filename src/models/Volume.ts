@@ -5,28 +5,16 @@ import { CalisthenicsVolume } from './CalisthenicsVolume';
 import { CardiovascularVolume } from './CardiovascularVolume';
 import { Model } from './Model';
 import { Plan } from './Plan';
-import { Training } from './Training';
 import { WeightVolume } from './WeightVolume';
-import { setOneRM } from './hooks/volume-hooks';
+import { setTotal } from './hooks/volume-hooks';
 import { VolumeMethods, VolumeQueryHelpers } from './types/Volume';
 
-@pre<Volume>('save', setOneRM)
+@pre<Volume>('save', setTotal)
 @ObjectType({ implements: Model, description: '운동 볼륨' })
 export class Volume extends Model implements VolumeMethods {
   @Field(() => Plan, { description: '운동계획' })
   @prop({ ref: 'Plan', required: true })
   plan: Ref<Plan>;
-
-  @Field(() => Training, { description: '운동종목' })
-  @prop({ ref: 'Training', required: true })
-  training: Ref<Training, string>;
-
-  @Field(() => Boolean, {
-    description: '완료 여부',
-    defaultValue: false,
-  })
-  @prop({ type: Boolean, default: false })
-  complete: boolean;
 
   @Field(() => Int, { description: '횟수', nullable: true })
   @prop({ type: Number })
@@ -45,12 +33,7 @@ export class Volume extends Model implements VolumeMethods {
   distances?: number;
 
   @Field(() => Float, { description: '총 볼륨', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
   total: number;
-
-  @Field(() => Float, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
-  oneRM: number;
 
   isCalisthenicsVolume(): this is CalisthenicsVolume {
     return (

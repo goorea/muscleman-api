@@ -5,14 +5,13 @@ import { TrainingFactory } from '@src/factories/TrainingFactory';
 import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { PlanModel } from '@src/models/Plan';
 import { TrainingModel } from '@src/models/Training';
-import { VolumeModel } from '@src/models/Volume';
 import { TrainingCategory, TrainingType } from '@src/types/enums';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
 describe('운동 계획 조회', () => {
   const plansQuery = `query plans { plans { _id } }`;
-  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, volumes { _id, oneRM } } }`;
+  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, oneRM, volumes { _id } } }`;
   const getOneRMQuery = `query getOneRM($name: String!) { getOneRM(name: $name) }`;
 
   it('로그인 하지 않은 사용자는 모든 운동 계획을 조회할 수 없다', async () => {
@@ -45,17 +44,17 @@ describe('운동 계획 조회', () => {
       createPlanMutation,
       {
         input: await PlanFactory({
-          volumes: [
-            await VolumeFactory({ complete: true, weight: 100, count: 5 }),
-          ],
+          complete: true,
+          volumes: [VolumeFactory({ weight: 100, count: 5 })],
         }),
       },
       token,
     );
-    const volume = await VolumeModel.findById(
-      createPlanResponse.data?.createPlan.volumes[0]._id,
+
+    const plan = await PlanModel.findById(
+      createPlanResponse.data?.createPlan._id,
     ).orFail(new DocumentNotFoundError());
-    const training = await TrainingModel.findById(volume.training);
+    const training = await TrainingModel.findById(plan.training);
 
     const { data, errors } = await graphql(
       getOneRMQuery,
@@ -66,9 +65,7 @@ describe('운동 계획 조회', () => {
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.getOneRM).toEqual(
-      createPlanResponse.data?.createPlan.volumes[0].oneRM,
-    );
+    expect(data?.getOneRM).toEqual(createPlanResponse.data?.createPlan.oneRM);
   });
 
   it('중량 볼륨이고 운동을 완료하지 않았다면 최대 무게를 0으로 반환한다', async () => {
@@ -93,10 +90,10 @@ describe('운동 계획 조회', () => {
       createPlanMutation,
       {
         input: await PlanFactory({
+          training: squat._id.toHexString(),
+          complete: true,
           volumes: [
-            await VolumeFactory({
-              training: squat._id.toHexString(),
-              complete: true,
+            VolumeFactory({
               weight: 100,
               count: 5,
             }),
@@ -109,10 +106,10 @@ describe('운동 계획 조회', () => {
       createPlanMutation,
       {
         input: await PlanFactory({
+          training: benchPress._id.toHexString(),
+          complete: false,
           volumes: [
-            await VolumeFactory({
-              training: benchPress._id.toHexString(),
-              complete: false,
+            VolumeFactory({
               weight: 100,
               count: 5,
             }),

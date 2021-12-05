@@ -11,7 +11,7 @@ import { TrainingModel } from '@src/models/Training';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
-const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, plannedAt, volumes { training { _id, name }, count, weight } } }`;
+const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, plannedAt, training { _id, name }, complete, volumes { count, weight } } }`;
 
 describe('운동 계획 생성', () => {
   it('로그인 하지 않은 사용자는 요청할 수 없다', async () => {
@@ -100,9 +100,7 @@ describe('운동 볼륨 생성', () => {
     const { errors } = await graphql(
       createPlanMutation,
       {
-        input: await PlanFactory({
-          volumes: [await VolumeFactory({ training: undefined })],
-        }),
+        input: await PlanFactory({ training: undefined }),
       },
       token,
     );
@@ -120,21 +118,13 @@ describe('운동 볼륨 생성', () => {
     const { data, errors } = await graphql(
       createPlanMutation,
       {
-        input: await PlanFactory({
-          volumes: [
-            await VolumeFactory({
-              training: training._id.toHexString(),
-            }),
-          ],
-        }),
+        input: await PlanFactory({ training: training._id.toHexString() }),
       },
       token,
     );
 
     expect(errors).toBeUndefined();
-    expect(
-      training.name === data?.createPlan.volumes[0].training.name,
-    ).toBeTruthy();
+    expect(training.name === data?.createPlan.training.name).toBeTruthy();
   });
 
   it('완료 여부는 빈 값을 허용하고 default가 false이다', async () => {
@@ -143,15 +133,13 @@ describe('운동 볼륨 생성', () => {
     const { data, errors } = await graphql(
       createPlanMutation,
       {
-        input: await PlanFactory({
-          volumes: [await VolumeFactory({ complete: undefined })],
-        }),
+        input: await PlanFactory({ complete: undefined }),
       },
       token,
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.createPlan.volumes[0].complete).toBeFalsy();
+    expect(data?.createPlan.complete === false).toBeTruthy();
   });
 
   it('볼륨의 횟수, 무게, 시간, 거리는 빈 값을 허용한다', async () => {
@@ -163,7 +151,7 @@ describe('운동 볼륨 생성', () => {
           createPlanMutation,
           {
             input: await PlanFactory({
-              volumes: [await VolumeFactory({ [field]: undefined })],
+              volumes: [VolumeFactory({ [field]: undefined })],
             }),
           },
           token,
@@ -183,7 +171,7 @@ describe('운동 볼륨 생성', () => {
           createPlanMutation,
           {
             input: await PlanFactory({
-              volumes: [await VolumeFactory({ [key]: min - 1 })],
+              volumes: [VolumeFactory({ [key]: min - 1 })],
             }),
           },
           token,

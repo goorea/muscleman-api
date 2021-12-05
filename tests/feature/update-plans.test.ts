@@ -114,9 +114,7 @@ describe('운동 계획 수정', () => {
       updatePlanMutation,
       {
         _id: plan._id.toHexString(),
-        input: await PlanFactory({
-          volumes: [await VolumeFactory({ training: undefined })],
-        }),
+        input: await PlanFactory({ training: undefined }),
       },
       token,
     );
@@ -154,9 +152,7 @@ describe('운동 계획 수정', () => {
     const plan = await PlanModel.createWithVolumes(
       user,
       await PlanFactory({
-        volumes: await Promise.all(
-          [...Array(count)].map(() => VolumeFactory()),
-        ),
+        volumes: [...Array(count)].map(() => VolumeFactory()),
       }),
     );
 
@@ -167,7 +163,7 @@ describe('운동 계획 수정', () => {
       {
         _id: plan._id.toHexString(),
         input: {
-          volumes: [await VolumeFactory()],
+          volumes: [VolumeFactory()],
         },
       },
       token,

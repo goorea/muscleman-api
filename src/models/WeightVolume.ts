@@ -1,4 +1,3 @@
-import { prop } from '@typegoose/typegoose';
 import { Field, Float, Int, InterfaceType } from 'type-graphql';
 
 import { Volume } from './Volume';
@@ -11,10 +10,6 @@ export class WeightVolume extends Volume {
   @Field(() => Float, { description: '무게(kg)' })
   weight: number;
 
-  @Field(() => Float, { description: '총 볼륨' })
+  @Field(() => Float, { description: '총 볼륨', defaultValue: 0 })
   total: number;
-
-  @Field(() => Float, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
-  oneRM: number;
 }
