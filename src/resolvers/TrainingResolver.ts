@@ -1,5 +1,5 @@
 import { DocumentType, mongoose } from '@typegoose/typegoose';
-import { Arg, Authorized, Mutation, Resolver } from 'type-graphql';
+import { Arg, Authorized, Mutation, Query, Resolver } from 'type-graphql';
 
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import { Training, TrainingModel } from '@src/models/Training';
@@ -11,6 +11,11 @@ import { UpdateTrainingInput } from './types/UpdateTrainingInput';
 
 @Resolver(() => Training)
 export class TrainingResolver {
+  @Query(() => [Training], { description: '운동종목 조회' })
+  async trainings(): Promise<DocumentType<Training, TrainingQueryHelpers>[]> {
+    return TrainingModel.find();
+  }
+
   @Mutation(() => Training, { description: '운동종목 추가' })
   @Authorized(Role.ADMIN)
   async createTraining(
