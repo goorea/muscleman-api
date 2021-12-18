@@ -22,7 +22,7 @@ export class CreateTrainingInput implements Partial<Training> {
   @Field(() => Int, { description: '선호도', defaultValue: 1 })
   @Min(1)
   @Max(10)
-  preference?: number;
+  preference: number;
 
   @Field(() => String, { description: '썸네일 경로', nullable: true })
   @IsUrl()
