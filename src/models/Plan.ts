@@ -12,8 +12,7 @@ import { Field, Float, ObjectType } from 'type-graphql';
 import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ForbiddenError from '@src/errors/ForbiddenError';
-import { CreatePlanInput } from '@src/resolvers/types/CreatePlanInput';
-import { UpdatePlanInput } from '@src/resolvers/types/UpdatePlanInput';
+import { PlanInput } from '@src/resolvers/types/PlanInput';
 import { Role } from '@src/types/enums';
 
 import { Model } from './Model';
@@ -76,10 +75,24 @@ export class Plan extends Model implements PlanMethods {
     return this;
   }
 
+  static async multipleCreateOrUpdateWithVolumes(
+    this: ReturnModelType<typeof Plan>,
+    user: DocumentType<User, UserQueryHelpers>,
+    inputs: PlanInput[],
+  ): Promise<DocumentType<Plan, PlanQueryHelpers>[]> {
+    return Promise.all(
+      inputs.map(async input =>
+        input._id && (await this.exists({ _id: input._id }))
+          ? this.updateOneWithVolumes(user, input._id, input)
+          : this.createWithVolumes(user, input),
+      ),
+    );
+  }
+
   static async createWithVolumes(
     this: ReturnModelType<typeof Plan>,
     user: DocumentType<User, UserQueryHelpers>,
-    input: CreatePlanInput,
+    input: PlanInput,
   ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
     const _id = new mongoose.Types.ObjectId();
 
@@ -105,22 +118,22 @@ export class Plan extends Model implements PlanMethods {
     this: ReturnModelType<typeof Plan>,
     user: DocumentType<User, UserQueryHelpers>,
     _id: mongoose.Types.ObjectId,
-    input: UpdatePlanInput,
-  ): Promise<boolean> {
+    input: PlanInput,
+  ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
     const plan = await this.findById(_id)
       .orFail(new DocumentNotFoundError())
       .exec();
 
     // 삭제
     await Promise.all(
-      plan.volumes?.map(async volume => {
+      plan.volumes.map(async volume => {
         if (
           volume &&
-          input.volumes?.every(
+          input.volumes.every(
             _volume => !_volume._id || _volume._id !== volume._id,
           )
         ) {
-          return await VolumeModel.deleteOne({ _id: volume._id });
+          return VolumeModel.deleteOne({ _id: volume._id });
         }
 
         return Promise.resolve();
@@ -146,7 +159,7 @@ export class Plan extends Model implements PlanMethods {
       })
       .exec();
 
-    return true;
+    return this.findById(_id).orFail(new DocumentNotFoundError()).exec();
   }
 }
 
