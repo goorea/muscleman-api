@@ -1,22 +1,31 @@
+import { DocumentType } from '@typegoose/typegoose';
+import faker from 'faker';
 import { GraphQLError } from 'graphql';
 
 import AuthenticationError from '@src/errors/AuthenticationError';
+import ForbiddenError from '@src/errors/ForbiddenError';
 import ValidationError from '@src/errors/ValidationError';
 import { PlanFactory } from '@src/factories/PlanFactory';
-import { TrainingFactory } from '@src/factories/TrainingFactory';
+import { UserFactory } from '@src/factories/UserFactory';
 import { VolumeFactory } from '@src/factories/VolumeFactory';
 import { PlanLimit } from '@src/limits/PlanLimit';
 import { VolumeLimit } from '@src/limits/VolumeLimit';
-import { TrainingModel } from '@src/models/Training';
+import { Plan, PlanModel } from '@src/models/Plan';
+import { User, UserModel } from '@src/models/User';
+import { VolumeModel } from '@src/models/Volume';
+import { PlanQueryHelpers } from '@src/models/types/Plan';
+import { UserQueryHelpers } from '@src/models/types/User';
+import { PlanInput } from '@src/resolvers/types/PlanInput';
+import { Role } from '@src/types/enums';
 import { graphql } from '@tests/graphql';
 import { signIn } from '@tests/helpers';
 
-const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, user { _id, name }, plannedAt, training { _id, name }, complete, volumes { count, weight } } }`;
+const multipleCreateOrUpdatePlansMutation = `mutation multipleCreateOrUpdatePlans($inputs: [PlanInput!]!) { multipleCreateOrUpdatePlans(inputs: $inputs) { _id, user { _id, name }, plannedAt, training { _id, name }, complete, volumes { count, weight } } }`;
 
-describe('운동 계획 생성', () => {
-  it('로그인 하지 않은 사용자는 요청할 수 없다', async () => {
-    const { errors } = await graphql(createPlanMutation, {
-      input: await PlanFactory(),
+describe('여러 개의 운동 계획 생성 및 수정', () => {
+  it('로그인 하지 않은 사용자는 생성 및 수정 요청할 수 없다', async () => {
+    const { errors } = await graphql(multipleCreateOrUpdatePlansMutation, {
+      inputs: [await PlanFactory()],
     });
 
     expect(errors).toBeDefined();
@@ -26,41 +35,116 @@ describe('운동 계획 생성', () => {
     }
   });
 
+  it('해당 계획을 추가한 사용자가 아니면 수정 요청할 수 없다', async () => {
+    const { token } = await signIn();
+    const plan = await getPlan();
+    const { errors } = await graphql(
+      multipleCreateOrUpdatePlansMutation,
+      {
+        inputs: [{ _id: plan._id.toHexString() }],
+      },
+      token,
+    );
+
+    expect(errors).toBeDefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0].originalError).toBeInstanceOf(ForbiddenError);
+    }
+  });
+
   it('로그인한 사용자는 운동 계획을 생성할 수 있다', async () => {
     const { token } = await signIn();
     const { data } = await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory(),
+        inputs: [await PlanFactory()],
       },
       token,
     );
 
-    expect(data?.createPlan).toHaveProperty('_id');
-    expect(data?.createPlan).toHaveProperty(['user', '_id']);
-    expect(data?.createPlan).toHaveProperty('plannedAt');
-    expect(data?.createPlan).toHaveProperty('volumes');
+    expect(data?.multipleCreateOrUpdatePlans[0]).toHaveProperty('_id');
+    expect(data?.multipleCreateOrUpdatePlans[0]).toHaveProperty([
+      'user',
+      '_id',
+    ]);
+    expect(data?.multipleCreateOrUpdatePlans[0]).toHaveProperty('plannedAt');
+    expect(data?.multipleCreateOrUpdatePlans[0]).toHaveProperty('volumes');
   });
 
-  it('사용자 _id를 전달하면 해당 사용자를 저장한다', async () => {
+  it('로그인을 하고 해당 계획을 추가한 사용자라면 수정할 수 있다', async () => {
     const { user, token } = await signIn();
-    const { data } = await graphql(
-      createPlanMutation,
+    const plan = await getPlan(undefined, user);
+    const updatePlanDate = faker.date.future().toISOString();
+    const { data, errors } = await graphql(
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory(),
+        inputs: [
+          {
+            _id: plan._id.toHexString(),
+            ...(await PlanFactory({
+              plannedAt: updatePlanDate,
+            })),
+          },
+        ],
       },
       token,
     );
 
-    expect(user.name === data?.createPlan.user.name).toBeTruthy();
+    expect(errors).toBeUndefined();
+    expect(data?.multipleCreateOrUpdatePlans[0].plannedAt).toEqual(
+      updatePlanDate,
+    );
+  });
+
+  it('관리자는 어떤 계획이든 수정할 수 있다', async () => {
+    const { token } = await signIn(undefined, [Role.ADMIN]);
+    const plan = await getPlan();
+    const updatePlanDate = faker.date.future().toISOString();
+    const { data, errors } = await graphql(
+      multipleCreateOrUpdatePlansMutation,
+      {
+        inputs: [
+          {
+            _id: plan._id.toHexString(),
+            ...(await PlanFactory({
+              plannedAt: updatePlanDate,
+            })),
+          },
+        ],
+      },
+      token,
+    );
+
+    expect(errors).toBeUndefined();
+    expect(data?.multipleCreateOrUpdatePlans[0].plannedAt).toEqual(
+      updatePlanDate,
+    );
+  });
+
+  it('운동종목 필드는 반드시 필요하다', async () => {
+    const { token } = await signIn();
+    const { errors } = await graphql(
+      multipleCreateOrUpdatePlansMutation,
+      {
+        inputs: [await PlanFactory({ training: undefined })],
+      },
+      token,
+    );
+
+    expect(errors).toBeDefined();
+    if (errors) {
+      expect(errors.length).toEqual(1);
+      expect(errors[0]).toBeInstanceOf(GraphQLError);
+    }
   });
 
   it('운동 날짜 필드는 반드시 필요하다', async () => {
     const { token } = await signIn();
     const { errors } = await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({ plannedAt: '' }),
+        inputs: [await PlanFactory({ plannedAt: '' })],
       },
       token,
     );
@@ -78,11 +162,13 @@ describe('운동 계획 생성', () => {
     plannedAt.setDate(plannedAt.getDate() - 1);
 
     const { errors } = await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({
-          plannedAt: plannedAt.toISOString(),
-        }),
+        inputs: [
+          await PlanFactory({
+            plannedAt: plannedAt.toISOString(),
+          }),
+        ],
       },
       token,
     );
@@ -92,54 +178,54 @@ describe('운동 계획 생성', () => {
       expect(errors[0].originalError).toBeInstanceOf(ValidationError);
     }
   });
-});
 
-describe('운동 볼륨 생성', () => {
-  it('운동종목 필드는 반드시 필요하다', async () => {
-    const { token } = await signIn();
-    const { errors } = await graphql(
-      createPlanMutation,
-      {
-        input: await PlanFactory({ training: undefined }),
-      },
-      token,
+  it('기존에 존재하던 볼륨이 업데이트 항목에 없다면 제거된다', async () => {
+    await VolumeModel.collection.drop();
+    const { user, token } = await signIn();
+    const count = 5;
+    const plan = await PlanModel.createWithVolumes(
+      user,
+      await PlanFactory({
+        volumes: [...Array(count)].map(() => VolumeFactory()),
+      }),
     );
 
-    expect(errors).toBeDefined();
-    if (errors) {
-      expect(errors.length).toEqual(1);
-      expect(errors[0]).toBeInstanceOf(GraphQLError);
-    }
-  });
+    expect(await VolumeModel.count()).toEqual(count);
 
-  it('운동종목 _id를 전달하면 해당 운동종목을 저장한다', async () => {
-    const { token } = await signIn();
-    const training = await TrainingModel.create(TrainingFactory());
-    const { data, errors } = await graphql(
-      createPlanMutation,
+    const { errors } = await graphql(
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({ training: training._id.toHexString() }),
+        inputs: [
+          {
+            _id: plan._id.toHexString(),
+            volumes: [VolumeFactory()],
+          },
+        ],
       },
       token,
     );
 
     expect(errors).toBeUndefined();
-    expect(training.name === data?.createPlan.training.name).toBeTruthy();
+    expect(await VolumeModel.count()).toEqual(1);
   });
+});
 
+describe('운동 볼륨 생성', () => {
   it('완료 여부는 빈 값을 허용하고 default가 false이다', async () => {
     const { token } = await signIn();
 
     const { data, errors } = await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({ complete: undefined }),
+        inputs: [await PlanFactory({ complete: undefined })],
       },
       token,
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.createPlan.complete === false).toBeTruthy();
+    expect(
+      data?.multipleCreateOrUpdatePlans[0].complete === false,
+    ).toBeTruthy();
   });
 
   it('볼륨의 횟수, 무게, 시간, 거리는 빈 값을 허용한다', async () => {
@@ -148,11 +234,13 @@ describe('운동 볼륨 생성', () => {
     await Promise.all(
       ['count', 'weight', 'times', 'distances'].map(async field => {
         const { errors } = await graphql(
-          createPlanMutation,
+          multipleCreateOrUpdatePlansMutation,
           {
-            input: await PlanFactory({
-              volumes: [VolumeFactory({ [field]: undefined })],
-            }),
+            inputs: [
+              await PlanFactory({
+                volumes: [VolumeFactory({ [field]: undefined })],
+              }),
+            ],
           },
           token,
         );
@@ -168,11 +256,13 @@ describe('운동 볼륨 생성', () => {
     await Promise.all(
       Object.entries(VolumeLimit).map(async ([key, { min }]) => {
         const { errors } = await graphql(
-          createPlanMutation,
+          multipleCreateOrUpdatePlansMutation,
           {
-            input: await PlanFactory({
-              volumes: [VolumeFactory({ [key]: min - 1 })],
-            }),
+            inputs: [
+              await PlanFactory({
+                volumes: [VolumeFactory({ [key]: min - 1 })],
+              }),
+            ],
           },
           token,
         );
@@ -186,3 +276,13 @@ describe('운동 볼륨 생성', () => {
     );
   });
 });
+
+async function getPlan(
+  input?: PlanInput,
+  user?: DocumentType<User, UserQueryHelpers>,
+): Promise<DocumentType<Plan, PlanQueryHelpers>> {
+  return PlanModel.createWithVolumes(
+    user ?? (await UserModel.create(UserFactory())),
+    await PlanFactory(input),
+  );
+}

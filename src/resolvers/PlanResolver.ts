@@ -24,8 +24,7 @@ import { TrainingQueryHelpers } from '@src/models/types/Training';
 import { UserQueryHelpers } from '@src/models/types/User';
 import { VolumeQueryHelpers } from '@src/models/types/Volume';
 
-import { CreatePlanInput } from './types/CreatePlanInput';
-import { UpdatePlanInput } from './types/UpdatePlanInput';
+import { PlanInput } from './types/PlanInput';
 
 @Resolver(() => Plan)
 export class PlanResolver implements ResolverInterface<Plan> {
@@ -68,31 +67,17 @@ export class PlanResolver implements ResolverInterface<Plan> {
     );
   }
 
-  @Mutation(() => Plan, { description: '운동계획 생성' })
+  @Mutation(() => [Plan], { description: '여러개의 운동 계획 생성 및 수정' })
   @UseMiddleware(AuthenticateMiddleware)
-  async createPlan(
-    @Arg('input') input: CreatePlanInput,
+  async multipleCreateOrUpdatePlans(
+    @Arg('inputs', () => [PlanInput]) inputs: PlanInput[],
     @Ctx() { user }: Context,
-  ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
+  ): Promise<DocumentType<Plan, PlanQueryHelpers>[]> {
     if (!user) {
       throw new AuthenticationError();
     }
 
-    return PlanModel.createWithVolumes(user, input);
-  }
-
-  @Mutation(() => Boolean, { description: '운동계획 수정' })
-  @UseMiddleware(AuthenticateMiddleware)
-  async updatePlan(
-    @Arg('_id') _id: mongoose.Types.ObjectId,
-    @Arg('input') input: UpdatePlanInput,
-    @Ctx() { user }: Context,
-  ): Promise<boolean> {
-    if (!user) {
-      throw new AuthenticationError();
-    }
-
-    return PlanModel.updateOneWithVolumes(user, _id, input);
+    return PlanModel.multipleCreateOrUpdateWithVolumes(user, inputs);
   }
 
   @Mutation(() => Boolean, { description: '운동계획 삭제' })
