@@ -11,7 +11,7 @@ import { signIn } from '@tests/helpers';
 
 describe('운동 계획 조회', () => {
   const plansQuery = `query plans { plans { _id } }`;
-  const createPlanMutation = `mutation createPlan($input: CreatePlanInput!) { createPlan(input: $input) { _id, oneRM, volumes { _id } } }`;
+  const multipleCreateOrUpdatePlansMutation = `mutation multipleCreateOrUpdatePlans($inputs: [PlanInput!]!) { multipleCreateOrUpdatePlans(inputs: $inputs) { _id, oneRM, volumes { _id } } }`;
   const getOneRMQuery = `query getOneRM($name: String!) { getOneRM(name: $name) }`;
 
   it('로그인 하지 않은 사용자는 모든 운동 계획을 조회할 수 없다', async () => {
@@ -41,18 +41,20 @@ describe('운동 계획 조회', () => {
   it('운동 계획이 완료 상태고 중량 볼륨이라면 사용자의 운동 종목에 대한 최대 무게를 조회할 수 있다', async () => {
     const { token } = await signIn();
     const createPlanResponse = await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({
-          complete: true,
-          volumes: [VolumeFactory({ weight: 100, count: 5 })],
-        }),
+        inputs: [
+          await PlanFactory({
+            complete: true,
+            volumes: [VolumeFactory({ weight: 100, count: 5 })],
+          }),
+        ],
       },
       token,
     );
 
     const plan = await PlanModel.findById(
-      createPlanResponse.data?.createPlan._id,
+      createPlanResponse.data?.multipleCreateOrUpdatePlans[0]._id,
     ).orFail(new DocumentNotFoundError());
     const training = await TrainingModel.findById(plan.training);
 
@@ -65,7 +67,9 @@ describe('운동 계획 조회', () => {
     );
 
     expect(errors).toBeUndefined();
-    expect(data?.getOneRM).toEqual(createPlanResponse.data?.createPlan.oneRM);
+    expect(data?.getOneRM).toEqual(
+      createPlanResponse.data?.multipleCreateOrUpdatePlans[0].oneRM,
+    );
   });
 
   it('중량 볼륨이고 운동을 완료하지 않았다면 최대 무게를 0으로 반환한다', async () => {
@@ -87,34 +91,38 @@ describe('운동 계획 조회', () => {
       }),
     );
     await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({
-          training: squat._id.toHexString(),
-          complete: true,
-          volumes: [
-            VolumeFactory({
-              weight: 100,
-              count: 5,
-            }),
-          ],
-        }),
+        inputs: [
+          await PlanFactory({
+            training: squat._id.toHexString(),
+            complete: true,
+            volumes: [
+              VolumeFactory({
+                weight: 100,
+                count: 5,
+              }),
+            ],
+          }),
+        ],
       },
       token,
     );
     await graphql(
-      createPlanMutation,
+      multipleCreateOrUpdatePlansMutation,
       {
-        input: await PlanFactory({
-          training: benchPress._id.toHexString(),
-          complete: false,
-          volumes: [
-            VolumeFactory({
-              weight: 100,
-              count: 5,
-            }),
-          ],
-        }),
+        inputs: [
+          await PlanFactory({
+            training: benchPress._id.toHexString(),
+            complete: false,
+            volumes: [
+              VolumeFactory({
+                weight: 100,
+                count: 5,
+              }),
+            ],
+          }),
+        ],
       },
       token,
     );

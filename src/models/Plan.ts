@@ -13,6 +13,7 @@ import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
 import ForbiddenError from '@src/errors/ForbiddenError';
 import { PlanInput } from '@src/resolvers/types/PlanInput';
+import { VolumeInput } from '@src/resolvers/types/VolumeInput';
 import { Role } from '@src/types/enums';
 
 import { Model } from './Model';
@@ -101,7 +102,7 @@ export class Plan extends Model implements PlanMethods {
       _id,
       user: user._id,
       volumes: await Promise.all(
-        input.volumes.map(
+        (input.volumes as VolumeInput[]).map(
           async volume =>
             (
               await VolumeModel.create({
@@ -129,7 +130,7 @@ export class Plan extends Model implements PlanMethods {
       plan.volumes.map(async volume => {
         if (
           volume &&
-          input.volumes.every(
+          input.volumes?.every(
             _volume => !_volume._id || _volume._id !== volume._id,
           )
         ) {

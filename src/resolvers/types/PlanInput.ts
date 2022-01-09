@@ -14,10 +14,10 @@ export class PlanInput {
   @Field(() => Date, { description: '운동 날짜', nullable: true })
   @IsDate()
   @MinDate(PlanLimit.plannedAt.minDate)
-  plannedAt: string;
+  plannedAt?: string;
 
   @Field(() => ID, { description: '운동종목', nullable: true })
-  training: string;
+  training?: string;
 
   @Field(() => Boolean, { description: '완료 여부', nullable: true })
   @IsBoolean()
@@ -25,5 +25,5 @@ export class PlanInput {
 
   @Field(() => [VolumeInput], { description: '볼륨', nullable: true })
   @ValidateNested()
-  volumes: VolumeInput[];
+  volumes?: VolumeInput[];
 }
