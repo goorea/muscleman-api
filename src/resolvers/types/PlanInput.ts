@@ -1,5 +1,5 @@
 import { mongoose } from '@typegoose/typegoose';
-import { IsBoolean, IsDate, MinDate, ValidateNested } from 'class-validator';
+import { IsDate, MinDate, ValidateNested } from 'class-validator';
 import { Field, ID, InputType } from 'type-graphql';
 
 import { PlanLimit } from '@src/limits/PlanLimit';
@@ -18,10 +18,6 @@ export class PlanInput {
 
   @Field(() => ID, { description: '운동종목', nullable: true })
   training?: string;
-
-  @Field(() => Boolean, { description: '완료 여부', nullable: true })
-  @IsBoolean()
-  complete?: boolean;
 
   @Field(() => [VolumeInput], { description: '볼륨', nullable: true })
   @ValidateNested()

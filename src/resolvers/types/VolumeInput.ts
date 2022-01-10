@@ -1,5 +1,5 @@
 import { mongoose } from '@typegoose/typegoose';
-import { Min } from 'class-validator';
+import { IsBoolean, Min } from 'class-validator';
 import { Field, Float, ID, InputType, Int } from 'type-graphql';
 
 import { VolumeLimit } from '@src/limits/VolumeLimit';
@@ -9,6 +9,10 @@ import { Volume } from '@src/models/Volume';
 export class VolumeInput implements Partial<Volume> {
   @Field(() => ID, { nullable: true })
   readonly _id?: mongoose.Types.ObjectId;
+
+  @Field(() => Boolean, { description: '완료 여부', nullable: true })
+  @IsBoolean()
+  complete?: boolean;
 
   @Field(() => Int, { description: '횟수', nullable: true })
   @Min(VolumeLimit.count.min)

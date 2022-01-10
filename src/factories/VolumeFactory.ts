@@ -25,6 +25,9 @@ export const VolumeFactory: (input?: Partial<VolumeInput>) => VolumeInput =
             times: faker.datatype.float(2),
             distances: faker.datatype.float(2),
           },
+      {
+        complete: faker.datatype.boolean(),
+      },
       input,
     );
   };
