@@ -7,7 +7,7 @@ import {
   Ref,
   ReturnModelType,
 } from '@typegoose/typegoose';
-import { Field, Float, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 
 import AuthenticationError from '@src/errors/AuthenticationError';
 import DocumentNotFoundError from '@src/errors/DocumentNotFoundError';
@@ -20,11 +20,10 @@ import { Model } from './Model';
 import { Training } from './Training';
 import { User } from './User';
 import { Volume, VolumeModel } from './Volume';
-import { deleteLinkedReferences, setOneRM } from './hooks/plan-hooks';
+import { deleteLinkedReferences } from './hooks/plan-hooks';
 import { PlanMethods, PlanQueryHelpers } from './types/Plan';
 import { UserQueryHelpers } from './types/User';
 
-@pre<Plan>('save', setOneRM)
 @pre<Plan>(
   ['deleteOne', 'deleteMany', 'findOneAndDelete'],
   deleteLinkedReferences,
@@ -43,20 +42,9 @@ export class Plan extends Model implements PlanMethods {
   @prop({ ref: 'Training', required: true })
   training: Ref<Training, string>;
 
-  @Field(() => Boolean, {
-    description: '완료 여부',
-    defaultValue: false,
-  })
-  @prop({ type: Boolean, default: false })
-  complete: boolean;
-
   @Field(() => [Volume], { description: '볼륨', defaultValue: [] })
   @prop({ ref: 'Volume', default: [] })
   volumes: Ref<Volume>[];
-
-  @Field(() => Float, { description: '1rm', defaultValue: 0 })
-  @prop({ type: Number, default: 0 })
-  oneRM: number;
 
   checkPermission(
     this: DocumentType<Plan, PlanQueryHelpers>,

@@ -13,7 +13,6 @@ export const PlanFactory: (input?: Partial<PlanInput>) => Promise<PlanInput> =
         training: (
           await TrainingModel.create(TrainingFactory())
         )._id.toHexString(),
-        complete: faker.datatype.boolean(),
         volumes: [...Array(faker.datatype.number(10))].map(() =>
           VolumeFactory(),
         ),
