@@ -40,7 +40,7 @@ describe('여러 개의 운동 계획 생성 및 수정', () => {
     const { errors } = await graphql(
       multipleCreateOrUpdatePlansMutation,
       {
-        inputs: [{ _id: plan._id.toHexString() }],
+        inputs: [{ ...(await PlanFactory()), _id: plan._id.toHexString() }],
       },
       token,
     );
@@ -196,6 +196,7 @@ describe('여러 개의 운동 계획 생성 및 수정', () => {
       {
         inputs: [
           {
+            ...(await PlanFactory()),
             _id: plan._id.toHexString(),
             volumes: [VolumeFactory()],
           },

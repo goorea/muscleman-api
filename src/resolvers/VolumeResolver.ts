@@ -47,7 +47,7 @@ export class VolumeResolver implements ResolverInterface<Volume> {
         Promise.all(
           plan.volumes.map(volume =>
             VolumeModel.findById(volume?._id)
-              .orFail(new DocumentNotFoundError())
+              .orFail(new DocumentNotFoundError('Volume', volume?._id))
               .exec(),
           ),
         ),

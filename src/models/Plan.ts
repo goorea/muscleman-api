@@ -24,6 +24,8 @@ import { deleteLinkedReferences } from './hooks/plan-hooks';
 import { PlanMethods, PlanQueryHelpers } from './types/Plan';
 import { UserQueryHelpers } from './types/User';
 
+import ObjectId = mongoose.Types.ObjectId;
+
 @pre<Plan>(
   ['deleteOne', 'deleteMany', 'findOneAndDelete'],
   deleteLinkedReferences,
@@ -83,7 +85,7 @@ export class Plan extends Model implements PlanMethods {
     user: DocumentType<User, UserQueryHelpers>,
     input: PlanInput,
   ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
-    const _id = new mongoose.Types.ObjectId();
+    const _id = new ObjectId();
 
     return await this.create({
       ...input,
@@ -106,23 +108,19 @@ export class Plan extends Model implements PlanMethods {
   static async updateOneWithVolumes(
     this: ReturnModelType<typeof Plan>,
     user: DocumentType<User, UserQueryHelpers>,
-    _id: mongoose.Types.ObjectId,
+    _id: ObjectId,
     input: PlanInput,
   ): Promise<DocumentType<Plan, PlanQueryHelpers>> {
     const plan = await this.findById(_id)
       .orFail(new DocumentNotFoundError())
       .exec();
+    const inputVolumesIds = input.volumes?.map(({ _id }) => String(_id)) || [];
 
     // 삭제
     await Promise.all(
-      plan.volumes.map(async volume => {
-        if (
-          volume &&
-          input.volumes?.every(
-            _volume => !_volume._id || _volume._id !== volume._id,
-          )
-        ) {
-          return VolumeModel.deleteOne({ _id: volume._id });
+      (plan.volumes as ObjectId[]).map(async volume => {
+        if (volume && !inputVolumesIds.includes(volume.toHexString())) {
+          return VolumeModel.deleteOne({ _id: volume });
         }
 
         return Promise.resolve();

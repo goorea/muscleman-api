@@ -11,15 +11,15 @@ export class PlanInput {
   @Field(() => ID, { nullable: true })
   _id?: mongoose.Types.ObjectId;
 
-  @Field(() => Date, { description: '운동 날짜', nullable: true })
+  @Field(() => Date, { description: '운동 날짜' })
   @IsDate()
   @MinDate(PlanLimit.plannedAt.minDate)
-  plannedAt?: string;
+  plannedAt: string;
 
-  @Field(() => ID, { description: '운동종목', nullable: true })
-  training?: string;
+  @Field(() => ID, { description: '운동종목' })
+  training: string;
 
-  @Field(() => [VolumeInput], { description: '볼륨', nullable: true })
+  @Field(() => [VolumeInput], { description: '볼륨' })
   @ValidateNested()
-  volumes?: VolumeInput[];
+  volumes: VolumeInput[];
 }
