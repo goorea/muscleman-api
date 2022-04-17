@@ -42,9 +42,7 @@ export class TrainingResolver {
   async deleteTraining(
     @Arg('_id') _id: mongoose.Types.ObjectId,
   ): Promise<boolean> {
-    await TrainingModel.findByIdAndDelete(_id)
-      .orFail(new DocumentNotFoundError())
-      .exec();
+    await TrainingModel.findOneAndDelete({ _id });
 
     return true;
   }

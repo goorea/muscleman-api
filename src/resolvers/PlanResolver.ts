@@ -63,11 +63,11 @@ export class PlanResolver implements ResolverInterface<Plan> {
       throw new AuthenticationError();
     }
 
-    await (
+    (
       await PlanModel.findById(_id).orFail(new DocumentNotFoundError()).exec()
-    )
-      .checkPermission(user)
-      .deleteOne();
+    ).checkPermission(user);
+
+    await PlanModel.findOneAndDelete({ _id });
 
     return true;
   }
