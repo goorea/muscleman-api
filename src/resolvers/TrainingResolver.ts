@@ -24,6 +24,14 @@ export class TrainingResolver {
     return TrainingModel.create(input);
   }
 
+  @Mutation(() => [Training], { description: '여러개의 운동종목 추가' })
+  @Authorized(Role.ADMIN)
+  async multipleCreateTrainings(
+    @Arg('inputs', () => [CreateTrainingInput]) inputs: CreateTrainingInput[],
+  ): Promise<DocumentType<Training, TrainingQueryHelpers>[]> {
+    return Promise.all(inputs.map(input => TrainingModel.create(input)));
+  }
+
   @Mutation(() => Boolean, { description: '운동종목 수정' })
   @Authorized(Role.ADMIN)
   async updateTraining(
